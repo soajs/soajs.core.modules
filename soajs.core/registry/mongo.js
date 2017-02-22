@@ -1,7 +1,7 @@
 'use strict';
 var fs = require('fs');
 var Mongo = require('../../soajs.mongo');
-var regFile = (process.env.SOAJS_PROFILE || __dirname + "/../../../profiles/single.js");
+var regFile = (process.env.SOAJS_PROFILE || __dirname + "/../../profiles/single.js");
 var mongo;
 var environmentCollectionName = 'environment';
 var hostCollectionName = 'hosts';
