@@ -46,6 +46,7 @@
     "grunt-istanbul": "0.7.2",
     "grunt-coveralls": "1.0.1",
     "request": "2.79.0",
+    "shelljs": "0.7.5",
     "soajs.mongodb.data": "0.2.*"
   }
 }
