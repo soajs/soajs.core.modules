@@ -35,4 +35,26 @@ describe("testing registry functionality", function () {
             done();
         });
     });
+    it ("reLoad registry", function (done) {
+        core.registry.reload({
+            "serviceName": param.serviceName,
+            "serviceGroup": param.serviceGroup,
+            "serviceVersion": param.serviceVersion,
+            "designatedPort": param.servicePort,
+            "extKeyRequired": param.extKeyRequired,
+            "requestTimeout": param.requestTimeout,
+            "requestTimeoutRenewal": param.requestTimeoutRenewal,
+            "awareness": param.awareness,
+            "serviceIp": param.serviceIp,
+        }, function (err, reg) {
+            console.log(reg);
+            done();
+        });
+    });
+    it ("loadOtherEnvControllerHosts registry", function (done) {
+        core.registry.loadOtherEnvControllerHosts(function (err, reg) {
+            console.log(reg);
+            done();
+        });
+    });
 });
