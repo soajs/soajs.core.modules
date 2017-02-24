@@ -1,6 +1,6 @@
 'use strict';
 var fs = require('fs');
-var regFile = (process.env.SOAJS_PROFILE || __dirname + "/../../../profiles/solo.js");
+var regFile = (process.env.SOAJS_PROFILE || __dirname + "/../../profiles/solo.js");
 
 module.exports = {
     "init": function () {

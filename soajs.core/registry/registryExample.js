@@ -77,7 +77,12 @@ var regExample = {
             headers: 'key,soajsauth,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type',
             maxage: 1728000
         },
-        oauth: {grants: [Object], debug: false},
+        oauth: {
+        	grants: ["password", "refresh_token"],
+	        accessTokenLifetime: 7200,
+	        refreshTokenLifetime: 1209600,
+	        debug: false
+        },
         ports: {controller: 4000, maintenanceInc: 1000, randomInc: 100},
         cookie: {secret: 'this is a secret sentence'},
         session: {

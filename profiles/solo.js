@@ -34,6 +34,8 @@ module.exports = {
                     "password",
                     "refresh_token"
                 ],
+	            "accessTokenLifetime": 7200,
+	            "refreshTokenLifetime": 1209600,
                 "debug": false
             },
             "ports": {
