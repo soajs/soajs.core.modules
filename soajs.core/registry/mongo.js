@@ -140,8 +140,9 @@ module.exports = {
             var obj = {};
             if (envRecord && JSON.stringify(envRecord) !== '{}') {
                 obj['ENV_schema'] = envRecord;
+                return cb(null, obj);
             }
-            return cb(null, obj);
+	        return cb(null, null);
         });
     },
     "loadOtherEnvHosts": function (param, cb) {
