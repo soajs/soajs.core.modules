@@ -12,10 +12,10 @@ module.exports = {
     "getRefreshToken": function (bearerToken, cb) {
         return cb(false, false);
     },
-    "saveAccessToken": function (accessToken, clientId, expires, userId, cb) {
+    "saveAccessToken": function (accessToken, clientId, expires, user, cb) {
         return cb(false);
     },
-    "saveRefreshToken": function (refreshToken, clientId, expires, userId, cb) {
+    "saveRefreshToken": function (refreshToken, clientId, expires, user, cb) {
         return cb(false);
     },
 

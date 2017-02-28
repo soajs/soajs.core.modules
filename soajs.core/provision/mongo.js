@@ -55,12 +55,12 @@ module.exports = {
             }
         });
     },
-    "saveAccessToken": function (accessToken, clientId, expires, userId, cb) {
+    "saveAccessToken": function (accessToken, clientId, expires, user, cb) {
         var tokenRecord = {
             type: "accessToken",
             token: accessToken,
             clientId: clientId,
-            userId: userId,
+            user: user,
             env: regEnvironment,
             expires: expires
         };
@@ -68,12 +68,12 @@ module.exports = {
             return cb(err);
         });
     },
-    "saveRefreshToken": function (refreshToken, clientId, expires, userId, cb) {
+    "saveRefreshToken": function (refreshToken, clientId, expires, user, cb) {
         var tokenRecord = {
             type: "refreshToken",
             token: refreshToken,
             clientId: clientId,
-            userId: userId,
+            user: user,
             env: regEnvironment,
             expires: expires
         };

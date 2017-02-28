@@ -214,11 +214,11 @@ var provision = {
         "getRefreshToken": function (bearerToken, cb) {
             core.provision.getRefreshToken(bearerToken, cb);
         },
-        "saveAccessToken": function (accessToken, clientId, expires, userId, cb) {
-            core.provision.saveAccessToken(accessToken, clientId, expires, userId, cb);
+        "saveAccessToken": function (accessToken, clientId, expires, user, cb) {
+            core.provision.saveAccessToken(accessToken, clientId, expires, user, cb);
         },
-        "saveRefreshToken": function (refreshToken, clientId, expires, userId, cb) {
-            core.provision.saveRefreshToken(refreshToken, clientId, expires, userId, cb);
+        "saveRefreshToken": function (refreshToken, clientId, expires, user, cb) {
+            core.provision.saveRefreshToken(refreshToken, clientId, expires, user, cb);
         },
         "getUser": function (username, password, callback) {
             callback(false, false);

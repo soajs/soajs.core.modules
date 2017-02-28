@@ -22,11 +22,11 @@ var provision = {
     "getRefreshToken": function (bearerToken, cb) {
         return provision.model.getRefreshToken(bearerToken, cb);
     },
-    "saveAccessToken": function (accessToken, clientId, expires, userId, cb) {
-        return provision.model.saveAccessToken(accessToken, clientId, expires, userId, cb);
+    "saveAccessToken": function (accessToken, clientId, expires, user, cb) {
+        return provision.model.saveAccessToken(accessToken, clientId, expires, user, cb);
     },
-    "saveRefreshToken": function (refreshToken, clientId, expires, userId, cb) {
-        return provision.model.saveRefreshToken(refreshToken, clientId, expires, userId, cb);
+    "saveRefreshToken": function (refreshToken, clientId, expires, user, cb) {
+        return provision.model.saveRefreshToken(refreshToken, clientId, expires, user, cb);
     },
 
     "getPackages": function (cb) {
