@@ -21,7 +21,7 @@ function EsDriver(configuration) {
             self.config.extraParam.apiVersion = localConfig.apiVersion;
         }
     }
-console.log (self.config)
+
     self.db = null;
 
 	//initialize empty connection caching object

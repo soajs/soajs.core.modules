@@ -627,8 +627,6 @@ MongoDriver.prototype.distinctStream = function (collectionName, fieldName, crit
                     args.push(oneOption);
                 }
             }
-
-            console.log(args);
         }
 
         var batchSize = 0;
