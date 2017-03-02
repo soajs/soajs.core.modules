@@ -49,6 +49,6 @@
     "request": "2.79.0",
     "shelljs": "0.7.5",
     "soajs.core.libs" : "git+https://github.com/soajs/soajs.core.libs.git#develop",
-    "soajs.mongodb.data": "0.2.*",
+    "soajs.mongodb.data": "0.2.*"
   }
 }
