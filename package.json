@@ -27,12 +27,13 @@
     "handlebars": "4.0.6",
     "jsonschema": "1.1.1",
     "merge": "1.2.0",
-    "mongodb": "2.1.21",
+    "mongodb": "2.2.*",
     "nodemailer": "1.11.0",
     "nodemailer-direct-transport": "3.3.2",
     "nodemailer-sendmail-transport": "1.0.0",
     "nodemailer-smtp-transport": "2.7.2",
     "object-hash": "1.1.5",
+    "request": "2.79.0",
     "soajs.core.libs" : "git+https://github.com/soajs/soajs.core.libs.git#develop"
   },
   "devDependencies": {
@@ -47,7 +48,6 @@
     "grunt-istanbul": "0.7.2",
     "grunt-coveralls": "1.0.1",
     "mocha": "^1.20.0",
-    "request": "2.79.0",
     "shelljs": "0.7.5",
     "soajs.mongodb.data": "0.2.*"
   }
