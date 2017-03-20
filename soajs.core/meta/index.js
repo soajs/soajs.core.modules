@@ -9,9 +9,12 @@ module.exports = {
 				"servers": metaDB[systemName].servers,
 				"credentials": metaDB[systemName].credentials,
 				"streaming": metaDB[systemName].streaming,
-				"URLParam": metaDB[systemName].URLParam,
-				"extraParam": metaDB[systemName].extraParam
+				"URLParam": metaDB[systemName].URLParam
 			};
+			
+			if(metaDB[systemName].extraParam){
+				dbConfig["extraParam"] = metaDB[systemName].extraParam;
+			}
 		}
 		return dbConfig;
 	}

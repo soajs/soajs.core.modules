@@ -19,19 +19,8 @@ describe("core meta tests", function() {
 			"credentials": "",
 			"streaming": {},
 			"URLParam": {
-				"connectTimeoutMS": 0,
-				"socketTimeoutMS": 0,
-				"maxPoolSize": 5,
-				"wtimeoutMS": 0,
-				"slaveOk": true
-			},
-			"extraParam": {
-				"db": {
-					"native_parser": true
-				},
-				"server": {
-					"auto_reconnect": true
-				}
+				"poolSize": 5,
+				"autoReconnect": true
 			}
 		}
 	};
@@ -42,6 +31,7 @@ describe("core meta tests", function() {
 	it("success - should return meta object", function(done) {
 		var metaDataResult = coreMeta.tenantDB(metaData, systemName, tenantCode);
 		assert.ok(metaDataResult);
+		
 		assert.deepEqual(metaDataResult, {
 			name: 'TEST_urac',
 			prefix: 'testdb_',
@@ -49,15 +39,8 @@ describe("core meta tests", function() {
 			credentials: '',
 			streaming: {},
 			URLParam: {
-				connectTimeoutMS: 0,
-				socketTimeoutMS: 0,
-				maxPoolSize: 5,
-				wtimeoutMS: 0,
-				slaveOk: true
-			},
-			extraParam: {
-				db: {native_parser: true},
-				server: {auto_reconnect: true}
+				"poolSize": 5,
+				"autoReconnect": true
 			}
 		});
 		done();
