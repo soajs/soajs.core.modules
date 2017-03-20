@@ -896,6 +896,11 @@ function constructMongoLink(params) {
 			}
 		}
 		
+		delete options.maxPoolSize;
+		delete options.wtimeoutMS;
+		delete options.slaveOk;
+		delete options.auto_reconnect;
+		
 		config.URLParam = options;
 		delete config.extraParam;
 		return url;
