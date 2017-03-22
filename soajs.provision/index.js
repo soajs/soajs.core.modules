@@ -88,7 +88,7 @@ var provision = {
         if (struct_tenants[tId])
             return cb (null,struct_tenants[tId]);
 
-        core.provision.getTenantData(tId, function (err, tenant) {
+        core.provision.getTenant(tId, function (err, tenant) {
             if (err)
                 return cb(err);
             if (!tenant)
