@@ -64,7 +64,6 @@ describe("mongoStore tests", function() {
 				done();
 			});
 		});
-
 	});
 
 	describe("testing clear & length", function(){
@@ -83,5 +82,212 @@ describe("mongoStore tests", function() {
 			});
 		});
 	});
-
+	
+	describe("testing set", function(){
+		it("success test case", function(done){
+			var session = {
+				cookie: {
+					
+				}
+			};
+			store.set('abcdef1234',session,function(error, response){
+				console.log(error);
+				console.log(response);
+				done();
+			});
+		});
+		
+		it("success test case", function(done){
+			var tomorrow = new Date();
+			tomorrow.setDate(new Date().getDate() + 1);
+			
+			var session = {
+				persistSession: {
+					state :{
+						DONE: false
+					}
+				},
+				cookie: {
+					_expires: tomorrow
+				}
+			};
+			store.set('abcdef1234',session,function(error, response){
+				console.log(error);
+				console.log(response);
+				done();
+			});
+		});
+		
+		it("success test case", function(done){
+			var tomorrow = new Date();
+			tomorrow.setDate(new Date().getDate() + 1);
+			
+			var session = {
+				persistSession: {
+					state :{
+						DONE: false,
+						KEY: true,
+						SERVICE: true,
+						CLIENTINFO: true
+					},
+					holder:{
+						tenant: {
+							"id": '10d2cb5fc04ce51e06000001',
+							"code": "test",
+							"key": "d1eaaf5fdc35c11119330a8a0273fee9",
+							"extKey": "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac"
+						},
+						"product": {
+							"product": "TPROD",
+							"package": "TPROD_BASIC",
+							"appId": "30d2cb5fc04ce51e06000001"
+						},
+						"request": {
+							"service": "urac",
+							"api": "/account/getUser"
+						}
+					}
+				},
+				sessions: {
+					"10d2cb5fc04ce51e06000001": {
+						"urac": null,
+						"clientInfo": {
+							"device": null,
+							"geo": {
+								"ip": "127.0.0.1"
+							},
+							"extKey": "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac"
+						},
+						"keys": {
+							"d1eaaf5fdc35c11119330a8a0273fee9": {
+								"services": {}
+							}
+						}
+					}
+				},
+				cookie: {
+					_expires: tomorrow,
+				}
+			};
+			store.set('abcdef1234',session,function(error, response){
+				console.log(error);
+				console.log(response);
+				done();
+			});
+		});
+		
+		it("success test case", function(done){
+			var tomorrow = new Date();
+			tomorrow.setDate(new Date().getDate() + 1);
+			
+			var session = {
+				persistSession: {
+					state :{
+						DONE: false,
+						TENANT: true,
+						KEY: true,
+						SERVICE: true,
+						CLIENTINFO: true
+					},
+					holder:{
+						tenant: {
+							"id": '10d2cb5fc04ce51e06000001',
+							"code": "test",
+							"key": "d1eaaf5fdc35c11119330a8a0273fee9",
+							"extKey": "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac"
+						},
+						"product": {
+							"product": "TPROD",
+							"package": "TPROD_BASIC",
+							"appId": "30d2cb5fc04ce51e06000001"
+						},
+						"request": {
+							"service": "urac",
+							"api": "/account/getUser"
+						}
+					}
+				},
+				sessions: {
+					"10d2cb5fc04ce51e06000001": {
+						"urac": null,
+						"clientInfo": {
+							"device": null,
+							"geo": {
+								"ip": "127.0.0.1"
+							},
+							"extKey": "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac"
+						},
+						"keys": {
+							"d1eaaf5fdc35c11119330a8a0273fee9": {
+								"services": {}
+							}
+						}
+					}
+				},
+				cookie: {
+					_expires: tomorrow,
+				}
+			};
+			store.set('abcdef1234',session,function(error, response){
+				console.log(error);
+				console.log(response);
+				done();
+			});
+		});
+		
+		it("success test case", function(done){
+			
+			var session = {
+				persistSession: {
+					state :{
+						DONE: false,
+						ALL: false,
+						TENANT: false,
+						KEY: false,
+						SERVICE: true,
+						CLIENTINFO: true
+					},
+					holder:{
+						tenant: {
+							"id": '10d2cb5fc04ce51e06000001',
+							"code": "test",
+							"key": "d1eaaf5fdc35c11119330a8a0273fee9",
+							"extKey": "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac"
+						},
+						"product": {
+							"product": "TPROD",
+							"package": "TPROD_BASIC",
+							"appId": "30d2cb5fc04ce51e06000001"
+						},
+						"request": {
+							"service": "urac",
+							"api": "/account/getUser"
+						}
+					}
+				},
+				sessions: {
+					"10d2cb5fc04ce51e06000001": {
+						"urac": null,
+						"clientInfo": {
+							"device": null,
+							"geo": {
+								"ip": "127.0.0.1"
+							},
+							"extKey": "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac"
+						},
+						"keys": {
+							"d1eaaf5fdc35c11119330a8a0273fee9": {
+								"services": {}
+							}
+						}
+					}
+				}
+			};
+			store.set('abcdef1234',session,function(error, response){
+				console.log(error);
+				console.log(response);
+				done();
+			});
+		});
+	});
 });
