@@ -178,6 +178,68 @@ describe('testing soajs provisioning', function() {
 			});
 		});
 	});
+	
+	describe("getTenantData", function(){
+		it("fail - wrong tId provided", function(done){
+			soajsProvision.getTenantData("10d2cb5fc04ce51e06000010", function(error, info){
+				assert.ok(error);
+				done();
+			});
+		});
+		
+		it("fail - tId provided as null ", function(done){
+			soajsProvision.getTenantData(null, function(error, info){
+				assert.ok(error);
+				done();
+			});
+		});
+		
+		it("success - will return tenant data", function(done){
+			mongo.findOne('tenants', {}, function(error, response) {
+				assert.ifError(error);
+				assert.ok(response);
+				soajsProvision.getTenantData(response._id, function(error, info){
+					assert.ifError(error);
+					assert.ok(info);
+					done();
+				});
+			});
+		});
+	});
+	
+	describe("loadDaemonGrpConf", function(){
+		it("fail - wrong info provided", function(done){
+			soajsProvision.loadDaemonGrpConf('test', null, function(error, info){
+				assert.equal(error, false);
+				assert.ifError(info);
+				done();
+			});
+		});
+		
+		it("success - will return daemon conf", function(done){
+			var document = {
+				"daemonConfigGroup": "testGroup",
+				"daemon": "test",
+				"interval": 200000,
+				"status": 1,
+				"solo": false,
+				"processing": "parallel",
+				"type": "interval",
+				"jobs": {},
+				"order": []
+			};
+			mongo.insert("daemon_grpconf", document, function(error){
+				assert.ifError(error);
+				
+				soajsProvision.loadDaemonGrpConf('testGroup', 'test', function(error, response) {
+					console.log(error, response);
+					assert.ifError(error);
+					assert.ok(response);
+					done();
+				});
+			});
+		});
+	});
 /*
 	describe("testing getTenantKeys", function() {
 

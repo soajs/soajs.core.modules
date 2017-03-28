@@ -152,7 +152,8 @@ var build = {
             }
         }
     },
-    "controllerHosts": function (STRUCT, controllerObj) {
+    
+	"controllerHosts": function (STRUCT, controllerObj) {
         if (STRUCT && Array.isArray(STRUCT) && STRUCT.length > 0) {
             for (var i = 0; i < STRUCT.length; i++) {
                 if (STRUCT[i].name === "controller" && STRUCT[i].env === regEnvironment) {
@@ -223,7 +224,7 @@ var build = {
     },
 
     "buildSpecificRegistry": function (param, registry, registryDBInfo, callback) {
-
+	    
         function resume(what) {
             if (!process.env.SOAJS_DEPLOY_HA)
                 build.controllerHosts(registryDBInfo.ENV_hosts, registry["services"].controller);

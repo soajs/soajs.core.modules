@@ -221,24 +221,6 @@ function getRequest(session) {
  * @param session
  * @returns {*}
  */
-function getProduct(session) {
-    var product = null;
-    if (session && session.persistSession && session.persistSession.holder && session.persistSession.holder.product) {
-        if (session.persistSession.holder.product.product && session.persistSession.holder.product.package) {
-            product = {
-                'product': session.persistSession.holder.product.product,
-                'package': session.persistSession.holder.product.package
-            };
-        }
-    }
-    return product;
-}
-
-/**
- *
- * @param session
- * @returns {*}
- */
 function getTenant(session) {
     var tenant = null;
     if (session && session.persistSession && session.persistSession.holder && session.persistSession.holder.tenant) {
@@ -274,9 +256,10 @@ function newDateFromFuture(offset) {
  * @returns {*}
  */
 function serialize(stringify, obj) {
-    if (stringify) {
-        return JSON.stringify(obj);
-    }
+	//NOTE: we cannot stringify the session object. we need to keep it an object in mongo in order to support multi tenancy in the set method below
+    // if (stringify) {
+    //     return JSON.stringify(obj);
+    // }
     return obj;
 }
 

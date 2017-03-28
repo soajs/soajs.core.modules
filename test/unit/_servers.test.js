@@ -19,6 +19,7 @@ describe("importing sample data", function () {
     after(function (done) {
         setTimeout(function () {
             console.log('test data imported.');
+            require("./core.index.test.js");
             require("./core.registry.test.js");
             require("./core.email.test.js");
             require("./core.error.test.js");
@@ -31,8 +32,8 @@ describe("importing sample data", function () {
             require("./soajs.mongo.test.js");
             require("./soajs.es.test.js");
             require("./soajs.contentbuilder.test.js");
-            require("./soajs.mongoStore.test.js");
             require("./soajs.provision.test.js");
+            require("./soajs.mongoStore.test.js");
             done();
         }, 1000);
     });
