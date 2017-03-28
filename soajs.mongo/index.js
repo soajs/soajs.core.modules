@@ -894,15 +894,16 @@ function constructMongoLink(params) {
 			if(config.extraParam && Object.keys(config.extraParam).length > 0){
 				flatternObject(options, config.extraParam);
 			}
+			
+			delete options.maxPoolSize;
+			delete options.wtimeoutMS;
+			delete options.slaveOk;
+			delete options.auto_reconnect;
+			
+			config.URLParam = options;
+			delete config.extraParam;
 		}
 		
-		delete options.maxPoolSize;
-		delete options.wtimeoutMS;
-		delete options.slaveOk;
-		delete options.auto_reconnect;
-		
-		config.URLParam = options;
-		delete config.extraParam;
 		return url;
 		
 		//flattern extraParams to become one object but priority is for URLParam
