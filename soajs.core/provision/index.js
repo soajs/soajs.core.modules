@@ -32,7 +32,7 @@ var provision = {
     "generateToken": function (cb) {
         //NOTE: map the param of crypro to registry to give flexibility
         crypto.randomBytes(256, function (ex, buffer) {
-            if (ex) return cb(error('server_error'));
+            if (ex) return cb(new Error('Error in Ecrypting Generate Token'));
 
             var token = crypto
                 .createHash('sha1')

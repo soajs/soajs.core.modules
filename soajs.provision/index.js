@@ -197,19 +197,38 @@ var provision = {
     },
     "generateSaveAccessRefreshToken": function (user, req, cb) {
         var userFromAuthorise = auth(req);
-        var clientId = userFromAuthorise.name;
+        var clientId = userFromAuthorise.name || req.soajs.tenant.id.toString();
+        
         provision.oauthModel.generateToken("accessToken", req, function (error, aToken) {
+        	if(error){ return cb(error); }
+        	
             provision.oauthModel.generateToken("refreshToken", req, function (error, rToken) {
+	            if(error){ return cb(error); }
+	            
+	            var registry = core.registry.get();
+                var oauthConfiguration = registry.serviceConfig.oauth;
+	            
+                var now = new Date();
+                var aExpires = new Date(now);
+                aExpires.setSeconds(aExpires.getSeconds() + oauthConfiguration.accessTokenLifetime);
+                
+                var rExpires = new Date(now);
+	            rExpires.setSeconds(rExpires.getSeconds() + oauthConfiguration.refreshTokenLifetime);
 
-                //TODO:
-                // get oauth config from registry
-                // create expires function
-
-                var aExpires = "";
-                var rExpires = "";
-
-                provision.oauthModel.saveAccessToken(aToken, clientId, aExpires, user, function (err) {
-                    provision.oauthModel.saveRefreshToken(rToken, clientId, rExpires, user, cb);
+                provision.oauthModel.saveAccessToken(aToken, clientId, aExpires, user, function (error) {
+	                if(error){ return cb(error); }
+                	
+                    provision.oauthModel.saveRefreshToken(rToken, clientId, rExpires, user, function(error){
+                    	if(error){ return cb(error); }
+                    	
+                    	return cb(null, {
+		                    "token_type": "bearer",
+		                    "access_token": aToken,
+		                    "expires_in": oauthConfiguration.accessTokenLifetime,
+		                    "refresh_token": rToken
+		
+	                    })
+                    });
                 });
             });
         });
