@@ -1,6 +1,7 @@
 'use strict';
 
 var core = require("../soajs.core");
+var auth = require('basic-auth');
 var log = null;
 
 var struct_oauths = {};
@@ -82,11 +83,11 @@ var provision = {
             });
         });
     },
-    "getTenantData" : function (tId, cb){
+    "getTenantData": function (tId, cb) {
         if (!tId)
             return cb(core.error.generate(205));
         if (struct_tenants[tId])
-            return cb (null,struct_tenants[tId]);
+            return cb(null, struct_tenants[tId]);
 
         core.provision.getTenant(tId, function (err, tenant) {
             if (err)
@@ -155,16 +156,16 @@ var provision = {
             log.error("unable to load daemon group config for daemon [" + name + "] and group [" + grp + "]");
             return cb(false, null);
         }
-    },/*
-    "getTenantKeys": function (tId, cb) {
-        core.provision.getTenantKeys(tId, function (err, data) {
-            if (err) {
-                log.error(err);
-                return cb(core.error.generate(202));
-            }
-            return cb(null, data);
-        });
-    },*/
+    }, /*
+     "getTenantKeys": function (tId, cb) {
+     core.provision.getTenantKeys(tId, function (err, data) {
+     if (err) {
+     log.error(err);
+     return cb(core.error.generate(202));
+     }
+     return cb(null, data);
+     });
+     },*/
     "generateInternalKey": function (cb) {
         core.key.generateInternalKey(function (err, intKey) {
             if (err) {
@@ -191,6 +192,25 @@ var provision = {
                     return cb(core.error.generate(203));
                 }
                 return cb(null, extKey);
+            });
+        });
+    },
+    "generateSaveAccessRefreshToken": function (user, req, cb) {
+        var userFromAuthorise = auth(req);
+        var clientId = userFromAuthorise.name;
+        provision.oauthModel.generateToken("accessToken", req, function (error, aToken) {
+            provision.oauthModel.generateToken("refreshToken", req, function (error, rToken) {
+
+                //TODO:
+                // get oauth config from registry
+                // create expires function
+
+                var aExpires = "";
+                var rExpires = "";
+
+                provision.oauthModel.saveAccessToken(aToken, clientId, aExpires, user, function (err) {
+                    provision.oauthModel.saveRefreshToken(rToken, clientId, rExpires, user, cb);
+                });
             });
         });
     },
@@ -222,6 +242,9 @@ var provision = {
         },
         "getUser": function (username, password, callback) {
             callback(false, false);
+        },
+        "generateToken": function (type, req, cb) {
+            core.provision.generateToken(cb);
         }
     }
 };

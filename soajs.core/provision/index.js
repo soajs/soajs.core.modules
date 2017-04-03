@@ -1,4 +1,5 @@
 'use strict';
+var crypto = require('crypto');
 var models = {};
 
 var provision = {
@@ -27,6 +28,19 @@ var provision = {
     },
     "saveRefreshToken": function (refreshToken, clientId, expires, user, cb) {
         return provision.model.saveRefreshToken(refreshToken, clientId, expires, user, cb);
+    },
+    "generateToken": function (cb) {
+        //NOTE: map the param of crypro to registry to give flexibility
+        crypto.randomBytes(256, function (ex, buffer) {
+            if (ex) return cb(error('server_error'));
+
+            var token = crypto
+                .createHash('sha1')
+                .update(buffer)
+                .digest('hex');
+
+            cb(false, token);
+        });
     },
 
     "getPackages": function (cb) {
