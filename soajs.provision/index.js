@@ -197,7 +197,7 @@ var provision = {
     },
     "generateSaveAccessRefreshToken": function (user, req, cb) {
         var userFromAuthorise = auth(req);
-        var clientId = userFromAuthorise.name || req.soajs.tenant.id.toString();
+        var clientId = (userFromAuthorise) ? userFromAuthorise.name : req.soajs.tenant.id.toString();
         
         provision.oauthModel.generateToken("accessToken", req, function (error, aToken) {
         	if(error){ return cb(error); }
