@@ -430,7 +430,7 @@ MongoDriver.prototype.findStream = MongoDriver.prototype.findFieldsStream = func
  *
  * @returns {*}
  */
-MongoDriver.prototype.findAndModify = function (/*collectionName, criteria, sort, updateOps, options, cb*/) {
+MongoDriver.prototype.findAndModify = function (/*collectionName, criteria, updateOps, options, cb*/) {
 	var args = Array.prototype.slice.call(arguments)
 		, collectionName = args.shift()
 		, cb = args[args.length - 1]
@@ -443,7 +443,7 @@ MongoDriver.prototype.findAndModify = function (/*collectionName, criteria, sort
 		if (err) {
 			return cb(err);
 		}
-		self.db.collection(collectionName).findAndModify.apply(self.db.collection(collectionName), args);
+		self.db.collection(collectionName).findOneAndUpdate.apply(self.db.collection(collectionName), args);
 	});
 };
 
@@ -464,7 +464,7 @@ MongoDriver.prototype.findAndRemove = function () {
 		if (err) {
 			return cb(err);
 		}
-		self.db.collection(collectionName).findAndRemove.apply(self.db.collection(collectionName), args);
+		self.db.collection(collectionName).findOneAndDelete.apply(self.db.collection(collectionName), args);
 	});
 };
 

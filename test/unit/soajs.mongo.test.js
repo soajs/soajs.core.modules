@@ -421,7 +421,7 @@ describe("TESTING soajs.mongo", function() {
 		});
 
 		it('success - all working', function(done) {
-			mongo.findAndModify("myCollection", {'a': 'b'}, {'a': 1}, {$set: {'a': 'c'}}, function(error, response) {
+			mongo.findAndModify("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, function(error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
@@ -441,9 +441,13 @@ describe("TESTING soajs.mongo", function() {
 		});
 
 		it('success - all working', function(done) {
-			mongo.findAndRemove("myCollection", {'a': 'b'}, {'a': 1}, function(error, response) {
+			mongo.insert("myCollection", {"f": "e"}, function(error) {
 				assert.ifError(error);
-				done();
+				
+				mongo.findAndRemove("myCollection", {'f': 'e'}, function(error, response) {
+					assert.ifError(error);
+					done();
+				});
 			});
 		});
 	});
