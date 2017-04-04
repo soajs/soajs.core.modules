@@ -336,6 +336,7 @@ MongoDriver.prototype.ensureIndex = function (collectionName, keys, options, cb)
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	displayLog("EnsureIndex is deprecated please use createIndex");
 	connect(self, function (err) {
 		if (err) {
 			if (cb && typeof cb === "function")
@@ -343,6 +344,30 @@ MongoDriver.prototype.ensureIndex = function (collectionName, keys, options, cb)
 		}
 		else
 			self.db.ensureIndex(collectionName, keys, options, cb);
+	});
+};
+
+/**
+ * Creates an index on the specified field if the index does not already exist.
+ *
+ * @param {String} collectionName
+ * @param {Object} keys
+ * @param {Object} options
+ * @param {Function} cb
+ * @returns {*}
+ */
+MongoDriver.prototype.createIndex = function (collectionName, keys, options, cb) {
+	var self = this;
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	connect(self, function (err) {
+		if (err) {
+			if (cb && typeof cb === "function")
+				return cb(err);
+		}
+		else
+			self.db.createIndex(collectionName, keys, options, cb);
 	});
 };
 
@@ -439,6 +464,28 @@ MongoDriver.prototype.findAndModify = function (/*collectionName, criteria, upda
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	displayLog("findAndModify is deprecated please use findOneAndUpdate");
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		self.db.collection(collectionName).findAndModify.apply(self.db.collection(collectionName), args);
+	});
+};
+
+/**
+ *
+ * @returns {*}
+ */
+MongoDriver.prototype.findOneAndUpdate = function (/*collectionName, criteria, updateOps, options, cb*/) {
+	var args = Array.prototype.slice.call(arguments)
+		, collectionName = args.shift()
+		, cb = args[args.length - 1]
+		, self = this;
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -452,6 +499,28 @@ MongoDriver.prototype.findAndModify = function (/*collectionName, criteria, upda
  * @returns {*}
  */
 MongoDriver.prototype.findAndRemove = function () {
+	var args = Array.prototype.slice.call(arguments)
+		, collectionName = args.shift()
+		, cb = args[args.length - 1]
+		, self = this;
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	displayLog("findAndRemove is deprecated please use findOneAndDelete");
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		self.db.collection(collectionName).findAndRemove.apply(self.db.collection(collectionName), args);
+	});
+};
+
+/**
+ *
+ * @returns {*}
+ */
+MongoDriver.prototype.findOneAndDelete = function () {
 	var args = Array.prototype.slice.call(arguments)
 		, collectionName = args.shift()
 		, cb = args[args.length - 1]
@@ -795,24 +864,12 @@ function connect(obj, cb) {
 			return cb(err);
 		} else {
 			db.on('timeout', function () {
-				var logger = core.getLog();
-				if (logger) {
-					logger.warn("Connection To Mongo has timed out!", obj.config.name);
-				}
-				else {
-					console.log("Connection To Mongo has timed out!", obj.config.name);
-				}
+				displayLog("Connection To Mongo has timed out!", obj.config.name);
 				obj.flushDb();
 			});
 			
 			db.on('close', function () {
-				var logger = core.getLog();
-				if (logger) {
-					logger.warn("Connection To Mongo has been closed!", obj.config.name);
-				}
-				else {
-					console.log("Connection To Mongo has been closed!", obj.config.name);
-				}
+				displayLog("Connection To Mongo has been closed!", obj.config.name);
 				obj.flushDb();
 			});
 			
@@ -825,6 +882,16 @@ function connect(obj, cb) {
 			return cb();
 		}
 	});
+}
+
+function displayLog(msg, extra){
+	var logger = core.getLog();
+	if (logger) {
+		logger.warn(msg, extra || "");
+	}
+	else {
+		console.log(msg, extra || "");
+	}
 }
 
 /**

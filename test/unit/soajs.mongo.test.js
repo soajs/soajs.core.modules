@@ -217,6 +217,26 @@ describe("TESTING soajs.mongo", function() {
 			});
 		});
 	});
+	
+	describe("testing create index", function() {
+		
+		it("fail - no collectionName", function(done) {
+			mongo.createIndex(null, null, null, function(error) {
+				assert.ok(error);
+				assert.ok(error.message);
+				//assert.equal(error.message, 'Wrong input param form mongo function');
+				done();
+			});
+		});
+		
+		it('success - all working', function(done) {
+			mongo.createIndex("myCollection", {'password': 1}, null, function(error, response) {
+				assert.ifError(error);
+				assert.ok(response);
+				done();
+			});
+		});
+	});
 
 	describe("testing get collection", function() {
 
@@ -421,13 +441,33 @@ describe("TESTING soajs.mongo", function() {
 		});
 
 		it('success - all working', function(done) {
-			mongo.findAndModify("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, function(error, response) {
+			mongo.findAndModify("myCollection", {'a': 'b'}, {'a': 1}, {$set: {'a': 'c'}}, function(error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
 			});
 		});
 
+	});
+	
+	describe("testing find one and update", function() {
+		it("fail - no collectionName", function(done) {
+			mongo.findOneAndUpdate(null, function(error) {
+				assert.ok(error);
+				assert.ok(error.message);
+				//assert.equal(error.message, 'Wrong input param form mongo function');
+				done();
+			});
+		});
+		
+		it('success - all working', function(done) {
+			mongo.findOneAndUpdate("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, function(error, response) {
+				assert.ifError(error);
+				assert.ok(response);
+				done();
+			});
+		});
+		
 	});
 
 	describe("testing find and remove", function() {
@@ -441,10 +481,28 @@ describe("TESTING soajs.mongo", function() {
 		});
 
 		it('success - all working', function(done) {
+			mongo.findAndRemove("myCollection", {'a': 'b'}, {'a': 1}, function(error, response) {
+				assert.ifError(error);
+				done();
+			});
+		});
+	});
+	
+	describe("testing find one and delete", function() {
+		it("fail - no collectionName", function(done) {
+			mongo.findOneAndDelete(null, function(error) {
+				assert.ok(error);
+				assert.ok(error.message);
+				//assert.equal(error.message, 'Wrong input param form mongo function');
+				done();
+			});
+		});
+		
+		it('success - all working', function(done) {
 			mongo.insert("myCollection", {"f": "e"}, function(error) {
 				assert.ifError(error);
 				
-				mongo.findAndRemove("myCollection", {'f': 'e'}, function(error, response) {
+				mongo.findOneAndDelete("myCollection", {'f': 'e'}, function(error, response) {
 					assert.ifError(error);
 					done();
 				});
