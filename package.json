@@ -28,7 +28,7 @@
     "handlebars": "4.0.6",
     "jsonschema": "1.1.1",
     "merge": "1.2.0",
-    "mongodb": "2.1.21",
+    "mongodb": "2.2.*",
     "nodemailer": "1.11.0",
     "nodemailer-direct-transport": "3.3.2",
     "nodemailer-sendmail-transport": "1.0.0",

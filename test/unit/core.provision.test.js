@@ -17,19 +17,8 @@ describe("core provision tests", function() {
 		],
 		"credentials": null,
 		"URLParam": {
-			"connectTimeoutMS": 0,
-			"socketTimeoutMS": 0,
-			"maxPoolSize": 5,
-			"wtimeoutMS": 0,
-			"slaveOk": true
-		},
-		"extraParam": {
-			"db": {
-				"native_parser": true
-			},
-			"server": {
-				"auto_reconnect": true
-			}
+			"poolSize": 5,
+			"autoReconnect": true
 		}
 	};
 /*

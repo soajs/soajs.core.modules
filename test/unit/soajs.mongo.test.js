@@ -21,20 +21,8 @@ describe("testing connection", function() {
 				'password': 'admin'
 			},
 			"URLParam": {
-				"connectTimeoutMS": 0,
-				"socketTimeoutMS": 0,
-				"maxPoolSize": 5,
-				"w": 1,
-				"wtimeoutMS": 0,
-				"slaveOk": true
-			},
-			"extraParam": {
-				"db": {
-					"native_parser": true
-				},
-				"server": {
-					"auto_reconnect": true
-				}
+				"poolSize": 5,
+				"autoReconnect": true
 			},
 			'store': {},
 			"collection": "sessions",
@@ -124,20 +112,8 @@ describe("testing connection", function() {
 			],
 			"credentials": null,
 			"URLParam": {
-				"connectTimeoutMS": 0,
-				"socketTimeoutMS": 0,
-				"maxPoolSize": 5,
-				"w": 1,
-				"wtimeoutMS": 0,
-				"slaveOk": true
-			},
-			"extraParam": {
-				"db": {
-					"native_parser": true
-				},
-				"server": {
-					"auto_reconnect": true
-				}
+				"poolSize": 5,
+				"autoReconnect": true
 			},
 			'store': {},
 			"collection": "sessions",
@@ -166,22 +142,10 @@ describe("testing connection", function() {
                 }
             ],
             "credentials": null,
-            "URLParam": {
-                "connectTimeoutMS": 0,
-                "socketTimeoutMS": 0,
-                "maxPoolSize": 5,
-                "w": 1,
-                "wtimeoutMS": 0,
-                "slaveOk": true
-            },
-            "extraParam": {
-                "db": {
-                    "native_parser": true
-                },
-                "server": {
-                    "auto_reconnect": true
-                }
-            },
+	        "URLParam": {
+		        "poolSize": 5,
+		        "autoReconnect": true
+	        },
             'store': {},
             "collection": "sessions",
             'stringify': false,
@@ -211,20 +175,8 @@ describe("TESTING soajs.mongo", function() {
 			],
 			"credentials": null,
 			"URLParam": {
-				"connectTimeoutMS": 0,
-				"socketTimeoutMS": 0,
-				"maxPoolSize": 5,
-				"w": 1,
-				"wtimeoutMS": 0,
-				"slaveOk": true
-			},
-			"extraParam": {
-				"db": {
-					"native_parser": true
-				},
-				"server": {
-					"auto_reconnect": true
-				}
+				"poolSize": 5,
+				"autoReconnect": true
 			},
 			'store': {},
 			"collection": "sessions",
@@ -259,6 +211,26 @@ describe("TESTING soajs.mongo", function() {
 
 		it('success - all working', function(done) {
 			mongo.ensureIndex("myCollection", {'username': 1}, null, function(error, response) {
+				assert.ifError(error);
+				assert.ok(response);
+				done();
+			});
+		});
+	});
+	
+	describe("testing create index", function() {
+		
+		it("fail - no collectionName", function(done) {
+			mongo.createIndex(null, null, null, function(error) {
+				assert.ok(error);
+				assert.ok(error.message);
+				//assert.equal(error.message, 'Wrong input param form mongo function');
+				done();
+			});
+		});
+		
+		it('success - all working', function(done) {
+			mongo.createIndex("myCollection", {'password': 1}, null, function(error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
@@ -477,6 +449,26 @@ describe("TESTING soajs.mongo", function() {
 		});
 
 	});
+	
+	describe("testing find one and update", function() {
+		it("fail - no collectionName", function(done) {
+			mongo.findOneAndUpdate(null, function(error) {
+				assert.ok(error);
+				assert.ok(error.message);
+				//assert.equal(error.message, 'Wrong input param form mongo function');
+				done();
+			});
+		});
+		
+		it('success - all working', function(done) {
+			mongo.findOneAndUpdate("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, function(error, response) {
+				assert.ifError(error);
+				assert.ok(response);
+				done();
+			});
+		});
+		
+	});
 
 	describe("testing find and remove", function() {
 		it("fail - no collectionName", function(done) {
@@ -492,6 +484,28 @@ describe("TESTING soajs.mongo", function() {
 			mongo.findAndRemove("myCollection", {'a': 'b'}, {'a': 1}, function(error, response) {
 				assert.ifError(error);
 				done();
+			});
+		});
+	});
+	
+	describe("testing find one and delete", function() {
+		it("fail - no collectionName", function(done) {
+			mongo.findOneAndDelete(null, function(error) {
+				assert.ok(error);
+				assert.ok(error.message);
+				//assert.equal(error.message, 'Wrong input param form mongo function');
+				done();
+			});
+		});
+		
+		it('success - all working', function(done) {
+			mongo.insert("myCollection", {"f": "e"}, function(error) {
+				assert.ifError(error);
+				
+				mongo.findOneAndDelete("myCollection", {'f': 'e'}, function(error, response) {
+					assert.ifError(error);
+					done();
+				});
 			});
 		});
 	});
@@ -705,20 +719,8 @@ describe("TESTING soajs.mongo versioning", function() {
 			],
 			"credentials": null,
 			"URLParam": {
-				"connectTimeoutMS": 0,
-				"socketTimeoutMS": 0,
-				"maxPoolSize": 5,
-				"w": 1,
-				"wtimeoutMS": 0,
-				"slaveOk": true
-			},
-			"extraParam": {
-				"db": {
-					"native_parser": true
-				},
-				"server": {
-					"auto_reconnect": true
-				}
+				"poolSize": 5,
+				"autoReconnect": true
 			},
 			'store': {},
 			"collection": "sessions",
