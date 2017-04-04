@@ -17,11 +17,7 @@ module.exports = {
         }
     },
     "URLParam": {
-        "maxPoolSize": 2
-    },
-    "extraParam": {
-        "db": {
-            "bufferMaxEntries": 0
-        }
+        "maxPoolSize": 2,
+        "bufferMaxEntries": 0
     }
 };
