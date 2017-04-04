@@ -251,62 +251,6 @@ describe('testing soajs provisioning', function() {
 			});
 		});
 	});
-/*
-	describe("testing getTenantKeys", function() {
-
-		it("fail - no param given", function(done) {
-			soajsProvision.getTenantKeys("10d2cb5fc04ce51e06000010", function(error, data) {
-				assert.ifError(error);
-				assert.ok(!data);
-				done();
-			});
-		});
-
-		it("success - will return data", function(done) {
-			soajsProvision.getTenantKeys("10d2cb5fc04ce51e06000001", function(error, data) {
-				assert.ifError(error);
-				assert.ok(data);
-				//console.log(data);
-				done();
-			});
-		});
-
-		it("success - no param given", function(done) {
-			soajsProvision.getTenantKeys(null, function(error, data) {
-				assert.ifError(error);
-				assert.ok(data);
-				done();
-			});
-		});
-	});
-	*/
-/*
-	describe("getOAuthToken", function() {
-		it("fail - no params", function(done) {
-			soajsProvision.getOauthToken("", function(error, response) {
-				assert.ifError(error);
-				assert.ok(!response);
-				done();
-			});
-		});
-
-		it("fail - wrong params", function(done) {
-			soajsProvision.getOauthToken("abcd", function(error, response) {
-				assert.ifError(error);
-				assert.ok(!response);
-				done();
-			});
-		});
-
-		it("success - correct params", function(done) {
-			soajsProvision.getOauthToken("60cf8406626ac96261b47a9126f76241e8384629", function(error, response) {
-				assert.ifError(error);
-				assert.ok(!response);
-				done();
-			});
-		});
-	});
-	*/
 });
 
 describe("oauthModel tests", function() {
@@ -437,13 +381,73 @@ describe("oauthModel tests", function() {
 	describe("getUser tests", function(){
 
 		it("success tests", function(done){
-			soajsProvision.oauthModel.getUser(null, null, function(err, token){
+			soajsProvision.oauthModel.getUser(null, null, function(err, users){
 				assert.ok(!err);
-				//assert.ok(!token);
 				done();
 			});
 		});
 	});
+});
 
-
+describe("testing generate tokens", function(){
+	
+	it("success - should generate tokens", function(done){
+		var req = {
+			headers :{
+				
+			},
+			soajs:{
+				tenant:{
+					id: "10d2cb5fc04ce51e06000001"
+				}
+			}
+		};
+		
+		var user = {
+			"_id": '58cff717423cbb6425df4e3f',
+			"locked": true,
+			"username": "owner",
+			"firstName": "owner",
+			"lastName": "owner",
+			"email": "me@localhost.com",
+			"ts": 1490024215844,
+			"status": "active",
+			"profile": {},
+			"groups": [
+				"owner"
+			],
+			"config": {
+				"packages": {},
+				"keys": {}
+			},
+			"tenant": {
+				"id": "10d2cb5fc04ce51e06000001",
+				"code": "DBTN"
+			},
+			"groupsConfig": [
+				{
+					"_id": '58cff718423cbb6425df4e40',
+					"locked": true,
+					"code": "owner",
+					"name": "Owner Group",
+					"description": "this is the owner group that owns the dashboard",
+					"tenant": {
+						"id": "10d2cb5fc04ce51e06000001",
+						"code": "DBTN"
+					}
+				}
+			],
+			"loginMode": "urac",
+			"id": "58cff717423cbb6425df4e3f"
+		};
+		
+		soajsProvision.generateSaveAccessRefreshToken(user, req, function(err, response){
+			assert.ifError(err);
+			assert.ok(response);
+			assert.ok(response.access_token);
+			assert.ok(response.refresh_token);
+			
+			done();
+		});
+	});
 });
