@@ -35,7 +35,7 @@
     "nodemailer-smtp-transport": "2.7.2",
     "object-hash": "1.1.5",
     "request": "2.79.0",
-    "soajs.core.libs" : "soajs/soajs.core.libs.git#develop"
+    "soajs.core.libs" : "1.*"
   },
   "devDependencies": {
     "express-session": "1.14.2",
@@ -50,6 +50,6 @@
     "grunt-coveralls": "1.0.1",
     "mocha": "^1.20.0",
     "shelljs": "0.7.5",
-    "soajs.mongodb.data": "soajs/soajs.mongodb.data.git#develop"
+    "soajs.mongodb.data": "1.*"
   }
 }
