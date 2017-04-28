@@ -255,8 +255,7 @@ var build = {
                 return callback(null);
             }
         }
-
-        if (param.serviceName === "controller") {
+        function buildAll (){
             build.allServices(registryDBInfo.services_schema, registry["services"]);
 
             if (!process.env.SOAJS_DEPLOY_HA)
@@ -266,7 +265,10 @@ var build = {
 
             if (!process.env.SOAJS_DEPLOY_HA)
                 build.servicesHosts(registryDBInfo.ENV_hosts, registry["daemons"]);
+        }
 
+        if (param.serviceName === "controller") {
+            buildAll();
             return resume("services");
         }
         else {
@@ -277,6 +279,8 @@ var build = {
                     'port': param.designatedPort,
                     'version': param.serviceVersion,
                 };
+                if (process.env.SOAJS_REGISTRY_BUILDALL)
+                    buildAll();
                 if (param.reload) {
                     return resume("daemons");
                 }
@@ -311,6 +315,8 @@ var build = {
                     'extKeyRequired': param.extKeyRequired || false,
                     'awareness': param.awareness
                 };
+                if (process.env.SOAJS_REGISTRY_BUILDALL)
+                    buildAll();
                 if (param.reload)
                     return resume("services");
                 else {
