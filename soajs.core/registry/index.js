@@ -103,7 +103,6 @@ var build = {
                             servicesObj[STRUCT[i].name].version = i_ver;
                         if (i_ver >= servicesObj[STRUCT[i].name].version) {
                             servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[ver].extKeyRequired || false;
-                            servicesObj[STRUCT[i].name].awareness = servicesObj[STRUCT[i].name].versions[ver].awareness || false;
                         }
                     }
                 }
@@ -152,8 +151,8 @@ var build = {
             }
         }
     },
-    
-	"controllerHosts": function (STRUCT, controllerObj) {
+
+    "controllerHosts": function (STRUCT, controllerObj) {
         if (STRUCT && Array.isArray(STRUCT) && STRUCT.length > 0) {
             for (var i = 0; i < STRUCT.length; i++) {
                 if (STRUCT[i].name === "controller" && STRUCT[i].env === regEnvironment) {
@@ -224,7 +223,7 @@ var build = {
     },
 
     "buildSpecificRegistry": function (param, registry, registryDBInfo, callback) {
-	    
+
         function resume(what) {
             if (!process.env.SOAJS_DEPLOY_HA)
                 build.controllerHosts(registryDBInfo.ENV_hosts, registry["services"].controller);
@@ -255,7 +254,8 @@ var build = {
                 return callback(null);
             }
         }
-        function buildAll (){
+
+        function buildAll() {
             build.allServices(registryDBInfo.services_schema, registry["services"]);
 
             if (!process.env.SOAJS_DEPLOY_HA)
@@ -312,8 +312,7 @@ var build = {
                     'requestTimeoutRenewal': param.requestTimeoutRenewal,
 
                     'version': param.serviceVersion,
-                    'extKeyRequired': param.extKeyRequired || false,
-                    'awareness': param.awareness
+                    'extKeyRequired': param.extKeyRequired || false
                 };
                 if (process.env.SOAJS_REGISTRY_BUILDALL)
                     buildAll();
@@ -332,10 +331,9 @@ var build = {
                     };
                     newServiceObj.versions[param.serviceVersion] = {
                         "extKeyRequired": registry["services"][param.serviceName].extKeyRequired,
-                        "apis": param.apiList,
-                        "awareness": param.awareness
+                        "apis": param.apiList
                     };
-	                
+
                     build.registerNewService(registry.coreDB.provision, newServiceObj, 'services', function (error) {
                         if (error) {
                             throw new Error('Unable to register new service ' + param.serviceName + ' : ' + error.message);
