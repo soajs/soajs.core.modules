@@ -331,11 +331,11 @@ var build = {
                     };
                     newServiceObj.versions[param.serviceVersion] = {
                         "extKeyRequired": registry["services"][param.serviceName].extKeyRequired,
-                        "urac": registry["services"][param.serviceName].urac,
-                        "urac_Profile": registry["services"][param.serviceName].urac_Profile,
-                        "urac_ACL": registry["services"][param.serviceName].urac_ACL,
-                        "provision_ACL": registry["services"][param.serviceName].provision_ACL,
-                        "oauth": registry["services"][param.serviceName].oauth,
+                        "urac": param.urac,
+                        "urac_Profile": param.urac_Profile,
+                        "urac_ACL": param.urac_ACL,
+                        "provision_ACL": param.provision_ACL,
+                        "oauth": param.oauth,
                         "apis": param.apiList
                     };
 
