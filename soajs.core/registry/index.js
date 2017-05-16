@@ -103,6 +103,7 @@ var build = {
                             servicesObj[STRUCT[i].name].version = i_ver;
                         if (i_ver >= servicesObj[STRUCT[i].name].version) {
                             servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[ver].extKeyRequired || false;
+                            servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[ver].oauth || false;
                         }
                     }
                 }
@@ -469,7 +470,8 @@ var registryModule = {
             if (!registry_struct[regEnvironment][what][param.name].versions)
                 registry_struct[regEnvironment][what][param.name].versions = {};
             registry_struct[regEnvironment][what][param.name].versions[param.version] = {
-                "extKeyRequired": param.extKeyRequired
+                "extKeyRequired": param.extKeyRequired,
+	            "oauth": param.oauth
             };
 
             if (!registry_struct[regEnvironment][what][param.name].hosts) {
@@ -592,6 +594,7 @@ var registryModule = {
                     }
                     else {
                         requestOptions.qs.type = "service";
+                        requestOptions.qs.oauth = serviceSRV.oauth;
                         requestOptions.qs.extKeyRequired = serviceSRV.extKeyRequired;
                         requestOptions.qs.requestTimeout = serviceSRV.requestTimeout;
                         requestOptions.qs.requestTimeoutRenewal = serviceSRV.requestTimeoutRenewal;

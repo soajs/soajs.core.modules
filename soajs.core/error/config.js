@@ -14,8 +14,10 @@ module.exports = {
         '133': "The service you are trying to reach is not reachable at this moment.",
         '134': "All requests to the service you are trying to reach are timing out.",
         '135': "Error occurred while redirecting your request to the service",
-        '136': "Controller catched an error while redirecting to service.",
-
+        // '136': "Controller catched an error while redirecting to service.",
+	    '137': "Access Forbidden to requested environment",
+	    '138': "Access Forbidden to requested environment",
+	    '139': "Invalid or no Remote service requested.",
         '14x': "SERVICE CORE",
         '141': "Unable to start the service.",
         '142': "extKeyRequired is ON for this service, Make sure your request is going through soajs.controller and a key is in the header",
@@ -59,6 +61,7 @@ module.exports = {
         '203': 'Unable to generate external key from provided key.',
         '204': 'Unable to generate internal key.',
         '205': 'You need to provide a tenant ID.',
-        '206': "Unable to load provision information for the provided tenant ID."
+	    '206': "Unable to load provision information for the provided tenant ID.",
+	    '207': "Unable to load provisioned information for the provided env code"
     }
 };
