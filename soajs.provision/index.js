@@ -214,10 +214,7 @@ var provision = {
                 
                 var rExpires = new Date(now);
 	            rExpires.setSeconds(rExpires.getSeconds() + oauthConfiguration.refreshTokenLifetime);
-
-	            if(!provision.oauthModel){
-	            	provision.init(req.soajs.registry.coreDB.provision, req.soajs.log);
-	            }
+	            
                 provision.oauthModel.saveAccessToken(aToken, clientId, aExpires, user, function (error) {
 	                if(error){ return cb(error); }
                 	
