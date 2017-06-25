@@ -469,10 +469,24 @@ var registryModule = {
 
             if (!registry_struct[regEnvironment][what][param.name].versions)
                 registry_struct[regEnvironment][what][param.name].versions = {};
-            registry_struct[regEnvironment][what][param.name].versions[param.version] = {
-                "extKeyRequired": param.extKeyRequired,
-	            "oauth": param.oauth
-            };
+            if (registry_struct[regEnvironment][what][param.name].versions[param.version]){
+                registry_struct[regEnvironment][what][param.name].versions[param.version].extKeyRequired = param.extKeyRequired;
+                registry_struct[regEnvironment][what][param.name].versions[param.version].oauth = param.oauth;
+                registry_struct[regEnvironment][what][param.name].versions[param.version].urac = param.urac;
+                registry_struct[regEnvironment][what][param.name].versions[param.version].urac_Profile = param.urac_Profile;
+                registry_struct[regEnvironment][what][param.name].versions[param.version].urac_ACL = param.urac_ACL;
+                registry_struct[regEnvironment][what][param.name].versions[param.version].provision_ACL = param.provision_ACL;
+            }
+            else {
+                registry_struct[regEnvironment][what][param.name].versions[param.version] = {
+                    "extKeyRequired": param.extKeyRequired,
+                    "oauth": param.oauth,
+                    "urac": param.urac,
+                    "urac_Profile": param.urac_Profile,
+                    "urac_ACL": param.urac_ACL,
+                    "provision_ACL": param.provision_ACL
+                };
+            }
 
             if (!registry_struct[regEnvironment][what][param.name].hosts) {
                 registry_struct[regEnvironment][what][param.name].hosts = {};
@@ -594,7 +608,11 @@ var registryModule = {
                     }
                     else {
                         requestOptions.qs.type = "service";
-	                    requestOptions.qs.oauth = serviceSRV.oauth;
+	                    requestOptions.qs.oauth = param.oauth;
+                        requestOptions.qs.urac = param.urac;
+                        requestOptions.qs.urac_Profile = param.urac_Profile;
+                        requestOptions.qs.urac_ACL = param.urac_ACL;
+                        requestOptions.qs.provision_ACL = param.provision_ACL;
                         requestOptions.qs.extKeyRequired = serviceSRV.extKeyRequired;
                         requestOptions.qs.requestTimeout = serviceSRV.requestTimeout;
                         requestOptions.qs.requestTimeoutRenewal = serviceSRV.requestTimeoutRenewal;
