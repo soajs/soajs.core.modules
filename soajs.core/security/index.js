@@ -1,5 +1,5 @@
 'use strict';
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 var authorization = {
 	"setCookie": function(auth, secret, cookieName) {

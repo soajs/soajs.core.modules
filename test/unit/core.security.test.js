@@ -164,7 +164,7 @@ describe("core security tests", function() {
 
 		before(function(done){
 			hashSecurity.init({
-				"hashIterations": 1024,
+				"hashIterations": 15, // this will slow down the brute force attacks
 				"seedLength": 32
 			});
 			done();

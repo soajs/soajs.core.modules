@@ -20,7 +20,7 @@
   "dependencies": {
     "async": "^2.1.4",
     "basic-auth": "*",
-    "bcrypt": "*",
+    "bcryptjs": "*",
     "bunyan": "1.8.5",
     "bunyan-format": "0.2.1",
     "elasticsearch": "12.1.3",
