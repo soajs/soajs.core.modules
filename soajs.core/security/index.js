@@ -117,6 +117,12 @@ var hasher = {
 	},
 
 	"hash" : function() {
+		
+		if(this.config.hashIterations > 32){
+			console.error("Error @ hash: hash iterations set to ["+this.config.hashIterations+"] which is greater than 32 => hash iteration reset to 12");
+			this.config.hashIterations = 12;
+		}
+		
 		var plainText = arguments[0];
 		if(arguments.length === 3 && arguments[1] === true && typeof (arguments[2]) === 'function'){
 			var cb = arguments[2];
