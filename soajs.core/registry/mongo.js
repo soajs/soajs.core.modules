@@ -54,53 +54,53 @@ module.exports = {
             }
             else
                 obj['ENV_schema'] = {};
-
             //build resources plugged for this environment
             mongo.find(resourcesCollectionName, {
-                'created': envCode.toUpperCase(),
-                'plugged': true
+                $or: [
+                    {
+                        'created': envCode.toUpperCase(),
+                        'plugged': true
+                    }, {
+                        'created': "DASHBOARD",
+                        'plugged': true,
+                        'shared': true
+                    }]
             }, function (error, resourcesRecords) {
                 obj['ENV_schema'].resources = {};
                 if (resourcesRecords) {
                     buildResources(obj['ENV_schema'].resources, resourcesRecords, envCode);
                 }
-                //Note: build shared resources
-                mongo.find(resourcesCollectionName, {
-                    'created': "DASHBOARD",
-                    'shared': true
-                }, function (error, sharedResourcesRecords) {
-                    if (sharedResourcesRecords) {
-                        buildResources(obj['ENV_schema'].resources, sharedResourcesRecords, envCode);
+
+                //build custom registry
+
+                mongo.find(servicesCollectionName, function (error, servicesRecords) {
+                    if (error) {
+                        return callback(error);
                     }
-                    mongo.find(servicesCollectionName, function (error, servicesRecords) {
+                    if (servicesRecords && Array.isArray(servicesRecords) && servicesRecords.length > 0) {
+                        obj['services_schema'] = servicesRecords;
+                    }
+                    mongo.find(daemonsCollectionName, function (error, daemonsRecords) {
                         if (error) {
                             return callback(error);
                         }
-                        if (servicesRecords && Array.isArray(servicesRecords) && servicesRecords.length > 0) {
-                            obj['services_schema'] = servicesRecords;
+                        if (servicesRecords && Array.isArray(daemonsRecords) && daemonsRecords.length > 0) {
+                            obj['daemons_schema'] = daemonsRecords;
                         }
-                        mongo.find(daemonsCollectionName, function (error, daemonsRecords) {
-                            if (error) {
-                                return callback(error);
-                            }
-                            if (servicesRecords && Array.isArray(daemonsRecords) && daemonsRecords.length > 0) {
-                                obj['daemons_schema'] = daemonsRecords;
-                            }
-                            if (process.env.SOAJS_DEPLOY_HA) {
+                        if (process.env.SOAJS_DEPLOY_HA) {
+                            return callback(null, obj);
+                        }
+                        else {
+                            mongo.find(hostCollectionName, {'env': envCode}, function (error, hostsRecords) {
+                                if (error) {
+                                    return callback(error);
+                                }
+                                if (hostsRecords && Array.isArray(hostsRecords) && hostsRecords.length > 0) {
+                                    obj['ENV_hosts'] = hostsRecords;
+                                }
                                 return callback(null, obj);
-                            }
-                            else {
-                                mongo.find(hostCollectionName, {'env': envCode}, function (error, hostsRecords) {
-                                    if (error) {
-                                        return callback(error);
-                                    }
-                                    if (hostsRecords && Array.isArray(hostsRecords) && hostsRecords.length > 0) {
-                                        obj['ENV_hosts'] = hostsRecords;
-                                    }
-                                    return callback(null, obj);
-                                });
-                            }
-                        });
+                            });
+                        }
                     });
                 });
             });
