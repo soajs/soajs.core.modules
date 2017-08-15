@@ -27,24 +27,49 @@ var build = {
                 if (Object.hasOwnProperty.call(STRUCT.dbs.databases, dbName)) {
                     var dbRec = STRUCT.dbs.databases[dbName];
                     var dbObj = null;
-                    if (dbRec.cluster && STRUCT.dbs.clusters[dbRec.cluster]) {
+
+                    if (dbRec.cluster) {
+                        var clusterRec = {};
+                        if (STRUCT.dbs.clusters && STRUCT.dbs.clusters[dbRec.cluster])
+                            clusterRec = STRUCT.dbs.clusters[dbRec.cluster];
+                        else if (STRUCT.resources && STRUCT.resources.cluster && STRUCT.resources.cluster[dbRec.cluster])
+                            clusterRec = STRUCT.resources.cluster[dbRec.cluster];
                         dbObj = {
-                            "prefix": STRUCT.dbs.config.prefix,
-                            "servers": STRUCT.dbs.clusters[dbRec.cluster].servers,
-                            "credentials": STRUCT.dbs.clusters[dbRec.cluster].credentials,
-                            "streaming": STRUCT.dbs.clusters[dbRec.cluster].streaming,
-                            "URLParam": STRUCT.dbs.clusters[dbRec.cluster].URLParam,
-                            "extraParam": STRUCT.dbs.clusters[dbRec.cluster].extraParam
+                            "prefix": STRUCT.dbs.config.prefix
                         };
-                        if (dbRec.tenantSpecific) {
-                            dbObj.name = "#TENANT_NAME#_" + dbName;
-                            metaAndCoreDB.metaDB[dbName] = dbObj;
+                        if (clusterRec.data) {
+                            for (var dataConf in clusterRec.data) {
+                                if (Object.hasOwnProperty.call(clusterRec.data, dataConf)) {
+                                    dbObj[dataConf] = clusterRec.data[dataConf];
+                                }
+                            }
                         }
                         else {
-                            dbObj.registryLocation = {"l1": "coreDB", "l2": dbName, "env": envCode};
-                            dbObj.name = dbName;
-                            metaAndCoreDB.coreDB[dbName] = dbObj;
+                            dbObj.servers = clusterRec.servers || null;
+                            dbObj.credentials = clusterRec.credentials || null;
+                            dbObj.streaming = clusterRec.streaming || null;
+                            dbObj.URLParam = clusterRec.URLParam || null;
+                            dbObj.extraParam = clusterRec.extraParam || null;
                         }
+                    }
+                    else {
+                        dbObj = {
+                            "prefix": STRUCT.dbs.config.prefix,
+                            "servers": dbRec.servers || null,
+                            "credentials": dbRec.credentials,
+                            "streaming": dbRec.streaming || null,
+                            "URLParam": dbRec.URLParam || null,
+                            "extraParam": dbRec.extraParam || null
+                        };
+                    }
+                    if (dbRec.tenantSpecific) {
+                        dbObj.name = "#TENANT_NAME#_" + dbName;
+                        metaAndCoreDB.metaDB[dbName] = dbObj;
+                    }
+                    else {
+                        dbObj.registryLocation = {"l1": "coreDB", "l2": dbName, "env": envCode};
+                        dbObj.name = dbName;
+                        metaAndCoreDB.coreDB[dbName] = dbObj;
                     }
                 }
             }
@@ -55,29 +80,51 @@ var build = {
 
     "sessionDB": function (STRUCT, env) {
         var sessionDB = null;
-        if (STRUCT && STRUCT.dbs && STRUCT.dbs.config && STRUCT.dbs.config.session) {
-            if (STRUCT.dbs.config.session) {
-                var dbRec = STRUCT.dbs.config.session;
-                if (dbRec.cluster && STRUCT.dbs.clusters[dbRec.cluster]) {
-                    sessionDB = {
-                        "name": STRUCT.dbs.config.session.name,
-                        "prefix": STRUCT.dbs.config.prefix,
-                        "servers": STRUCT.dbs.clusters[dbRec.cluster].servers,
-                        "credentials": STRUCT.dbs.clusters[dbRec.cluster].credentials,
-                        "URLParam": STRUCT.dbs.clusters[dbRec.cluster].URLParam,
-                        "extraParam": STRUCT.dbs.clusters[dbRec.cluster].extraParam,
-                        'store': STRUCT.dbs.config.session.store,
-                        "collection": STRUCT.dbs.config.session.collection,
-                        'stringify': STRUCT.dbs.config.session.stringify,
-                        'expireAfter': STRUCT.dbs.config.session.expireAfter,
-                        'registryLocation': {
-                            "l1": "coreDB", "l2": "session", "env": env
+        if (STRUCT && STRUCT.dbs && STRUCT.dbs.config) {
+            var dbRec = {};
+            if (STRUCT.dbs.config.session)
+                dbRec = STRUCT.dbs.config.session;
+            else if (STRUCT.dbs.session)
+                dbRec = STRUCT.dbs.session;
+            sessionDB = {
+                "name": dbRec.name,
+                "prefix": STRUCT.dbs.config.prefix,
+                'store': dbRec.store,
+                "collection": dbRec.collection,
+                'stringify': dbRec.stringify,
+                'expireAfter': dbRec.expireAfter,
+                'registryLocation': {
+                    "l1": "coreDB", "l2": "session", "env": env
+                }
+            };
+            if (dbRec.cluster) {
+                var clusterRec = {};
+                if (STRUCT.dbs.clusters && STRUCT.dbs.clusters[dbRec.cluster])
+                    clusterRec = STRUCT.dbs.clusters[dbRec.cluster];
+                else if (STRUCT.resources && STRUCT.resources.cluster && STRUCT.resources.cluster[dbRec.cluster])
+                    clusterRec = STRUCT.resources.cluster[dbRec.cluster];
+
+                if (clusterRec.data) {
+                    for (var dataConf in clusterRec.data) {
+                        if (Object.hasOwnProperty.call(clusterRec.data, dataConf)) {
+                            sessionDB[dataConf] = clusterRec.data[dataConf];
                         }
-                    };
+                    }
+                }
+                else {
+                    sessionDB.servers = clusterRec.servers || null;
+                    sessionDB.credentials = clusterRec.credentials || null;
+                    sessionDB.URLParam = clusterRec.URLParam || null;
+                    sessionDB.extraParam = clusterRec.extraParam || null;
                 }
             }
+            else {
+                sessionDB.servers = dbRec.servers || null;
+                sessionDB.credentials = dbRec.credentials || null;
+                sessionDB.URLParam = dbRec.URLParam || null;
+                sessionDB.extraParam = dbRec.extraParam || null;
+            }
         }
-
         return sessionDB;
     },
 
@@ -199,6 +246,8 @@ var build = {
         registry["deployer"] = registryDBInfo.ENV_schema.deployer || {};
 
         registry["custom"] = registryDBInfo.ENV_schema.custom || {};
+
+        registry["resources"] = registryDBInfo.ENV_schema.resources || {};
 
         for (var coreDBName in metaAndCoreDB.coreDB) {
             if (Object.hasOwnProperty.call(metaAndCoreDB.coreDB, coreDBName)) {

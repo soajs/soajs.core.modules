@@ -7,6 +7,7 @@ var environmentCollectionName = 'environment';
 var hostCollectionName = 'hosts';
 var servicesCollectionName = 'services';
 var daemonsCollectionName = 'daemons';
+var resourcesCollectionName = 'resources';
 
 function initMongo(dbConfiguration) {
     if (!mongo) {
@@ -25,6 +26,19 @@ function initMongo(dbConfiguration) {
     }
 }
 
+function buildResources(destination, resources, envCode) {
+    if (resources && Array.isArray(resources) && resources.length > 0) {
+        for (var i = 0; i < resources.length; i++) {
+            if (resources[i].type) {
+                if (!destination[resources[i].type])
+                    destination[resources[i].type] = {};
+                if (resources[i].created === envCode.toUpperCase() || !resources[i].sharedEnvs || (resources[i].sharedEnvs && resources[i].sharedEnvs[envCode.toUpperCase()]))
+                    destination[resources[i].type][resources[i].name] = resources[i];
+            }
+        }
+    }
+}
+
 module.exports = {
     "init": function () {
     },
@@ -38,34 +52,56 @@ module.exports = {
             if (envRecord && JSON.stringify(envRecord) !== '{}') {
                 obj['ENV_schema'] = envRecord;
             }
-            mongo.find(servicesCollectionName, function (error, servicesRecords) {
-                if (error) {
-                    return callback(error);
+            else
+                obj['ENV_schema'] = {};
+
+            //build resources plugged for this environment
+            mongo.find(resourcesCollectionName, {
+                'created': envCode.toUpperCase(),
+                'plugged': true
+            }, function (error, resourcesRecords) {
+                obj['ENV_schema'].resources = {};
+                if (resourcesRecords) {
+                    buildResources(obj['ENV_schema'].resources, resourcesRecords, envCode);
                 }
-                if (servicesRecords && Array.isArray(servicesRecords) && servicesRecords.length > 0) {
-                    obj['services_schema'] = servicesRecords;
-                }
-                mongo.find(daemonsCollectionName, function (error, daemonsRecords) {
-                    if (error) {
-                        return callback(error);
+                //Note: build shared resources
+                mongo.find(resourcesCollectionName, {
+                    'created': "DASHBOARD",
+                    'shared': true
+                }, function (error, sharedResourcesRecords) {
+                    if (sharedResourcesRecords) {
+                        buildResources(obj['ENV_schema'].resources, sharedResourcesRecords, envCode);
                     }
-                    if (servicesRecords && Array.isArray(daemonsRecords) && daemonsRecords.length > 0) {
-                        obj['daemons_schema'] = daemonsRecords;
-                    }
-                    if (process.env.SOAJS_DEPLOY_HA){
-                        return callback(null, obj);
-                    }
-                    else {
-                        mongo.find(hostCollectionName, {'env': envCode}, function (error, hostsRecords) {
+                    mongo.find(servicesCollectionName, function (error, servicesRecords) {
+                        if (error) {
+                            return callback(error);
+                        }
+                        if (servicesRecords && Array.isArray(servicesRecords) && servicesRecords.length > 0) {
+                            obj['services_schema'] = servicesRecords;
+                        }
+                        mongo.find(daemonsCollectionName, function (error, daemonsRecords) {
                             if (error) {
                                 return callback(error);
                             }
-                            if (hostsRecords && Array.isArray(hostsRecords) && hostsRecords.length > 0) {
-                                obj['ENV_hosts'] = hostsRecords;
+                            if (servicesRecords && Array.isArray(daemonsRecords) && daemonsRecords.length > 0) {
+                                obj['daemons_schema'] = daemonsRecords;
                             }
-                            return callback(null, obj);
+                            if (process.env.SOAJS_DEPLOY_HA) {
+                                return callback(null, obj);
+                            }
+                            else {
+                                mongo.find(hostCollectionName, {'env': envCode}, function (error, hostsRecords) {
+                                    if (error) {
+                                        return callback(error);
+                                    }
+                                    if (hostsRecords && Array.isArray(hostsRecords) && hostsRecords.length > 0) {
+                                        obj['ENV_hosts'] = hostsRecords;
+                                    }
+                                    return callback(null, obj);
+                                });
+                            }
                         });
-                    }
+                    });
                 });
             });
         });
