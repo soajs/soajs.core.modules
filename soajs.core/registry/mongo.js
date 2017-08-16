@@ -8,6 +8,7 @@ var hostCollectionName = 'hosts';
 var servicesCollectionName = 'services';
 var daemonsCollectionName = 'daemons';
 var resourcesCollectionName = 'resources';
+var customCollectionName = 'customRegistry';
 
 function initMongo(dbConfiguration) {
     if (!mongo) {
@@ -35,6 +36,15 @@ function buildResources(destination, resources, envCode) {
                 if (resources[i].created === envCode.toUpperCase() || !resources[i].sharedEnvs || (resources[i].sharedEnvs && resources[i].sharedEnvs[envCode.toUpperCase()]))
                     destination[resources[i].type][resources[i].name] = resources[i];
             }
+        }
+    }
+}
+
+function buildCustomRegistry(destination, custom, envCode) {
+    if (custom && Array.isArray(custom) && custom.length > 0) {
+        for (var i = 0; i < custom.length; i++) {
+            if (custom[i].created === envCode.toUpperCase() || !custom[i].sharedEnvs || (custom[i].sharedEnvs && custom[i].sharedEnvs[envCode.toUpperCase()]))
+                destination[custom[i].name] = custom[i];
         }
     }
 }
@@ -80,37 +90,42 @@ module.exports = {
                 if (resourcesRecords) {
                     buildResources(obj['ENV_schema'].resources, resourcesRecords, envCode);
                 }
-
                 //build custom registry
-
-                mongo.find(servicesCollectionName, function (error, servicesRecords) {
-                    if (error) {
-                        return callback(error);
+                mongo.find(customCollectionName, criteria, function (error, customRecords) {
+                    if (!obj['ENV_schema'].custom)
+                        obj['ENV_schema'].custom = {};
+                    if (customRecords) {
+                        buildCustomRegistry(obj['ENV_schema'].custom, customRecords, envCode);
                     }
-                    if (servicesRecords && Array.isArray(servicesRecords) && servicesRecords.length > 0) {
-                        obj['services_schema'] = servicesRecords;
-                    }
-                    mongo.find(daemonsCollectionName, function (error, daemonsRecords) {
+                    mongo.find(servicesCollectionName, function (error, servicesRecords) {
                         if (error) {
                             return callback(error);
                         }
-                        if (servicesRecords && Array.isArray(daemonsRecords) && daemonsRecords.length > 0) {
-                            obj['daemons_schema'] = daemonsRecords;
+                        if (servicesRecords && Array.isArray(servicesRecords) && servicesRecords.length > 0) {
+                            obj['services_schema'] = servicesRecords;
                         }
-                        if (process.env.SOAJS_DEPLOY_HA) {
-                            return callback(null, obj);
-                        }
-                        else {
-                            mongo.find(hostCollectionName, {'env': envCode}, function (error, hostsRecords) {
-                                if (error) {
-                                    return callback(error);
-                                }
-                                if (hostsRecords && Array.isArray(hostsRecords) && hostsRecords.length > 0) {
-                                    obj['ENV_hosts'] = hostsRecords;
-                                }
+                        mongo.find(daemonsCollectionName, function (error, daemonsRecords) {
+                            if (error) {
+                                return callback(error);
+                            }
+                            if (servicesRecords && Array.isArray(daemonsRecords) && daemonsRecords.length > 0) {
+                                obj['daemons_schema'] = daemonsRecords;
+                            }
+                            if (process.env.SOAJS_DEPLOY_HA) {
                                 return callback(null, obj);
-                            });
-                        }
+                            }
+                            else {
+                                mongo.find(hostCollectionName, {'env': envCode}, function (error, hostsRecords) {
+                                    if (error) {
+                                        return callback(error);
+                                    }
+                                    if (hostsRecords && Array.isArray(hostsRecords) && hostsRecords.length > 0) {
+                                        obj['ENV_hosts'] = hostsRecords;
+                                    }
+                                    return callback(null, obj);
+                                });
+                            }
+                        });
                     });
                 });
             });
