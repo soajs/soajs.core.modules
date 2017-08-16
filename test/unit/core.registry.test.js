@@ -169,7 +169,7 @@ describe("testing registry functionality", function () {
             "serviceIp": param.serviceIp,
         }, function (err, reg) {
             assert.ifError(err);
-            console.log(reg);
+            //console.log(reg);
             assert.ok(reg);
             done();
         });

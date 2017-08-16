@@ -55,17 +55,28 @@ module.exports = {
             else
                 obj['ENV_schema'] = {};
             //build resources plugged for this environment
-            mongo.find(resourcesCollectionName, {
-                $or: [
-                    {
-                        'created': envCode.toUpperCase(),
-                        'plugged': true
-                    }, {
-                        'created': "DASHBOARD",
-                        'plugged': true,
-                        'shared': true
-                    }]
-            }, function (error, resourcesRecords) {
+            var criteria = {};
+            if ("DASHBOARD" === envCode.toUpperCase()) {
+                criteria = {
+                    'created': "DASHBOARD",
+                    'plugged': true,
+                    'shared': true
+                };
+            }
+            else {
+                criteria = {
+                    $or: [
+                        {
+                            'created': envCode.toUpperCase(),
+                            'plugged': true
+                        }, {
+                            'created': "DASHBOARD",
+                            'plugged': true,
+                            'shared': true
+                        }]
+                };
+            }
+            mongo.find(resourcesCollectionName, criteria, function (error, resourcesRecords) {
                 obj['ENV_schema'].resources = {};
                 if (resourcesRecords) {
                     buildResources(obj['ENV_schema'].resources, resourcesRecords, envCode);
