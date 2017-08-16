@@ -37,10 +37,10 @@ var build = {
                         dbObj = {
                             "prefix": STRUCT.dbs.config.prefix
                         };
-                        if (clusterRec.data) {
-                            for (var dataConf in clusterRec.data) {
-                                if (Object.hasOwnProperty.call(clusterRec.data, dataConf)) {
-                                    dbObj[dataConf] = clusterRec.data[dataConf];
+                        if (clusterRec.config) {
+                            for (var dataConf in clusterRec.config) {
+                                if (Object.hasOwnProperty.call(clusterRec.config, dataConf)) {
+                                    dbObj[dataConf] = clusterRec.config[dataConf];
                                 }
                             }
                         }
@@ -104,10 +104,10 @@ var build = {
                 else if (STRUCT.resources && STRUCT.resources.cluster && STRUCT.resources.cluster[dbRec.cluster])
                     clusterRec = STRUCT.resources.cluster[dbRec.cluster];
 
-                if (clusterRec.data) {
-                    for (var dataConf in clusterRec.data) {
-                        if (Object.hasOwnProperty.call(clusterRec.data, dataConf)) {
-                            sessionDB[dataConf] = clusterRec.data[dataConf];
+                if (clusterRec.config) {
+                    for (var dataConf in clusterRec.config) {
+                        if (Object.hasOwnProperty.call(clusterRec.config, dataConf)) {
+                            sessionDB[dataConf] = clusterRec.config[dataConf];
                         }
                     }
                 }
