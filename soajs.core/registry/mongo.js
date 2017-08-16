@@ -58,9 +58,8 @@ module.exports = {
             var criteria = {};
             if ("DASHBOARD" === envCode.toUpperCase()) {
                 criteria = {
-                    'created': "DASHBOARD",
-                    'plugged': true,
-                    'shared': true
+                    'created': envCode.toUpperCase(),
+                    'plugged': true
                 };
             }
             else {
