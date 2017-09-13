@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -34,7 +34,7 @@
     "nodemailer-sendmail-transport": "1.0.0",
     "nodemailer-smtp-transport": "2.7.2",
     "object-hash": "1.1.5",
-    "request": "2.79.0",
+    "request": "2.81.0",
     "soajs.core.libs" : "1.0.*"
   },
   "devDependencies": {
