@@ -4,10 +4,6 @@ group: deprecated-2017Q2
 
 node_js: 6
 
-services:
-  - mongodb
-  - elasticsearch
-
 env:
   - CXX=g++-4.8
 
@@ -18,11 +14,17 @@ branches:
 addons:
   apt:
     sources:
+      - elasticsearch-2.4
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+      - elasticsearch
   hosts:
     - localhost
+
+services:
+  - mongodb
+  - elasticsearch
 
 before_install:
   - sudo apt-get update && sudo apt-get install sendmail python make g++
