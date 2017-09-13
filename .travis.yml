@@ -14,19 +14,17 @@ branches:
 addons:
   apt:
     sources:
-      - elasticsearch-2.4
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
-      - elasticsearch
   hosts:
     - localhost
 
 services:
   - mongodb
-  - elasticsearch
 
 before_install:
+  - curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.0/elasticsearch-2.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.0.deb && sudo service elasticsearch start
   - sudo apt-get update && sudo apt-get install sendmail python make g++
 
 before_script:
