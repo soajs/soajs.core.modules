@@ -572,6 +572,9 @@ var registryModule = {
         });
     },
     "reload": function (param, cb) {
+
+        //TODO: regv2, load the current registry return then continue on reloading registry for all env left in STRUCT
+
         if (!param) param = {};
         param.reload = true;
         return getRegistry(param, function (err, reg) {
@@ -579,6 +582,9 @@ var registryModule = {
         });
     },
     "loadByEnv": function (param, cb) {
+
+        //TODO: regv2, this should use loadRegistry
+
         var registry = loadProfile(param.envCode.toLowerCase());
         if (registry) {
             return registryModule.model.loadRegistryByEnv({
