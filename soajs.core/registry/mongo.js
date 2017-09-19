@@ -215,6 +215,9 @@ module.exports = {
         mongo.find(hostCollectionName, condition, cb);
     },
     "loadProfile": function (envFrom) {
+    	
+    	// TODO: update it to return {error, data}
+    	
         if (fs.existsSync(regFile)) {
             delete require.cache[require.resolve(regFile)];
             var regFileObj = require(regFile);

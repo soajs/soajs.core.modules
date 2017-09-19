@@ -403,6 +403,9 @@ var build = {
 };
 
 function loadProfile(envFrom) {
+	// TODO:
+	// if error : check if registry not found > call new route
+	
     var registry = registryModule.model.loadProfile(envFrom);
     if (!registry_struct[registry.environment])
         registry_struct[registry.environment] = registry;
@@ -417,6 +420,9 @@ function loadProfile(envFrom) {
 }
 
 function loadRegistry(param, cb) {
+	
+	// TODO: udpate loadProfile
+	
     var registry = loadProfile(regEnvironment);
     if (registry) {
         registryModule.model.loadData(registry.coreDB.provision, registry.environment, param, function (error, RegistryFromDB) {
@@ -565,6 +571,8 @@ var registryModule = {
         return registry_struct[env];
     },
     "load": function (param, cb) {
+	    // TODO: add if condition in case the env was sent : add load by env code here
+	    
         if (!param) param = {};
         param.reload = false;
         return getRegistry(param, function (err, reg) {
@@ -584,6 +592,7 @@ var registryModule = {
     "loadByEnv": function (param, cb) {
 
         //TODO: regv2, this should use loadRegistry
+	    // merge with load function
 
         var registry = loadProfile(param.envCode.toLowerCase());
         if (registry) {
