@@ -192,6 +192,7 @@ module.exports = {
         else
             return cb(null, false);
     },
+    /*
     "loadRegistryByEnv": function (param, cb) {
         initMongo(param.dbConfig);
         mongo.findOne(environmentCollectionName, {'code': param.envCode.toUpperCase()}, function (err, envRecord) {
@@ -205,6 +206,7 @@ module.exports = {
             return cb(null, obj);
         });
     },
+    */
     "loadOtherEnvHosts": function (param, cb) {
         initMongo(param.dbConfig);
         var pattern = new RegExp("controller", "i");
@@ -214,7 +216,7 @@ module.exports = {
         };
         mongo.find(hostCollectionName, condition, cb);
     },
-    "loadProfile": function (envFrom) {
+    "loadProfile": function (envFrom, cb) {
         if (fs.existsSync(regFile)) {
             delete require.cache[require.resolve(regFile)];
             var regFileObj = require(regFile);
@@ -233,15 +235,14 @@ module.exports = {
                     "l2": "provision",
                     "env": registry.environment
                 };
-                return registry;
+                return cb(null, registry);
             }
             else {
-                throw new Error('Invalid profile path: ' + regFile);
+                return cb (new Error('Invalid profile file: ' + regFile), null);
             }
         }
         else {
-            throw new Error('Invalid profile path: ' + regFile);
+            return cb (new Error('Invalid profile path: ' + regFile), null);
         }
-        return null;
     }
 };
