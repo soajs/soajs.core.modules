@@ -607,7 +607,6 @@ var registryModule = {
         });
     },
     "loadByEnv": function (param, cb) {
-        //TODO: regv2, this should use getRegistry
         if (!param) param = {};
         param.reload = false;
         param.envCode = param.envCode.toLowerCase();
