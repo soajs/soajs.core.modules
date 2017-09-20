@@ -8,7 +8,7 @@ var hostCollectionName = 'hosts';
 var servicesCollectionName = 'services';
 var daemonsCollectionName = 'daemons';
 var resourcesCollectionName = 'resources';
-var customCollectionName = 'customRegistry';
+var customCollectionName = 'custom_registry';
 
 function initMongo(dbConfiguration) {
     if (!mongo) {

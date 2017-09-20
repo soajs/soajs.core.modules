@@ -104,7 +104,9 @@ var build = {
                     clusterRec = STRUCT.dbs.clusters[dbRec.cluster];
                 else if (STRUCT.resources && STRUCT.resources.cluster && STRUCT.resources.cluster[dbRec.cluster])
                     clusterRec = STRUCT.resources.cluster[dbRec.cluster];
-
+	
+	            sessionDB.cluster = dbRec.cluster;
+	            
                 if (clusterRec.config) {
                     for (var dataConf in clusterRec.config) {
                         if (Object.hasOwnProperty.call(clusterRec.config, dataConf)) {
