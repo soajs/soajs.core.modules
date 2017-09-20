@@ -427,7 +427,7 @@ function loadProfile(envFrom, cb) {
 
 function loadRegistry(param, cb) {
     if (registryModule.modelName === "api"){
-        registryModule.model.fetchRegistry (param, function (error, registry) {
+        registryModule.model.fetchRegistry (param, function (err, registry) {
             if (!err) {
                 registry.profileOnly = false;
                 registry_struct[registry.environment] = registry;

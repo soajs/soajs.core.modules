@@ -36,20 +36,19 @@ module.exports = {
 
         if (!err) {
             var requestOption = {
-                "uri": process.env.SOAJS_REGISTRY_API+"/getRegistry?env="+param.envCode+"&serviceName="+param.serviceName
+                "url": "http://"+process.env.SOAJS_REGISTRY_API+"/getRegistry?env="+param.envCode+"&serviceName="+param.serviceName,
+                "json": true
             };
             request (requestOption, function (error, response, body) {
-                    if (error) {
-                        err = error;
-                    }
-                    else {
+                    if (!error) {
                         if (body.result)
-                        reg = body.data;
+                            reg = body.data;
                     }
+                    cb(error, reg);
                 });
         }
-
-        cb(err, reg);
+        else
+            cb(err, reg);
     },
     "loadProfile": function (envFrom, cb) {
         if (fs.existsSync(regFile)) {
