@@ -17,15 +17,15 @@ module.exports = {
     "addUpdateServiceIP": function (dbConfiguration, hostObj, cb) {
         return cb(null, true);
     },
-    "loadRegistryByEnv": function (param, cb) {
-        var obj = {};
-        return cb(null, obj);
-    },
     "loadOtherEnvHosts": function (param, cb) {
         var obj = {};
         return cb(null, obj);
     },
-    "loadProfile": function (envFrom) {
+    "fetchRegistry": function (param, cb){
+        //TODO: build request to controller
+        cb(null, {});
+    },
+    "loadProfile": function (envFrom, cb) {
         if (fs.existsSync(regFile)) {
             delete require.cache[require.resolve(regFile)];
             var regFileObj = require(regFile);
@@ -44,15 +44,14 @@ module.exports = {
                     "l2": "provision",
                     "env": registry.environment
                 };
-                return registry;
+                return cb(null, registry);
             }
             else {
-                throw new Error('Invalid profile path: ' + regFile);
+                return cb (new Error('Invalid profile file: ' + regFile), null);
             }
         }
         else {
-            throw new Error('Invalid profile path: ' + regFile);
+            return cb (new Error('Invalid profile path: ' + regFile), null);
         }
-        return null;
     }
 };

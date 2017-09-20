@@ -16,7 +16,7 @@ var registry_struct = {};
 registry_struct[regEnvironment] = null;
 
 var models = {};
-models.mongo = require("./mongo.js");
+//models.mongo = require("./mongo.js");
 
 var build = {
     "metaAndCoreDB": function (STRUCT, envCode) {
@@ -426,81 +426,99 @@ function loadProfile(envFrom, cb) {
 }
 
 function loadRegistry(param, cb) {
-    loadProfile(param.envCode, function (err, registry) {
-        if (registry) {
-            registryModule.model.loadData(registry.coreDB.provision, registry.environment, param, function (error, RegistryFromDB) {
-                if (error || !RegistryFromDB) {
-                   // if (!param.reload) {
-                   //     throw new Error('Unable to load Registry Db Info: ' + error.message);
-                   // }
-                   // else {
+    if (registryModule.modelName === "api"){
+        registryModule.model.fetchRegistry (param, function (error, registry) {
+            if (!err) {
+                registry.profileOnly = false;
+                registry_struct[registry.environment] = registry;
+            }
+            return cb(err);
+        });
+    }
+    else {
+        loadProfile(param.envCode, function (err, registry) {
+            if (registry) {
+                registryModule.model.loadData(registry.coreDB.provision, registry.environment, param, function (error, RegistryFromDB) {
+                    if (error || !RegistryFromDB) {
+                        // if (!param.reload) {
+                        //     throw new Error('Unable to load Registry Db Info: ' + error.message);
+                        // }
+                        // else {
                         return cb(error);
-                   // }
-                }
-                else {
-                    build.buildRegistry(registry, RegistryFromDB, function (err) {
-                        if (err) {
-                           // if (!param.reload) {
-                           //     throw err;
-                           // } else {
+                        // }
+                    }
+                    else {
+                        build.buildRegistry(registry, RegistryFromDB, function (err) {
+                            if (err) {
+                                // if (!param.reload) {
+                                //     throw err;
+                                // } else {
                                 return cb(err);
-                           // }
-                        }
-                        if (param.donotBbuildSpecificRegistry){
-                            //registry.profileOnly = false;
-                            //registry_struct[registry.environment] = registry;
-                            return cb(null);
-                        }
-                        else {
-                            build.buildSpecificRegistry(param, registry, RegistryFromDB, function (err) {
-                                if (!err) {
-                                    registry.profileOnly = false;
-                                    registry_struct[registry.environment] = registry;
-                                }
-                                return cb(err);
-                            });
-                        }
-                    });
-                }
-            });
-        }
-        else {
-            return cb(null);
-        }
-    });
+                                // }
+                            }
+                            if (param.donotBbuildSpecificRegistry) {
+                                //registry.profileOnly = false;
+                                //registry_struct[registry.environment] = registry;
+                                return cb(null);
+                            }
+                            else {
+                                build.buildSpecificRegistry(param, registry, RegistryFromDB, function (err) {
+                                    if (!err) {
+                                        registry.profileOnly = false;
+                                        registry_struct[registry.environment] = registry;
+                                    }
+                                    return cb(err);
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            else {
+                return cb(null);
+            }
+        });
+    }
 }
 
 var getRegistry = function (param, cb) {
-   // try {
-        // added process.env.SOAJS_TEST to force load registry and bypass caching
-        if (param.reload || process.env.SOAJS_TEST || !registry_struct[param.envCode] || registry_struct[param.envCode].profileOnly) {
-            loadRegistry(param, function (err) {
-                return cb(err, registry_struct[param.envCode]);
-            });
-        }
-        else {
-            return cb(null, registry_struct[param.envCode]);
-        }
-   // } catch (e) {
+    // try {
+    // added process.env.SOAJS_TEST to force load registry and bypass caching
+    if (param.reload || process.env.SOAJS_TEST || !registry_struct[param.envCode] || registry_struct[param.envCode].profileOnly) {
+        loadRegistry(param, function (err) {
+            return cb(err, registry_struct[param.envCode]);
+        });
+    }
+    else {
+        return cb(null, registry_struct[param.envCode]);
+    }
+    // } catch (e) {
     //    cb(new Error('Failed to get registry: ' + e.message), null);
-   // }
+    // }
 };
 
 var registryModule = {
     "init": function (modelName) {
-        modelName = "mongo";
+        //registryModule.modelName = "mongo";
         if (process.env.SOAJS_SOLO && process.env.SOAJS_SOLO === "true") {
-            models.local = require("./local.js");
-            modelName = "local";
+            //models.local = require("./local.js");
+            registryModule.modelName = "local";
+        }
+        else if (process.env.SOAJS_REGISTRY_API) {
+            //TODO: validate SOAJS_REGISTRY_API content "hostname:port"
+            //models.api = require("./api.js");
+            registryModule.modelName = "api";
         }
         else {
-            models.mongo = require("./mongo.js");
-            modelName = "mongo";
+            //models.mongo = require("./mongo.js");
+            registryModule.modelName = "mongo";
         }
-        models[modelName].init();
-        registryModule.model = models[modelName];
+        models[registryModule.modelName] = require("./" + registryModule.modelName + ".js");
+        models[registryModule.modelName].init();
+        registryModule.model = models[registryModule.modelName];
     },
 
+    "modelName": "mongo",
     "model": null,
 
     "profile": function (cb) {
@@ -583,8 +601,8 @@ var registryModule = {
         return registry_struct[env];
     },
     "load": function (param, cb) {
-	    // TODO: add if condition in case the env was sent : add load by env code here
-	    
+        // TODO: add if condition in case the env was sent : add load by env code here
+
         if (!param) param = {};
         param.reload = false;
         param.envCode = regEnvironment;
@@ -598,7 +616,6 @@ var registryModule = {
     "reload": function (param, cb) {
 
         //TODO: regv2, load the current registry return then continue on reloading registry for all env left in STRUCT
-
         if (!param) param = {};
         param.reload = true;
         param.envCode = regEnvironment;
@@ -610,7 +627,10 @@ var registryModule = {
         if (!param) param = {};
         param.reload = false;
         param.envCode = param.envCode.toLowerCase();
-        param.donotBbuildSpecificRegistry = true;
+
+        if (!Object.hasOwnProperty.call(param, "donotBbuildSpecificRegistry"))
+            param.donotBbuildSpecificRegistry = true;
+
         return getRegistry(param, function (err, reg) {
             if (err) {
                 return cb(err);
@@ -640,16 +660,27 @@ var registryModule = {
         */
     },
     "loadOtherEnvControllerHosts": function (cb) {
-        loadProfile(regEnvironment, function (err, registry) {
-            if (registry) {
+        var dbConfig = null;
+        var getHosts = function () {
+            if (dbConfig) {
                 return registryModule.model.loadOtherEnvHosts({
                     "envCode": regEnvironment,
-                    "dbConfig": registry.coreDB.provision
+                    "dbConfig": dbConfig
                 }, cb);
             }
             else
                 return cb(new Error("unable to find provision config information to connect to!"));
-        });
+        };
+        if (registry_struct[regEnvironment]) {
+            dbConfig = registry_struct[regEnvironment].coreDB.provision;
+            getHosts();
+        }
+        else {
+            loadProfile(regEnvironment, function (err, registry) {
+                dbConfig = registry.coreDB.provision;
+                getHosts();
+            });
+        }
     },
     "registerHost": function (param, registry, cb) {
         if (param.serviceIp) {
