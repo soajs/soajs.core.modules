@@ -505,7 +505,6 @@ var registryModule = {
             registryModule.modelName = "local";
         }
         else if (process.env.SOAJS_REGISTRY_API) {
-            //TODO: validate SOAJS_REGISTRY_API content "hostname:port"
             //models.api = require("./api.js");
             registryModule.modelName = "api";
         }
