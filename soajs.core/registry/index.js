@@ -583,6 +583,8 @@ var registryModule = {
         return registry_struct[env];
     },
     "load": function (param, cb) {
+	    // TODO: add if condition in case the env was sent : add load by env code here
+	    
         if (!param) param = {};
         param.reload = false;
         param.envCode = regEnvironment;
@@ -605,7 +607,6 @@ var registryModule = {
         });
     },
     "loadByEnv": function (param, cb) {
-
         //TODO: regv2, this should use getRegistry
         if (!param) param = {};
         param.reload = false;
