@@ -279,7 +279,7 @@ var build = {
             if (!process.env.SOAJS_DEPLOY_HA)
                 build.controllerHosts(registryDBInfo.ENV_hosts, registry["services"].controller);
 
-            if (!autoRegHost || param.reload || param.donotRegisterHost) {
+            if (!autoRegHost || param.reload) {
                 return callback(null);
             }
             else if (param.serviceIp) {
@@ -426,8 +426,8 @@ function loadProfile(envFrom, cb) {
 }
 
 function loadRegistry(param, cb) {
-    if (registryModule.modelName === "api"){
-        registryModule.model.fetchRegistry (param, function (err, registry) {
+    if (registryModule.modelName === "api") {
+        registryModule.model.fetchRegistry(param, function (err, registry) {
             if (!err) {
                 registry.profileOnly = false;
                 registry_struct[registry.environment] = registry;
@@ -475,7 +475,7 @@ function loadRegistry(param, cb) {
                 });
             }
             else {
-                return cb(null);
+                return cb(new Error("Empty profile, unable to continue loading registry"));
             }
         });
     }
@@ -486,6 +486,8 @@ var getRegistry = function (param, cb) {
     // added process.env.SOAJS_TEST to force load registry and bypass caching
     if (param.reload || process.env.SOAJS_TEST || !registry_struct[param.envCode] || registry_struct[param.envCode].profileOnly) {
         loadRegistry(param, function (err) {
+            if (err && registry_struct && registry_struct[param.envCode] && registry_struct[param.envCode].profileOnly)
+                registry_struct[param.envCode] = null;
             return cb(err, registry_struct[param.envCode]);
         });
     }
@@ -600,8 +602,6 @@ var registryModule = {
         return registry_struct[env];
     },
     "load": function (param, cb) {
-        // TODO: add if condition in case the env was sent : add load by env code here
-
         if (!param) param = {};
         param.reload = false;
         param.envCode = regEnvironment;
@@ -613,18 +613,28 @@ var registryModule = {
         });
     },
     "reload": function (param, cb) {
-
-        //TODO: regv2, load the current registry return then continue on reloading registry for all env left in STRUCT
         if (!param) param = {};
         param.reload = true;
         param.envCode = regEnvironment;
-        return getRegistry(param, function (err, reg) {
-            return cb(err, reg);
+        getRegistry(param, function (err, reg) {
+            cb(err, reg);
+            var envArray = [];
+            for (var envCode in registry_struct) {
+                if (Object.hasOwnProperty.call(registry_struct, envCode)) {
+                    if (envCode !== regEnvironment && registry_struct[envCode]) {
+                        envArray.push({"reload": true, "envCode": envCode});
+                    }
+                }
+            }
+            if (envArray.length > 0) {
+                async.mapSeries(envArray, getRegistry, function (err, results) {
+                });
+            }
         });
     },
     "loadByEnv": function (param, cb) {
         if (!param) param = {};
-        param.reload = false;
+        param.reload = true;
         param.envCode = param.envCode.toLowerCase();
 
         if (!Object.hasOwnProperty.call(param, "donotBbuildSpecificRegistry"))

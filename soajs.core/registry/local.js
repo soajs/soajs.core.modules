@@ -47,6 +47,6 @@ module.exports = {
                 "provision": regFileObj
             }
         };
-        return cb(registry);
+        return cb(null, registry);
     }
 };
