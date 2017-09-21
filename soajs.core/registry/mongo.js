@@ -192,21 +192,6 @@ module.exports = {
         else
             return cb(null, false);
     },
-    /*
-    "loadRegistryByEnv": function (param, cb) {
-        initMongo(param.dbConfig);
-        mongo.findOne(environmentCollectionName, {'code': param.envCode.toUpperCase()}, function (err, envRecord) {
-            if (err) {
-                return cb(err);
-            }
-            var obj = {};
-            if (envRecord && JSON.stringify(envRecord) !== '{}') {
-                obj['ENV_schema'] = envRecord;
-            }
-            return cb(null, obj);
-        });
-    },
-    */
     "loadOtherEnvHosts": function (param, cb) {
         initMongo(param.dbConfig);
         var pattern = new RegExp("controller", "i");
