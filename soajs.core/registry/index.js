@@ -472,8 +472,6 @@ var getRegistry = function (param, cb) {
             var reg = registry_struct[param.envCode];
             if (reg && reg.serviceConfig.awareness.autoRelaodRegistry) {
                 var autoReload = function () {
-                    console.log ("autoReload")
-                    console.log (param)
                     getRegistry(param, function (err, reg) {
                         if (reg.serviceConfig.awareness.autoRelaodRegistry) {
                             if (!autoReloadTimeout[reg.environment])
