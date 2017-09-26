@@ -32,15 +32,11 @@ module.exports = {
     "addUpdateServiceIP": function (dbConfiguration, hostObj, cb) {
         return cb(null, true);
     },
-    "loadRegistryByEnv": function (param, cb) {
-        var obj = {};
-        return cb(null, obj);
-    },
     "loadOtherEnvHosts": function (param, cb) {
         var obj = {};
         return cb(null, obj);
     },
-    "loadProfile": function (envFrom) {
+    "loadProfile": function (envFrom, cb) {
         var regFileObj = {};
         var registry = {
             "timeLoaded": new Date().getTime(),
@@ -51,6 +47,6 @@ module.exports = {
                 "provision": regFileObj
             }
         };
-        return registry;
+        return cb(null, registry);
     }
 };
