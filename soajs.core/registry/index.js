@@ -475,14 +475,7 @@ var getRegistry = function (param, cb) {
             if (reg && reg.serviceConfig.awareness.autoRelaodRegistry) {
                 var autoReload = function () {
                     getRegistry(param, function (err, reg) {
-                        if (reg.serviceConfig.awareness.autoRelaodRegistry) {
-                            if (!autoReloadTimeout[reg.environment])
-                                autoReloadTimeout[reg.environment] = {};
-                            if (autoReloadTimeout[reg.environment].timeout)
-                                clearTimeout(autoReloadTimeout[reg.environment].timeout);
-                            autoReloadTimeout[reg.environment].setBy = param.setBy;
-                            autoReloadTimeout[reg.environment].timeout = setTimeout(autoReload, reg.serviceConfig.awareness.autoRelaodRegistry);
-                        }
+	                    cb(err);
                     });
                 };
                 if (!autoReloadTimeout[reg.environment])
