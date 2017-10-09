@@ -475,7 +475,7 @@ var getRegistry = function (param, cb) {
             if (reg && reg.serviceConfig.awareness.autoRelaodRegistry) {
                 var autoReload = function () {
                     getRegistry(param, function (err, reg) {
-	                    cb(err);
+	                    // cb(err, reg);
                     });
                 };
                 if (!autoReloadTimeout[reg.environment])
