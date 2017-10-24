@@ -204,7 +204,8 @@ module.exports = {
                                             "key": tenants[i].applications[j].keys[k].key,
                                             "tenant": {
                                                 "id": tenants[i]._id.toString(),
-                                                "code": tenants[i].code
+                                                "code": tenants[i].code,
+                                                "locked": tenants[i].locked?true:false
                                             },
                                             "application": {
                                                 "product": tenants[i].applications[j].product,
