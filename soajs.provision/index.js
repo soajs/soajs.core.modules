@@ -196,6 +196,19 @@ var provision = {
             });
         });
     },
+	
+	"getTenantByCode": function(tenantCode, cb){
+		core.provision.getTenantByCode(tenantCode, cb);
+	},
+	
+	"getEnvironmentExtKeyWithDashboardAccess": function(tenant, cb){
+		core.provision.getTenantByCode(tenant, cb);
+	},
+	
+	"getEnvironmentsFromACL": function(ACL, Environments){
+		return core.provision.getTenantByCode(ACL, Environments);
+	},
+	
     "generateSaveAccessRefreshToken": function (user, req, cb) {
         var userFromAuthorise = auth(req);
         var clientId = (userFromAuthorise) ? userFromAuthorise.name : req.soajs.tenant.id.toString();
