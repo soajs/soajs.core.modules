@@ -134,30 +134,33 @@ var provision = {
 	
 	"getACLAndEnvironmentsFromKey": function(ACL, envRecords){
 		var environments = Object.keys(ACL);
-		var aclType;
 		var envInfo = [];
 		
 		envRecords.forEach(function (oneEnv) {
 			envInfo.push(oneEnv.code);
 		});
 		
-		for (var i = environments.length - 1; i >= 0; i--) {
+		for (let i = environments.length - 1; i >= 0; i--) {
 			if (envInfo.indexOf(environments[i].toUpperCase()) !== -1 && !ACL[environments[i]].access && !ACL[environments[i]].apis && !ACL[environments[i]].apisRegExp && !ACL[environments[i]].apisPermission) {
 				environments[i] = environments[i].toUpperCase();
-				aclType = 'new';
-			}
-			else {
-				environments = [];
-				aclType = 'old';
-				break;
 			}
 		}
 		
 		envInfo = [];
 		envRecords.forEach(function (oneEnv) {
-			if (environments.indexOf(oneEnv.code) !== -1) {
-				delete oneEnv.deployer.container;
-				envInfo.push(oneEnv);
+			if (environments.indexOf(oneEnv.code.toUpperCase()) !== -1) {
+				envInfo.push({
+					domain: oneEnv.domain,
+					sitePrefix: oneEnv.sitePrefix,
+					apiPrefix: oneEnv.apiPrefix,
+					port: oneEnv.port,
+					protocol: oneEnv.protocol,
+					code: oneEnv.code.toUpperCase(),
+					deployer: {
+						type: oneEnv.deployer.type,
+						selected: oneEnv.deployer.selected
+					}
+				});
 			}
 		});
 		return envInfo;

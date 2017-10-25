@@ -739,24 +739,7 @@ var registryModule = {
         }
     },
 	"getAllRegistriesInfo": function(cb){
-    	let envRecords = [];
-    	registryModule.model.getAllEnvironments(function(error, environments){
-    		if(error){
-    			return cb(error);
-		    }
-		
-		    environments.forEach(function(oneEnv){
-			    envRecords.push({
-				    code: oneEnv.code.toUpperCase(),
-				    deployer: {
-					    type: oneEnv.deployer.type,
-					    selected: oneEnv.deployer.selected
-				    }
-			    });
-		    });
-    		
-    		return cb(null, envRecords);
-	    });
+    	registryModule.model.getAllEnvironments(cb);
 	}
 };
 module.exports = registryModule;
