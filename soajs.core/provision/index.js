@@ -132,7 +132,7 @@ var provision = {
 		}
 	},
 	
-	"getACLAndEnvironmentsFromKey": function(ACL, envRecords){
+	"getEnvironmentsFromACL": function(ACL, envRecords){
 		var environments = Object.keys(ACL);
 		var envInfo = [];
 		
