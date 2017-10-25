@@ -232,5 +232,11 @@ module.exports = {
                 return cb(null, keyStruct);
             }
         });
-    }
+    },
+	
+	"getTenantFromCode": function(code, cb){
+		mongo.findOne(tenantCollectionName, {"code": code.toUpperCase()}, cb);
+	},
+	
+	
 };

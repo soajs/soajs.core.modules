@@ -737,6 +737,20 @@ var registryModule = {
         else {
             return cb(new Error("Unable to find any controller host"), false);
         }
-    }
+    },
+	"getAllRegistriesInfo": function(){
+    	let envRecords = [];
+    	for(let envCode in registry_struct){
+    		let oneEnv = {
+    			code: envCode.toUpperCase(),
+			    deployer: {
+    				type: registry_struct[envCode].deployer.type,
+				    selected: registry_struct[envCode].deployer.selected
+			    }
+		    };
+    		envRecords.push(oneEnv);
+	    }
+	    return envRecords;
+	}
 };
 module.exports = registryModule;
