@@ -87,7 +87,7 @@ var provision = {
 		provision.model.getTenantFromCode(code, cb);
 	},
 	
-	"getPrivateExtKeyFromPulic": function(tenant, cb){
+	"getEnvironmentExtKeyWithDashboardAccess": function(tenant, cb){
 		provision.getTenantByCode(tenant.code, function(error, record){
 			if(error){
 				return cb(error);
