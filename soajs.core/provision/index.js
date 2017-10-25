@@ -154,21 +154,12 @@ var provision = {
 		}
 		
 		envInfo = [];
-		if (aclType === 'new' && req.soajs.uracDriver.getProfile().tenant.code === req.soajs.tenant.code) {
-			envRecords.forEach(function (oneEnv) {
-				if (environments.indexOf(oneEnv.code) !== -1) {
-					delete oneEnv.deployer.container;
-					envInfo.push(oneEnv);
-				}
-			});
-		}
-		else {
-			envRecords.forEach(function (oneEnv) {
+		envRecords.forEach(function (oneEnv) {
+			if (environments.indexOf(oneEnv.code) !== -1) {
 				delete oneEnv.deployer.container;
 				envInfo.push(oneEnv);
-			});
-		}
-		
+			}
+		});
 		return envInfo;
 	}
 };

@@ -738,19 +738,25 @@ var registryModule = {
             return cb(new Error("Unable to find any controller host"), false);
         }
     },
-	"getAllRegistriesInfo": function(){
+	"getAllRegistriesInfo": function(cb){
     	let envRecords = [];
-    	for(let envCode in registry_struct){
-    		let oneEnv = {
-    			code: envCode.toUpperCase(),
-			    deployer: {
-    				type: registry_struct[envCode].deployer.type,
-				    selected: registry_struct[envCode].deployer.selected
-			    }
-		    };
-    		envRecords.push(oneEnv);
-	    }
-	    return envRecords;
+    	registryModule.model.getAllEnvironments(function(error, environments){
+    		if(error){
+    			return cb(error);
+		    }
+		
+		    environments.forEach(function(oneEnv){
+			    envRecords.push({
+				    code: oneEnv.code.toUpperCase(),
+				    deployer: {
+					    type: oneEnv.deployer.type,
+					    selected: oneEnv.deployer.selected
+				    }
+			    });
+		    });
+    		
+    		return cb(null, envRecords);
+	    });
 	}
 };
 module.exports = registryModule;

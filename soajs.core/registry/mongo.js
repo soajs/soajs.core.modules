@@ -229,5 +229,8 @@ module.exports = {
         else {
             return cb (new Error('Invalid profile path: ' + regFile), null);
         }
-    }
+    },
+	"getAllEnvironments": function(cb){
+		mongo.find(environmentCollectionName, {}, cb);
+	}
 };
