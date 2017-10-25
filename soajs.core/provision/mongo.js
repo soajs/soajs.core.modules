@@ -10,6 +10,8 @@ var oauthUracCollectionName = "oauth_urac";
 var regEnvironment = (process.env.SOAJS_ENV || "dev");
 regEnvironment = regEnvironment.toLowerCase();
 
+const sensitiveEnvCodes = ["dashboard", "portal"];
+
 module.exports = {
     "init": function (dbConfig) {
         mongo = new Mongo(dbConfig);
@@ -33,26 +35,26 @@ module.exports = {
     "getAccessToken": function (bearerToken, cb) {
         mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "accessToken"}, function (err, rec) {
             if (rec && rec.env === regEnvironment) {
-                return cb(err, rec);
+	            return cb(err, rec);
             }
             else {
-                if (rec && rec.env === "dashboard")
-                    return cb(err, rec);
-                else
-                    return cb (err, null);
+	            if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
+		            return cb(err, rec);
+	            else
+		            return cb(err, null);
             }
         });
     },
-    "getRefreshToken": function (bearerToken, cb) {
-        mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "refreshToken"}, function (err, rec) {
-            if (rec && rec.env === regEnvironment)
-                return cb (err, rec);
-            else {
-                if (rec && rec.env === "dashboard")
-                    return cb(err, rec);
-                else
-                    return cb (err, null);
-            }
+	"getRefreshToken": function (bearerToken, cb) {
+		mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "refreshToken"}, function (err, rec) {
+			if (rec && rec.env === regEnvironment)
+				return cb(err, rec);
+			else {
+				if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
+					return cb(err, rec);
+				else
+					return cb(err, null);
+			}
         });
     },
     "saveAccessToken": function (accessToken, clientId, expires, user, cb) {
