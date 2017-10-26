@@ -243,6 +243,13 @@ var build = {
             var err = new Error('Unable to get [' + registry.environment + '] environment services from db');
             return callback(err);
         }
+        
+        registry["domain"] = registryDBInfo.ENV_schema.domain;
+        registry["apiPrefix"] = registryDBInfo.ENV_schema.apiPrefix;
+        registry["sitePrefix"] = registryDBInfo.ENV_schema.sitePrefix;
+        registry["protocol"] = registryDBInfo.ENV_schema.protocol;
+        registry["port"] = registryDBInfo.ENV_schema.port;
+        
         registry["serviceConfig"] = registryDBInfo.ENV_schema.services.config;
 
         registry["deployer"] = registryDBInfo.ENV_schema.deployer || {};
@@ -608,7 +615,7 @@ var registryModule = {
         if (!param) param = {};
         param.reload = true;
         param.envCode = regEnvironment;
-        param.setBy = "reload"
+        param.setBy = "reload";
         getRegistry(param, function (err, reg) {
             cb(err, reg);
             var envArray = [];
@@ -629,7 +636,7 @@ var registryModule = {
         if (!param) param = {};
         param.reload = true;
         param.envCode = param.envCode.toLowerCase();
-        param.setBy = "loadByEnv"
+        param.setBy = "loadByEnv";
 
         if (!Object.hasOwnProperty.call(param, "donotBbuildSpecificRegistry"))
             param.donotBbuildSpecificRegistry = true;
