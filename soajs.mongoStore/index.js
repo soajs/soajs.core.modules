@@ -35,7 +35,7 @@ module.exports = function (connect) {
         };
 
         this.mongo = new Mongo(options);
-        this.mongo.ensureIndex(options.collection, {expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
+        this.mongo.createIndex(options.collection, {expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
             if (err) {
                 throw new Error('Error setting TTL index on collection : ' + options.collection + ' <' + err + '>');
             }

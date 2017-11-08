@@ -14,15 +14,15 @@ function initMongo(dbConfiguration) {
     if (!mongo) {
         mongo = new Mongo(dbConfiguration);
 
-        mongo.ensureIndex(environmentCollectionName, {code: 1}, {unique: true}, function (err, result) {
+        mongo.createIndex(environmentCollectionName, {code: 1}, {unique: true}, function (err, result) {
         });
-        mongo.ensureIndex(hostCollectionName, {env: 1}, function (err, result) {
+        mongo.createIndex(hostCollectionName, {env: 1}, function (err, result) {
         });
-        mongo.ensureIndex(hostCollectionName, {name: 1, env: 1}, function (err, result) {
+        mongo.createIndex(hostCollectionName, {name: 1, env: 1}, function (err, result) {
         });
-        mongo.ensureIndex(servicesCollectionName, {name: 1}, function (err, result) {
+        mongo.createIndex(servicesCollectionName, {name: 1}, function (err, result) {
         });
-        mongo.ensureIndex(servicesCollectionName, {port: 1, name: 1}, {unique: true}, function (err, result) {
+        mongo.createIndex(servicesCollectionName, {port: 1, name: 1}, {unique: true}, function (err, result) {
         });
     }
 }
