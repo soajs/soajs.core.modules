@@ -830,6 +830,13 @@ function connect(obj, cb) {
 			configCloneHash = cache.configCloneHash;
 	}
 	
+	if(obj.config.credentials){
+		if(Object.hasOwnProperty.call(obj.config.credentials, 'username') && obj.config.credentials.username === ''){
+			delete obj.config.credentials;
+		}
+	}
+	
+	
 	var url = constructMongoLink(obj.config);
 	if (!url) {
 		return cb(core.error.generate(190));
