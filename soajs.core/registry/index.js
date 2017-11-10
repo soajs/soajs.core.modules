@@ -34,7 +34,7 @@ var build = {
                         else if (STRUCT.resources && STRUCT.resources.cluster && STRUCT.resources.cluster[dbRec.cluster])
                             clusterRec = STRUCT.resources.cluster[dbRec.cluster];
                         dbObj = {
-                            "prefix": STRUCT.dbs.config.prefix,
+	                        "prefix": (dbRec.prefix && dbRec.prefix !== "" ) ? dbRec.prefix : STRUCT.dbs.config.prefix,
                             "cluster": dbRec.cluster
                         };
                         if (clusterRec.config) {
@@ -54,7 +54,7 @@ var build = {
                     }
                     else {
                         dbObj = {
-                            "prefix": STRUCT.dbs.config.prefix,
+	                        "prefix": (dbRec.prefix && dbRec.prefix !== "" ) ? dbRec.prefix : STRUCT.dbs.config.prefix,
                             "servers": dbRec.servers || null,
                             "credentials": dbRec.credentials,
                             "streaming": dbRec.streaming || null,
@@ -88,7 +88,7 @@ var build = {
                 dbRec = STRUCT.dbs.session;
             sessionDB = {
                 "name": dbRec.name,
-                "prefix": STRUCT.dbs.config.prefix,
+                "prefix": (dbRec.prefix && dbRec.prefix !== "" ) ? dbRec.prefix : STRUCT.dbs.config.prefix,
                 'store': dbRec.store,
                 "collection": dbRec.collection,
                 'stringify': dbRec.stringify,
