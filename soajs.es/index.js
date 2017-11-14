@@ -188,11 +188,7 @@ EsDriver.connect = function(callback){
 	//build connection configuration, create new connection & test connection
 	var esConfig = constructESConfig(self.config);
     self.db = new elasticsearch.Client(esConfig);
-    self.db.ping({
-			requestTimeout: self.config.extraParam.requestTimeout || localConfig.requestTimeout,
-			hello: "elasticsearch!"
-		}, function(error, response){
-
+    self.db.ping(function(error, response){
 		if(error){
 			return callback(error);
 		}
