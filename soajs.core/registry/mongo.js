@@ -258,6 +258,18 @@ module.exports = {
 			}
 		}
 		
+		if(param.data && param.data.daemons){
+			for(let service in param.data.daemons){
+				if(param.data.daemons[service].awarenessStats){
+					for(let hostIp in param.data.daemons[service].awarenessStats){
+						let hostIp2 = hostIp.replace(/\./g, "_dot_");
+						param.data.daemons[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.daemons[service].awarenessStats[hostIp]);
+						delete param.data.daemons[service].awarenessStats[hostIp];
+					}
+				}
+			}
+		}
+		
 		let document = {
 			"$set": {
 				"data": param.data,
