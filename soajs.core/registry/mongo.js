@@ -1,10 +1,13 @@
 'use strict';
 var fs = require('fs');
 var Mongo = require('../../soajs.mongo');
+var soajsUtils = require("soajs.core.libs").utils;
+
 var regFile = (process.env.SOAJS_PROFILE || __dirname + "/../../profiles/single.js");
 var mongo;
 var environmentCollectionName = 'environment';
 var hostCollectionName = 'hosts';
+var controllersCollectionName = 'controllers';
 var servicesCollectionName = 'services';
 var daemonsCollectionName = 'daemons';
 var resourcesCollectionName = 'resources';
@@ -232,5 +235,35 @@ module.exports = {
     },
 	"getAllEnvironments": function(cb){
 		mongo.find(environmentCollectionName, {}, cb);
+	},
+	"addUpdateEnvControllers": function(param, cb){
+		let condition = {
+			"env": param.env.toLowerCase(),
+			"ip": param.ip
+		};
+		
+		if(!process.env.SOAJS_MANUAL){
+			condition.ip = "localhost";
+		}
+		
+		if(param.data && param.data.services){
+			for(let service in param.data.services){
+				if(param.data.services[service].awarenessStats){
+					for(let hostIp in param.data.services[service].awarenessStats){
+						let hostIp2 = hostIp.replace(/\./g, "_dot_");
+						param.data.services[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.services[service].awarenessStats[hostIp]);
+						delete param.data.services[service].awarenessStats[hostIp];
+					}
+				}
+			}
+		}
+		
+		let document = {
+			"$set": {
+				"data": param.data,
+				"ts": param.ts
+			}
+		};
+		mongo.update(controllersCollectionName, condition, document, {"upsert": true, "safe": true, "multi": false}, cb);
 	}
 };

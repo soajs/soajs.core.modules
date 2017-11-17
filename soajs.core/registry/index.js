@@ -747,6 +747,9 @@ var registryModule = {
     },
 	"getAllRegistriesInfo": function(cb){
     	registryModule.model.getAllEnvironments(cb);
+	},
+	"addUpdateEnvControllers": function(param, cb){
+		registryModule.model.addUpdateEnvControllers(param, cb);
 	}
 };
 module.exports = registryModule;

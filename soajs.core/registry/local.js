@@ -52,5 +52,8 @@ module.exports = {
 	"getAllEnvironments": function(cb){
 		var obj = {};
 		return cb(null, obj);
+	},
+	"addUpdateEnvControllers": function(param, cb){
+		return cb(null);
 	}
 };
