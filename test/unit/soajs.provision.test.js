@@ -6,8 +6,8 @@ var soajsProvision = helper.requireModule('./soajs.provision');
 var ObjectId = require("mongodb").ObjectID;
 
 var keyConfig = {
-    "algorithm": 'aes256',
-    "password": 'soajs key lal massa'
+	"algorithm": 'aes256',
+	"password": 'soajs key lal massa'
 };
 var key = "d1eaaf5fdc35c11119330a8a0273fee9";
 var extKey = "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac";
@@ -29,15 +29,15 @@ var metaData = {
 var soajsMongo = helper.requireModule('./index.js').mongo;
 var mongo = new soajsMongo(metaData);
 
-describe('testing soajs provisioning', function() {
+describe('testing soajs provisioning', function () {
 	var internalKey, externalKey;
-    var log = core.getLogger("standalone", { src: true, level: 'debug' });
+	var log = core.getLogger("standalone", {src: true, level: 'debug'});
 	soajsProvision.init(metaData, log);
-
-	describe("testing generateInternalKey", function() {
-
-		it("success - will return data", function(done) {
-			soajsProvision.generateInternalKey(function(error, data) {
+	
+	describe("testing generateInternalKey", function () {
+		
+		it("success - will return data", function (done) {
+			soajsProvision.generateInternalKey(function (error, data) {
 				assert.ifError(error);
 				assert.ok(data);
 				internalKey = data;
@@ -45,27 +45,27 @@ describe('testing soajs provisioning', function() {
 			});
 		});
 	});
-
-	describe("testing generateExternalKey", function() {
-
-		it("fail - no param", function(done) {
-			soajsProvision.generateExtKey(null, keyConfig, function(error, data) {
+	
+	describe("testing generateExternalKey", function () {
+		
+		it("fail - no param", function (done) {
+			soajsProvision.generateExtKey(null, keyConfig, function (error, data) {
 				assert.ok(error);
 				assert.ok(!data);
 				done();
 			});
 		});
-
-		it("fail - wrong key", function(done) {
-			soajsProvision.generateExtKey("abcd", keyConfig, function(error, data) {
+		
+		it("fail - wrong key", function (done) {
+			soajsProvision.generateExtKey("abcd", keyConfig, function (error, data) {
 				assert.ok(error);
 				assert.ok(!data);
 				done();
 			});
 		});
-
-		it("success - will return data", function(done) {
-			soajsProvision.generateExtKey(key, keyConfig, function(error, data) {
+		
+		it("success - will return data", function (done) {
+			soajsProvision.generateExtKey(key, keyConfig, function (error, data) {
 				assert.ifError(error);
 				assert.ok(data);
 				externalKey = data;
@@ -73,37 +73,37 @@ describe('testing soajs provisioning', function() {
 			});
 		});
 	});
-
-	describe("testing getExternalKeyData", function() {
-
-		it("fail - no param given", function(done) {
-			soajsProvision.getExternalKeyData(null, keyConfig, function(error, data) {
+	
+	describe("testing getExternalKeyData", function () {
+		
+		it("fail - no param given", function (done) {
+			soajsProvision.getExternalKeyData(null, keyConfig, function (error, data) {
 				assert.ok(error);
 				assert.ok(!data);
 				assert.equal(error.code, 200);
 				done();
 			});
 		});
-
-		it("fail - no param given", function(done) {
-			soajsProvision.getExternalKeyData("abcd", keyConfig, function(error, data) {
+		
+		it("fail - no param given", function (done) {
+			soajsProvision.getExternalKeyData("abcd", keyConfig, function (error, data) {
 				assert.ok(error);
 				assert.ok(!data);
 				done();
 			});
 		});
-
-		it("success - will return data", function(done) {
-			soajsProvision.getExternalKeyData(extKey, keyConfig, function(error, data) {
+		
+		it("success - will return data", function (done) {
+			soajsProvision.getExternalKeyData(extKey, keyConfig, function (error, data) {
 				assert.ifError(error);
 				assert.ok(data);
 				//console.log(data);
 				done();
 			});
 		});
-
-		it('success - add an expired key', function(done) {
-			mongo.findOne('tenants', {}, function(error, response) {
+		
+		it('success - add an expired key', function (done) {
+			mongo.findOne('tenants', {}, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				response.applications.push({
@@ -129,48 +129,48 @@ describe('testing soajs provisioning', function() {
 						}
 					]
 				});
-				mongo.save('tenants', response, function(error) {
+				mongo.save('tenants', response, function (error) {
 					assert.ifError(error);
-					setTimeout(function() {
-
-						soajsProvision.getExternalKeyData(externalKey, keyConfig, function(error, data) {
+					setTimeout(function () {
+						
+						soajsProvision.getExternalKeyData(externalKey, keyConfig, function (error, data) {
 							//assert.ifError(error);
 							//assert.ok(data);
 							//console.log(error, data);
 							response.applications.pop();
-							mongo.save('tenants', response, function(error) {
+							mongo.save('tenants', response, function (error) {
 								assert.ifError(error);
 								done();
 							});
 						});
 					}, 3000);
 				});
-
+				
 			});
 		});
 	});
-
-	describe("testing getPackageData", function() {
-
-		it("fail - no param given", function(done) {
-			soajsProvision.getPackageData(null, function(error, data) {
+	
+	describe("testing getPackageData", function () {
+		
+		it("fail - no param given", function (done) {
+			soajsProvision.getPackageData(null, function (error, data) {
 				assert.ok(error);
 				assert.ok(!data);
 				assert.equal(error.code, 201);
 				done();
 			});
 		});
-
-		it("fail - no param given", function(done) {
-			soajsProvision.getPackageData("abcd", function(error, data) {
+		
+		it("fail - no param given", function (done) {
+			soajsProvision.getPackageData("abcd", function (error, data) {
 				assert.ifError(error);
 				assert.ok(!data);
 				done();
 			});
 		});
-
-		it("success - will return data", function(done) {
-			soajsProvision.getPackageData("TPROD_BASIC", function(error, data) {
+		
+		it("success - will return data", function (done) {
+			soajsProvision.getPackageData("TPROD_BASIC", function (error, data) {
 				assert.ifError(error);
 				assert.ok(data);
 				//console.log(data);
@@ -179,26 +179,26 @@ describe('testing soajs provisioning', function() {
 		});
 	});
 	
-	describe("getTenantData", function(){
-		it("fail - wrong tId provided", function(done){
-			soajsProvision.getTenantData("10d2cb5fc04ce51e06000010", function(error, info){
+	describe("getTenantData", function () {
+		it("fail - wrong tId provided", function (done) {
+			soajsProvision.getTenantData("10d2cb5fc04ce51e06000010", function (error, info) {
 				assert.ok(error);
 				done();
 			});
 		});
 		
-		it("fail - tId provided as null ", function(done){
-			soajsProvision.getTenantData(null, function(error, info){
+		it("fail - tId provided as null ", function (done) {
+			soajsProvision.getTenantData(null, function (error, info) {
 				assert.ok(error);
 				done();
 			});
 		});
 		
-		it("success - will return tenant data", function(done){
-			mongo.findOne('tenants', {}, function(error, response) {
+		it("success - will return tenant data", function (done) {
+			mongo.findOne('tenants', {}, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
-				soajsProvision.getTenantData(response._id, function(error, info){
+				soajsProvision.getTenantData(response._id, function (error, info) {
 					assert.ifError(error);
 					assert.ok(info);
 					done();
@@ -207,16 +207,16 @@ describe('testing soajs provisioning', function() {
 		});
 	});
 	
-	describe("loadDaemonGrpConf", function(){
-		it("fail - wrong info provided", function(done){
-			soajsProvision.loadDaemonGrpConf('test', null, function(error, info){
+	describe("loadDaemonGrpConf", function () {
+		it("fail - wrong info provided", function (done) {
+			soajsProvision.loadDaemonGrpConf('test', null, function (error, info) {
 				assert.equal(error, false);
 				assert.ifError(info);
 				done();
 			});
 		});
 		
-		it("success - will return daemon conf", function(done){
+		it("success - will return daemon conf", function (done) {
 			var document = {
 				"daemonConfigGroup": "testGroup",
 				"daemon": "test",
@@ -228,10 +228,10 @@ describe('testing soajs provisioning', function() {
 				"jobs": {},
 				"order": []
 			};
-			mongo.insert("daemon_grpconf", document, function(error){
+			mongo.insert("daemon_grpconf", document, function (error) {
 				assert.ifError(error);
 				
-				soajsProvision.loadDaemonGrpConf('testGroup', 'test', function(error, response) {
+				soajsProvision.loadDaemonGrpConf('testGroup', 'test', function (error, response) {
 					console.log(error, response);
 					assert.ifError(error);
 					assert.ok(response);
@@ -242,22 +242,22 @@ describe('testing soajs provisioning', function() {
 	});
 });
 
-describe("oauthModel tests", function() {
-
-	describe("getClient tests", function() {
-		it("fail - no client id provided", function(done) {
-			soajsProvision.oauthModel.getClient(null, null, function(error, response) {
+describe("oauthModel tests", function () {
+	
+	describe("getClient tests", function () {
+		it("fail - no client id provided", function (done) {
+			soajsProvision.oauthModel.getClient(null, null, function (error, response) {
 				assert.ok(!error);
 				assert.ok(!response);
 				done();
 			});
 		});
-
-		it("success - no secret provided", function(done) {
+		
+		it("success - no secret provided", function (done) {
 			soajsProvision.init(metaData);
-			soajsProvision.loadProvision(function(loaded) {
+			soajsProvision.loadProvision(function (loaded) {
 				assert.ok(loaded);
-				soajsProvision.oauthModel.getClient('10d2cb5fc04ce51e06000001', null, function(error, response) {
+				soajsProvision.oauthModel.getClient('10d2cb5fc04ce51e06000001', null, function (error, response) {
 					assert.ok(!error);
 					assert.ok(response);
 					assert.deepEqual(response, {"clientId": "10d2cb5fc04ce51e06000001"});
@@ -265,12 +265,12 @@ describe("oauthModel tests", function() {
 				});
 			});
 		});
-
-		it("success - all provided correctly", function(done) {
+		
+		it("success - all provided correctly", function (done) {
 			soajsProvision.init(metaData);
-			soajsProvision.loadProvision(function(loaded) {
+			soajsProvision.loadProvision(function (loaded) {
 				assert.ok(loaded);
-				soajsProvision.oauthModel.getClient('10d2cb5fc04ce51e06000001', "shhh this is a secret", function(error, response) {
+				soajsProvision.oauthModel.getClient('10d2cb5fc04ce51e06000001', "shhh this is a secret", function (error, response) {
 					assert.ok(!error);
 					assert.ok(response);
 					assert.deepEqual(response, {"clientId": "10d2cb5fc04ce51e06000001"});
@@ -279,54 +279,54 @@ describe("oauthModel tests", function() {
 			});
 		});
 	});
-
-	describe("grantTypeAllowed tests", function() {
-		before(function(done) {
+	
+	describe("grantTypeAllowed tests", function () {
+		before(function (done) {
 			soajsProvision.init(metaData);
-			soajsProvision.loadProvision(function(loaded) {
+			soajsProvision.loadProvision(function (loaded) {
 				assert.ok(loaded);
 				done();
 			});
 		});
-
-		it("fail - no params provided", function(done) {
-			soajsProvision.oauthModel.grantTypeAllowed(null, null, function(error, response) {
+		
+		it("fail - no params provided", function (done) {
+			soajsProvision.oauthModel.grantTypeAllowed(null, null, function (error, response) {
 				assert.ok(!error);
 				assert.ok(!response);
 				done();
 			});
 		});
-
-		it("fail - no grantType provided", function(done) {
-			soajsProvision.oauthModel.grantTypeAllowed('10d2cb5fc04ce51e06000001', null, function(error, response) {
+		
+		it("fail - no grantType provided", function (done) {
+			soajsProvision.oauthModel.grantTypeAllowed('10d2cb5fc04ce51e06000001', null, function (error, response) {
 				assert.ok(!error);
 				assert.ok(!response);
 				done();
 			});
 		});
-
-		it("success - all provided correctly grantType=password", function(done) {
-			soajsProvision.oauthModel.grantTypeAllowed('10d2cb5fc04ce51e06000001', "password", function(error, response) {
+		
+		it("success - all provided correctly grantType=password", function (done) {
+			soajsProvision.oauthModel.grantTypeAllowed('10d2cb5fc04ce51e06000001', "password", function (error, response) {
 				assert.ok(!error);
 				assert.ok(response);
 				done();
 			});
 		});
-
-		it("success - all provided correctly grantType=refresh_token", function(done) {
-			soajsProvision.oauthModel.grantTypeAllowed('10d2cb5fc04ce51e06000001', "refresh_token", function(error, response) {
+		
+		it("success - all provided correctly grantType=refresh_token", function (done) {
+			soajsProvision.oauthModel.grantTypeAllowed('10d2cb5fc04ce51e06000001', "refresh_token", function (error, response) {
 				assert.ok(!error);
 				assert.ok(response);
 				done();
 			});
 		});
-
+		
 	});
 	
-	describe("saveAccessToken tests", function(){
+	describe("saveAccessToken tests", function () {
 		
-		it("success tests", function(done){
-			soajsProvision.oauthModel.saveAccessToken("e21538dd55806e47436227c9d2ab8f76348cee12", "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", function(err, token){
+		it("success tests", function (done) {
+			soajsProvision.oauthModel.saveAccessToken("e21538dd55806e47436227c9d2ab8f76348cee12", "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", function (err, token) {
 				assert.ok(!err);
 				assert.ok(!token);
 				done();
@@ -334,10 +334,10 @@ describe("oauthModel tests", function() {
 		});
 	});
 	
-	describe("saveRefreshToken tests", function(){
+	describe("saveRefreshToken tests", function () {
 		
-		it("success tests", function(done){
-			soajsProvision.oauthModel.saveRefreshToken("4eaef80c01709fb7cb058aaf9ca9921f6a4da222", "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", function(err, token){
+		it("success tests", function (done) {
+			soajsProvision.oauthModel.saveRefreshToken("4eaef80c01709fb7cb058aaf9ca9921f6a4da222", "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", function (err, token) {
 				assert.ok(!err);
 				assert.ok(!token);
 				done();
@@ -345,32 +345,32 @@ describe("oauthModel tests", function() {
 		});
 	});
 	
-	describe("getAccessToken tests", function(){
-
-		it("success tests", function(done){
-			soajsProvision.oauthModel.getAccessToken("e21538dd55806e47436227c9d2ab8f76348cee12", function(err, token){
+	describe("getAccessToken tests", function () {
+		
+		it("success tests", function (done) {
+			soajsProvision.oauthModel.getAccessToken("e21538dd55806e47436227c9d2ab8f76348cee12", function (err, token) {
 				assert.ok(!err);
 				assert.ok(token);
 				done();
 			});
 		});
 	});
-
-	describe("getRefreshToken tests", function(){
-
-		it("success tests", function(done){
-			soajsProvision.oauthModel.getRefreshToken("4eaef80c01709fb7cb058aaf9ca9921f6a4da222", function(err, token){
+	
+	describe("getRefreshToken tests", function () {
+		
+		it("success tests", function (done) {
+			soajsProvision.oauthModel.getRefreshToken("4eaef80c01709fb7cb058aaf9ca9921f6a4da222", function (err, token) {
 				assert.ok(!err);
 				assert.ok(token);
 				done();
 			});
 		});
 	});
-
-	describe("getUser tests", function(){
-
-		it("success tests", function(done){
-			soajsProvision.oauthModel.getUser(null, null, function(err, users){
+	
+	describe("getUser tests", function () {
+		
+		it("success tests", function (done) {
+			soajsProvision.oauthModel.getUser(null, null, function (err, users) {
 				assert.ok(!err);
 				done();
 			});
@@ -378,15 +378,13 @@ describe("oauthModel tests", function() {
 	});
 });
 
-describe("testing generate tokens", function(){
+describe("testing generate tokens", function () {
 	
-	it("success - should generate tokens", function(done){
+	it("success - should generate tokens", function (done) {
 		var req = {
-			headers :{
-				
-			},
-			soajs:{
-				tenant:{
+			headers: {},
+			soajs: {
+				tenant: {
 					id: "10d2cb5fc04ce51e06000001"
 				}
 			}
@@ -430,12 +428,38 @@ describe("testing generate tokens", function(){
 			"id": "58cff717423cbb6425df4e3f"
 		};
 		
-		soajsProvision.generateSaveAccessRefreshToken(user, req, function(err, response){
+		soajsProvision.generateSaveAccessRefreshToken(user, req, function (err, response) {
 			assert.ifError(err);
 			assert.ok(response);
 			assert.ok(response.access_token);
 			assert.ok(response.refresh_token);
 			
+			done();
+		});
+	});
+});
+
+describe("Soajs Provision", function () {
+	it("getTenantByCode redirect", function (done) {
+		soajsProvision.getTenantByCode("1", function (error, response) {
+			done();
+		});
+	});
+	
+	it("getEnvironmentExtKeyWithDashboardAccess redirect", function (done) {
+		soajsProvision.getEnvironmentExtKeyWithDashboardAccess("1", function (error, response) {
+			done();
+		});
+	});
+	
+	it("getEnvironmentsFromACL redirect", function (done) {
+		soajsProvision.getEnvironmentsFromACL("1", function (error, response) {
+			done();
+		});
+	});
+	
+	it.skip("getExternalKeyData - error", function (done) {
+		soajsProvision.getExternalKeyData(function (error, response) {
 			done();
 		});
 	});

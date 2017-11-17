@@ -4,6 +4,9 @@ var helper = require("../helper.js");
 var soajsMongo = helper.requireModule('./index.js').mongo;
 var contentBuilder = helper.requireModule('./index.js').contentBuilder;
 
+const sinon = require('sinon');
+var core = helper.requireModule("/soajs.core");
+
 var gcSchema = {
 	"name": "news",
 	"author": "owner",
@@ -336,9 +339,12 @@ var gcSchema = {
 	"modified": 1434026729858
 };
 
-describe("testing contentBuilder", function() {
+describe("testing contentBuilder", function () {
+	
+	let serviceStub;
+	
 	var mongo = null;
-	before(function(done) {
+	before(function (done) {
 		var dbConfig = {
 			"name": 'core_provision',
 			"prefix": "",
@@ -359,67 +365,74 @@ describe("testing contentBuilder", function() {
 			'expireAfter': 1000 * 60 * 60 * 24 * 14 // 2 weeks
 		};
 		mongo = new soajsMongo(dbConfig);
-
-		mongo.remove("gc", {}, function(error) {
+		
+		mongo.remove("gc", {}, function (error) {
 			assert.ifError(error);
-			mongo.remove("gc_versioning", {}, function(error) {
+			mongo.remove("gc_versioning", {}, function (error) {
 				assert.ifError(error);
 				done();
 			});
 		});
 	});
-
-	after(function(done){
-		mongo.remove("gc", {}, function(error) {
+	
+	afterEach(function (done) {
+		if (serviceStub) {
+			serviceStub.restore();
+		}
+		done();
+	});
+	
+	after(function (done) {
+		mongo.remove("gc", {}, function (error) {
 			assert.ifError(error);
-			mongo.remove("gc_versioning", {}, function(error) {
+			mongo.remove("gc_versioning", {}, function (error) {
 				assert.ifError(error);
 				mongo.closeDb();
 				done();
 			});
 		});
 	});
-
-	it("fail - no service name ", function(done) {
+	
+	it("fail - no service name ", function (done) {
 		var serviceInfo = {'version': 13};
-		contentBuilder(serviceInfo, function(error, config) {
+		contentBuilder(serviceInfo, function (error, config) {
 			assert.ok(error);
 			assert.ok(error.code, 190);
 			assert.ok(!config);
 			done();
 		});
 	});
-
-	it("fail - no service version", function(done) {
+	
+	it("fail - no service version", function (done) {
 		var serviceInfo = {'name': 'news'};
-		contentBuilder(serviceInfo, function(error, config) {
+		contentBuilder(serviceInfo, function (error, config) {
 			assert.ok(error);
 			assert.ok(error.code, 191);
 			assert.ok(!config);
 			done();
 		});
 	});
-
-	it("fail - service version wrong format", function(done) {
+	
+	it("fail - service version wrong format", function (done) {
 		var serviceInfo = {'name': 'news', 'version': '13'};
-		contentBuilder(serviceInfo, function(error, config) {
+		contentBuilder(serviceInfo, function (error, config) {
 			assert.ok(error);
 			assert.ok(error.code, 191);
 			assert.ok(!config);
 			done();
 		});
 	});
-
-	it("insert new gc service", function(done) {
-		mongo.insert('gc', gcSchema, function(error) {
+	
+	it("insert new gc service", function (done) {
+		mongo.insert('gc', gcSchema, function (error) {
 			assert.ifError(error);
 			done();
 		});
 	});
-
-	it("success - load Schema", function(done) {
+	
+	it("success - load Schema", function (done) {
 		var serviceInfo = {'name': 'news', 'version': 13};
-		contentBuilder(serviceInfo, function(error, config) {
+		contentBuilder(serviceInfo, function (error, config) {
 			assert.ifError(error);
 			assert.ok(config);
 			assert.equal(config.name, gcSchema.name);
@@ -432,4 +445,57 @@ describe("testing contentBuilder", function() {
 			done();
 		});
 	});
+	
+	it("Error: Invalid or no profile found", function (done) {
+		let config = {
+			version: 1,
+			name: "test"
+		};
+		
+		serviceStub = sinon.stub(core.registry, 'profile', (cb) => {
+				return cb();
+			}
+		);
+		
+		contentBuilder(config, function (error, response) {
+			assert.equal(error.toString(), "Error: Invalid or no profile found");
+			done();
+		});
+	});
+	
+	it("Error: invalid mongo config - no schema", function (done) {
+		let config = {
+			version: 1,
+			name: "test"
+		};
+		
+		serviceStub = sinon.stub(core.registry, 'profile', (cb) => {
+				let registry = {
+					coreDB: {
+						provision: {
+							"name": "core_provision",
+							"prefix": '',
+							"servers": [
+								{
+									"host": "127.0.0.1",
+									"port": 27017
+								}
+							],
+							"credentials": null,
+							"URLParam": {
+								"poolSize": 5,
+								"autoReconnect": true
+							}
+						}
+					}
+				};
+				return cb(registry);
+			}
+		);
+		
+		contentBuilder(config, function (error, response) {
+			done();
+		});
+	});
+	
 });
