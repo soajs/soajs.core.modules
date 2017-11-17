@@ -48,5 +48,9 @@ module.exports = {
             }
         };
         return cb(null, registry);
-    }
+    },
+	"getAllEnvironments": function(cb){
+		var obj = {};
+		return cb(null, obj);
+	}
 };

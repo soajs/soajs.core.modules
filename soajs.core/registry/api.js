@@ -78,5 +78,9 @@ module.exports = {
         else {
             return cb(new Error('Invalid profile path: ' + regFile), null);
         }
-    }
+    },
+	"getAllEnvironments": function(cb){
+		var obj = {};
+		return cb(null, obj);
+	}
 };
