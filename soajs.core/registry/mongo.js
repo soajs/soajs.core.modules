@@ -242,6 +242,10 @@ module.exports = {
 			"ip": param.ip
 		};
 		
+		if(!process.env.SOAJS_MANUAL){
+			condition.ip = "127.0.0.1";
+		}
+		
 		if(param.data && param.data.services){
 			for(let service in param.data.services){
 				if(param.data.services[service].awarenessStats){
