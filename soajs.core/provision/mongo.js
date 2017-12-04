@@ -28,6 +28,8 @@ module.exports = {
         });
         mongo.createIndex(tokenCollectionName, { token: 1, type: 1 }, function (err, result) {
         });
+	    mongo.createIndex(tokenCollectionName, { expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
+	    });
         mongo.createIndex(daemonGrpConfCollectionName, { daemonConfigGroup: 1, daemon: 1 }, function (err, result) {
         });
     },
