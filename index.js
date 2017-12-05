@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = {
-    "contentBuilder": require("./soajs.contentBuilder"),
     "core": require("./soajs.core"),
     "es": require("./soajs.es"),
     "mail": require("./soajs.mail"),
