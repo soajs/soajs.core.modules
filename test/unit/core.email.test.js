@@ -93,7 +93,6 @@ describe("testing mail functionality", function() {
 			mailer.send(mailOptions, function(error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				console.log(info);
 				done();
 			});
 		});
@@ -139,7 +138,6 @@ describe("testing mail functionality", function() {
 			soajsMailer.send(mailOptions, function(error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				console.log(info);
 				done();
 			});
 		});
@@ -159,7 +157,6 @@ describe("testing mail functionality", function() {
 			soajsMailer.send(mailOptions, function(error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				console.log(info);
 				done();
 			});
 		});
@@ -179,7 +176,6 @@ describe("testing mail functionality", function() {
 			soajsMailer.send(mailOptions, function(error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				console.log(info);
 				done();
 			});
 		});
@@ -212,7 +208,6 @@ describe("testing mail functionality", function() {
 			soajsMailer.send(mailOptions, function(error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				console.log(info);
 				fs.unlinkSync(__dirname + "/att2.txt");
 				fs.unlinkSync(__dirname + "/mytmpl.txt");
 				done();

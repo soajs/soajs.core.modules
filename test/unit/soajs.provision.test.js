@@ -232,7 +232,6 @@ describe('testing soajs provisioning', function () {
 				assert.ifError(error);
 				
 				soajsProvision.loadDaemonGrpConf('testGroup', 'test', function (error, response) {
-					console.log(error, response);
 					assert.ifError(error);
 					assert.ok(response);
 					done();

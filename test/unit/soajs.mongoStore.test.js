@@ -80,8 +80,6 @@ describe("mongoStore tests", function() {
 				}
 			};
 			store.set('abcdef1234',session,function(error, response){
-				console.log(error);
-				console.log(response);
 				done();
 			});
 		});
@@ -101,8 +99,8 @@ describe("mongoStore tests", function() {
 				}
 			};
 			store.set('abcdef1234',session,function(error, response){
-				console.log(error);
-				console.log(response);
+				assert.ifError(error);
+				assert.ok(response);
 				done();
 			});
 		});
@@ -159,8 +157,8 @@ describe("mongoStore tests", function() {
 				}
 			};
 			store.set('abcdef1234',session,function(error, response){
-				console.log(error);
-				console.log(response);
+				assert.ifError(error);
+				assert.ok(response);
 				done();
 			});
 		});
@@ -218,8 +216,8 @@ describe("mongoStore tests", function() {
 				}
 			};
 			store.set('abcdef1234',session,function(error, response){
-				console.log(error);
-				console.log(response);
+				assert.ifError(error);
+				assert.ok(response);
 				done();
 			});
 		});
@@ -273,8 +271,8 @@ describe("mongoStore tests", function() {
 				}
 			};
 			store.set('abcdef1234',session,function(error, response){
-				console.log(error);
-				console.log(response);
+				assert.ifError(error);
+				assert.ok(response);
 				done();
 			});
 		});

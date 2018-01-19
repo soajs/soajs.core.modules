@@ -125,8 +125,6 @@ describe("testing connection", function() {
 		mongo.find('myCollection', {}, function(error) {
 			assert.ok(error);
 			assert.ok(error.message);
-			//assert.equal(error.message,'Unable to build needed url for mongo.connect.');
-			console.log(error);
 			done();
 		});
 	});
@@ -523,7 +521,6 @@ describe("TESTING soajs.mongo", function() {
 		it('success - all working', function(done) {
 			mongo.findOne("myCollection", {'a': 'c'}, function(error, response) {
 				assert.ifError(error);
-				console.log(response);
 				done();
 			});
 		});
@@ -568,7 +565,6 @@ describe("TESTING soajs.mongo", function() {
 
 		it('success - all working', function(done) {
 			mongo.distinct("myCollection", 'a', function(error, response) {
-				console.log(error, response);
 				assert.ifError(error);
 				assert.equal(response.length, 1);
 				done();
@@ -634,7 +630,6 @@ describe("TESTING soajs.mongo", function() {
 
 		it('success - all working', function(done) {
 			mongo.aggregate("myCollection", { $match: { a: "c" } }, function(error, response) {
-				console.log(error, response);
 				assert.ifError(error);
 				assert.equal(response.length, 1);
 				done();
@@ -798,7 +793,6 @@ describe("TESTING soajs.mongo versioning", function() {
 			mongo.getVersions("myCollection", oneRecord._id, function(error, response) {
 				assert.ifError(error);
 				assert.ok(response);
-				console.log(response);
 				assert.equal(response.length, 2);
 				done();
 			});

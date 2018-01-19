@@ -138,7 +138,8 @@ describe("testing registry functionality", function () {
 			'serviceHATask': "myServiceTask",
 			'serviceVersion': "1"
 		};
-		core.registry.autoRegisterService(params, function (response) {
+		core.registry.autoRegisterService(params, function (error, response) {
+			assert.ifError(error);
 			assert.ok(response);
 			done();
 		});
@@ -191,7 +192,6 @@ describe("testing registry functionality", function () {
 			"serviceIp": param.serviceIp,
 		}, function (err, reg) {
 			assert.ifError(err);
-			//console.log(reg);
 			assert.ok(reg);
 			done();
 		});
@@ -218,14 +218,12 @@ describe("testing registry functionality", function () {
 	
 	it("loadOtherEnvControllerHosts registry", function (done) {
 		core.registry.loadOtherEnvControllerHosts(function (err, reg) {
-			console.log(reg);
 			done();
 		});
 	});
 	
 	it("Load registry By Env", function (done) {
 		core.registry.loadByEnv({"envCode": "TEST"}, function (reg) {
-			console.log(reg);
 			done();
 		});
 	});

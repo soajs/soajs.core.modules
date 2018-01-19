@@ -65,7 +65,6 @@ describe("core key tests", function() {
 			coreKey.getInfo(externalKey, null, function(error, response) {
 				assert.ifError(error);
 				assert.ok(response);
-				console.log(response);
 				done();
 			});
 		});
