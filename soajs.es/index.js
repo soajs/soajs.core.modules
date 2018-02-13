@@ -2,7 +2,6 @@
 var localConfig = require("./config");
 var core = require("../soajs.core");
 var elasticsearch = require("elasticsearch");
-var deleteByQuery = require('elasticsearch-deletebyquery');
 var objectHash = require("object-hash");
 var merge = require('merge');
 
@@ -233,7 +232,7 @@ EsDriver.connect = function(callback){
 
 		var esConfig = {
 			hosts: hosts,
-			plugins: [deleteByQuery]
+			plugins: []
 		};
 		
 		for (var i in config.extraParam) {
