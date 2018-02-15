@@ -111,23 +111,45 @@ var provision = {
 		});
 		
 		function findExtKeyForEnvironment(tenantRecord, env) {
-			var extKey = null;
+			let extKey = null;
 			//loop in tenant applications
 			tenantRecord.applications.forEach(function (oneApplication) {
 				
 				//loop in tenant keys
 				oneApplication.keys.forEach(function (oneKey) {
 					
-					//loop in tenant ext keys
-					oneKey.extKeys.forEach(function (oneExtKey) {
-						//get the ext key for the request environment who also has dashboardAccess true
-						//note: only one extkey per env has dashboardAccess true, simply find it and break
-						if (oneExtKey.env && oneExtKey.env === env && oneExtKey.dashboardAccess) {
-							extKey = oneExtKey.extKey;
+					//saas mode detected, only look for the correct key based on soajs_project value in services config
+					if (process.env.SOAJS_SAAS && !tenant.locked && tenant.soajs_project && oneKey.config[env.toLowerCase()]) {
+						let serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()].dashboard : null;
+						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields && oneKey.config[env.toLowerCase()].commonFields.dashboard){
+							serviceConfig = oneKey.config[env.toLowerCase()].commonFields.dashboard;
 						}
-					});
+						
+						//if soajs_project is found in one of the applications configuration, then use ONLY that ext key
+						if(serviceConfig && serviceConfig.SOAJS_COMPANY && serviceConfig.SOAJS_COMPANY[tenant.soajs_project]){
+							//loop in tenant ext keys
+							oneKey.extKeys.forEach(function (oneExtKey) {
+								//get the ext key for the request environment who also has dashboardAccess true
+								//note: only one extkey per env has dashboardAccess true, simply find it and break
+								if (oneExtKey.env && oneExtKey.env === env && oneExtKey.dashboardAccess && !oneExtKey.deprecated) {
+									extKey = oneExtKey.extKey;
+								}
+							});
+						}
+					}
+					else{
+						//loop in all tenant ext keys, Open Source || DBTN
+						oneKey.extKeys.forEach(function (oneExtKey) {
+							//get the ext key for the request environment who also has dashboardAccess true
+							//note: only one extkey per env has dashboardAccess true, simply find it and break
+							if (oneExtKey.env && oneExtKey.env === env && oneExtKey.dashboardAccess && !oneExtKey.deprecated) {
+								extKey = oneExtKey.extKey;
+							}
+						});
+					}
 				});
 			});
+			
 			return extKey;
 		}
 	},

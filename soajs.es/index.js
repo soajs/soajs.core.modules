@@ -2,6 +2,7 @@
 var localConfig = require("./config");
 var core = require("../soajs.core");
 var elasticsearch = require("elasticsearch");
+var deleteByQuery = require('elasticsearch-deletebyquery');
 var objectHash = require("object-hash");
 var merge = require('merge');
 
@@ -234,6 +235,10 @@ EsDriver.connect = function(callback){
 			hosts: hosts,
 			plugins: []
 		};
+		
+		if(config.extraParam && config.extraParam.apiVersion && parseFloat(config.extraParam.apiVersion) < 5.0){
+			esConfig.plugins.push(deleteByQuery);
+		}
 		
 		for (var i in config.extraParam) {
 			if (Object.hasOwnProperty.call(config.extraParam, i)) {
