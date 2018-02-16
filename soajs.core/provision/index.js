@@ -120,13 +120,14 @@ var provision = {
 					
 					//saas mode detected, only look for the correct key based on soajs_project value in services config
 					if (process.env.SOAJS_SAAS && !tenant.locked && tenant.soajs_project && oneKey.config[env.toLowerCase()]) {
-						let serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()].dashboard : null;
-						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields && oneKey.config[env.toLowerCase()].commonFields.dashboard){
-							serviceConfig = oneKey.config[env.toLowerCase()].commonFields.dashboard;
+						
+						let serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()].SOAJS_SAAS : null;
+						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields && oneKey.config[env.toLowerCase()].commonFields.SOAJS_SAAS){
+							serviceConfig = oneKey.config[env.toLowerCase()].commonFields.SOAJS_SAAS;
 						}
 						
 						//if soajs_project is found in one of the applications configuration, then use ONLY that ext key
-						if(serviceConfig && serviceConfig.SOAJS_COMPANY && serviceConfig.SOAJS_COMPANY[tenant.soajs_project]){
+						if(serviceConfig && serviceConfig[tenant.soajs_project]){
 							//loop in tenant ext keys
 							oneKey.extKeys.forEach(function (oneExtKey) {
 								//get the ext key for the request environment who also has dashboardAccess true
