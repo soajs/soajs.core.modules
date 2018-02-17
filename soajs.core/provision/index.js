@@ -145,7 +145,7 @@ var provision = {
 						}
 						
 						//if soajs_project is found in one of the applications configuration, then use ONLY that ext key
-						if(!serviceConfig || !serviceConfig.SOAJS_SAAS){
+						if(!serviceConfig || (serviceConfig && !serviceConfig.SOAJS_SAAS)){
 							//loop in tenant ext keys
 							oneKey.extKeys.forEach(function (oneExtKey) {
 								//get the ext key for the request environment who also has dashboardAccess true
