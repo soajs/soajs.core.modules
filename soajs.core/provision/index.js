@@ -119,8 +119,7 @@ var provision = {
 				oneApplication.keys.forEach(function (oneKey) {
 					//saas mode detected, only look for the correct key based on soajs_project value in services config
 					if (process.env.SOAJS_SAAS && tenant.soajs_project && oneKey.config[env.toLowerCase()]) {
-						
-						
+						//roam to package that has soajs_saas or owner
 						let serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()].SOAJS_SAAS : null;
 						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields && oneKey.config[env.toLowerCase()].commonFields.SOAJS_SAAS){
 							serviceConfig = oneKey.config[env.toLowerCase()].commonFields.SOAJS_SAAS;
@@ -138,7 +137,8 @@ var provision = {
 							});
 						}
 					}
-					else if (process.env.SOAJS_SAAS && oneKey.config[env.toLowerCase()]) {
+					else if (process.env.SOAJS_SAAS && !tenant.soajs_project&& oneKey.config[env.toLowerCase()]) {
+						//roam to package that has not soajs_saas or owner
 						let serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()] : null;
 						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields){
 							serviceConfig = oneKey.config[env.toLowerCase()].commonFields;
