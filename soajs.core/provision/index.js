@@ -140,7 +140,7 @@ var provision = {
 					}
 					else if (process.env.SOAJS_SAAS && oneKey.config[env.toLowerCase()]) {
 						let serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()] : null;
-						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields && oneKey.config[env.toLowerCase()].commonFields){
+						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields){
 							serviceConfig = oneKey.config[env.toLowerCase()].commonFields;
 						}
 						
