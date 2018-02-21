@@ -115,18 +115,20 @@ var provision = {
 			//loop in tenant applications
 			tenantRecord.applications.forEach(function (oneApplication) {
 				
-				//loop in tenant keys
-				oneApplication.keys.forEach(function (oneKey) {
-					//saas mode detected, only look for the correct key based on soajs_project value in services config
-					if (process.env.SOAJS_SAAS && tenant.soajs_project && oneKey.config[env.toLowerCase()]) {
-						//roam to package that has soajs_saas or owner
-						let serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()].SOAJS_SAAS : null;
-						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields && oneKey.config[env.toLowerCase()].commonFields.SOAJS_SAAS){
-							serviceConfig = oneKey.config[env.toLowerCase()].commonFields.SOAJS_SAAS;
+				if(process.env.SOAJS_SAAS){
+					//loop in tenant keys
+					oneApplication.keys.forEach(function (oneKey) {
+						
+						let serviceConfig;
+						if(oneKey.config && oneKey.config[env.toLowerCase()]){
+							serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()].SOAJS_SAAS : null;
+							if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields && oneKey.config[env.toLowerCase()].commonFields.SOAJS_SAAS){
+								serviceConfig = oneKey.config[env.toLowerCase()].commonFields.SOAJS_SAAS;
+							}
 						}
 						
-						//if soajs_project is found in one of the applications configuration, then use ONLY that ext key
 						if(serviceConfig && serviceConfig[tenant.soajs_project]){
+							//if soajs_project is found in one of the applications configuration, then use ONLY that ext key
 							//loop in tenant ext keys
 							oneKey.extKeys.forEach(function (oneExtKey) {
 								//get the ext key for the request environment who also has dashboardAccess true
@@ -136,16 +138,7 @@ var provision = {
 								}
 							});
 						}
-					}
-					else if (process.env.SOAJS_SAAS && !tenant.soajs_project&& oneKey.config[env.toLowerCase()]) {
-						//roam to package that has not soajs_saas or owner
-						let serviceConfig = (oneKey.config[env.toLowerCase()]) ? oneKey.config[env.toLowerCase()] : null;
-						if(!serviceConfig && oneKey.config[env.toLowerCase()].commonFields){
-							serviceConfig = oneKey.config[env.toLowerCase()].commonFields;
-						}
-						
-						//if soajs_project is found in one of the applications configuration, then use ONLY that ext key
-						if(!serviceConfig || (serviceConfig && !serviceConfig.SOAJS_SAAS)){
+						else if(!serviceConfig){
 							//loop in tenant ext keys
 							oneKey.extKeys.forEach(function (oneExtKey) {
 								//get the ext key for the request environment who also has dashboardAccess true
@@ -155,8 +148,11 @@ var provision = {
 								}
 							});
 						}
-					}
-					else{
+					});
+				}
+				else{
+					//loop in tenant keys
+					oneApplication.keys.forEach(function (oneKey) {
 						//loop in all tenant ext keys, Open Source || DBTN
 						oneKey.extKeys.forEach(function (oneExtKey) {
 							//get the ext key for the request environment who also has dashboardAccess true
@@ -165,8 +161,8 @@ var provision = {
 								extKey = oneExtKey.extKey;
 							}
 						});
-					}
-				});
+					});
+				}
 			});
 			
 			return extKey;
