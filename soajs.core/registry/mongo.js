@@ -82,7 +82,7 @@ module.exports = {
                             'created': envCode.toUpperCase(),
                             'plugged': true
                         }, {
-                            'created': "DASHBOARD",
+                            // 'created': "DASHBOARD",
                             'plugged': true,
                             'shared': true
                         }]
