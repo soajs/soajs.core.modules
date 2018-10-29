@@ -181,7 +181,7 @@ var build = {
                 if (STRUCT[i].env === regEnvironment) {
                     if (servicesObj[STRUCT[i].name]) {
                     	
-                    	if(STRUCT[i].port && !isNaN(STRUCT[i].port)){
+                    	if(STRUCT[i].env.toUpperCase() !== 'DASHBOARD' && STRUCT[i].port && !isNaN(STRUCT[i].port)){
 		                    servicesObj[STRUCT[i].name].port = STRUCT[i].port
 	                    }
                     	
