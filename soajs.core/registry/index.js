@@ -180,6 +180,11 @@ var build = {
             for (var i = 0; i < STRUCT.length; i++) {
                 if (STRUCT[i].env === regEnvironment) {
                     if (servicesObj[STRUCT[i].name]) {
+                    	
+                    	if(STRUCT[i].port && !isNaN(STRUCT[i].port)){
+		                    servicesObj[STRUCT[i].name].port = STRUCT[i].port
+	                    }
+                    	
                         if (!STRUCT[i].version)
                             STRUCT[i].version = 1;
                         if (!servicesObj[STRUCT[i].name].hosts) {
@@ -677,6 +682,8 @@ var registryModule = {
                 'env': registry.name.toLowerCase(),
                 'name': param.serviceName,
                 'ip': param.serviceIp,
+	            'port': param.servicePort,
+	            'gatewayPort': registry.serviceConfig.ports.controller,
                 'hostname': os.hostname().toLowerCase(),
                 'version': param.serviceVersion
             };

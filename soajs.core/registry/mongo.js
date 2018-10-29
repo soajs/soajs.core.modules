@@ -173,18 +173,26 @@ module.exports = {
     "addUpdateServiceIP": function (dbConfiguration, hostObj, cb) {
         initMongo(dbConfiguration);
         if (hostObj) {
+        	
             var criteria = {
                 'env': hostObj.env,
                 'name': hostObj.name,
                 'version': hostObj.version
             };
+	        
             if (hostObj.serviceHATask) {
                 criteria.serviceHATask = hostObj.serviceHATask;
             }
             else {
                 criteria.ip = hostObj.ip;
                 criteria.hostname = hostObj.hostname;
+                
+                if(hostObj.name !== 'controller' && hostObj.env !== 'dashboard'){
+                    hostObj.port += hostObj.gatewayPort;
+                }
+                delete hostObj.gatewayPort;
             }
+            
             mongo.update(hostCollectionName, criteria, {'$set': hostObj}, {'upsert': true}, function (err) {
                 if (err)
                     return cb(err, false);
