@@ -277,7 +277,12 @@ describe("testing registry functionality", function () {
 		};
 		let registry = {
 			name: "test",
-			coreDB: {}
+			coreDB: {},
+			serviceConfig: {
+				ports: {
+					controller: 4000
+				}
+			}
 		};
 		
 		core.registry.model = {
