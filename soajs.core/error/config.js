@@ -21,6 +21,7 @@ module.exports = {
         '14x': "SERVICE CORE",
         '141': "Unable to start the service.",
         '142': "extKeyRequired is ON for this service, Make sure your request is going through soajs.controller and a key is in the header",
+        '143': "invalid_request: Malformed auth header",
         '150': "Something blew up @ service core!",
         '151': "You are trying to reach an unknown rest service!",
         '152': "Unable to load you product package information. Check provision configuration for this key.",
