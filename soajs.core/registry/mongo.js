@@ -144,19 +144,23 @@ module.exports = {
                 return cb(error, null);
             }
             if (!record) {
-                var s = {
+                let s = {
                     '$set': {}
                 };
-                for (var p in serviceObj) {
+                for (let p in serviceObj) {
                     if (Object.hasOwnProperty.call(serviceObj, p)) {
                         if (p !== "versions")
                             s.$set[p] = serviceObj[p];
                     }
                 }
                 if (serviceObj.versions) {
-                    for (var pv in serviceObj.versions) {
+                    for (let pv in serviceObj.versions) {
                         if (Object.hasOwnProperty.call(serviceObj.versions, pv)) {
-                            s.$set['versions.' + pv] = serviceObj.versions[pv];
+                            for (let pvp in serviceObj.versions[pv]) {
+                                if (Object.hasOwnProperty.call(serviceObj.versions[pv], pvp)) {
+                                    s.$set['versions.' + pv + '.' + pvp] = serviceObj.versions[pv][pvp];
+                                }
+                            }
                         }
                     }
                 }
@@ -165,7 +169,7 @@ module.exports = {
                 });
             }
             else {
-                var error2 = new Error('Service port [' + serviceObj.port + '] is taken by another service [' + record.name + '].');
+                let error2 = new Error('Service port [' + serviceObj.port + '] is taken by another service [' + record.name + '].');
                 return cb(error2);
             }
         });
@@ -173,32 +177,32 @@ module.exports = {
     "addUpdateServiceIP": function (dbConfiguration, hostObj, cb) {
         initMongo(dbConfiguration);
         if (hostObj) {
-        	
+
             var criteria = {
                 'env': hostObj.env,
                 'name': hostObj.name,
                 'version': hostObj.version
             };
-	        
+
             if (hostObj.serviceHATask) {
                 criteria.serviceHATask = hostObj.serviceHATask;
             }
             else {
                 criteria.ip = hostObj.ip;
                 criteria.hostname = hostObj.hostname;
-	
-	            if(process.env.SOAJS_SRVPORT){
-		            hostObj.port = parseInt(process.env.SOAJS_SRVPORT);
-		            if(isNaN(hostObj.port)){
-		            	return cb(new Error("Invalid port value detected in SOAJS_SRVPORT environment variable, port value is not a number!"));
-		            }
-	            }
-                else if(hostObj.name !== 'controller' && hostObj.env !== 'dashboard'){
+
+                if (process.env.SOAJS_SRVPORT) {
+                    hostObj.port = parseInt(process.env.SOAJS_SRVPORT);
+                    if (isNaN(hostObj.port)) {
+                        return cb(new Error("Invalid port value detected in SOAJS_SRVPORT environment variable, port value is not a number!"));
+                    }
+                }
+                else if (hostObj.name !== 'controller' && hostObj.env !== 'dashboard') {
                     hostObj.port += hostObj.gatewayPort;
                 }
                 delete hostObj.gatewayPort;
             }
-            
+
             mongo.update(hostCollectionName, criteria, {'$set': hostObj}, {'upsert': true}, function (err) {
                 if (err)
                     return cb(err, false);
@@ -240,56 +244,60 @@ module.exports = {
                 return cb(null, registry);
             }
             else {
-                return cb (new Error('Invalid profile file: ' + regFile), null);
+                return cb(new Error('Invalid profile file: ' + regFile), null);
             }
         }
         else {
-            return cb (new Error('Invalid profile path: ' + regFile), null);
+            return cb(new Error('Invalid profile path: ' + regFile), null);
         }
     },
-	"getAllEnvironments": function(cb){
-		mongo.find(environmentCollectionName, {}, cb);
-	},
-	"addUpdateEnvControllers": function(param, cb){
-		let condition = {
-			"env": param.env.toLowerCase(),
-			"ip": param.ip
-		};
-		
-		if(!process.env.SOAJS_MANUAL){
-			condition.ip = "127.0.0.1";
-		}
-		
-		if(param.data && param.data.services){
-			for(let service in param.data.services){
-				if(param.data.services[service].awarenessStats){
-					for(let hostIp in param.data.services[service].awarenessStats){
-						let hostIp2 = hostIp.replace(/\./g, "_dot_");
-						param.data.services[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.services[service].awarenessStats[hostIp]);
-						delete param.data.services[service].awarenessStats[hostIp];
-					}
-				}
-			}
-		}
-		
-		if(param.data && param.data.daemons){
-			for(let service in param.data.daemons){
-				if(param.data.daemons[service].awarenessStats){
-					for(let hostIp in param.data.daemons[service].awarenessStats){
-						let hostIp2 = hostIp.replace(/\./g, "_dot_");
-						param.data.daemons[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.daemons[service].awarenessStats[hostIp]);
-						delete param.data.daemons[service].awarenessStats[hostIp];
-					}
-				}
-			}
-		}
-		
-		let document = {
-			"$set": {
-				"data": param.data,
-				"ts": param.ts
-			}
-		};
-		mongo.update(controllersCollectionName, condition, document, {"upsert": true, "safe": true, "multi": false}, cb);
-	}
+    "getAllEnvironments": function (cb) {
+        mongo.find(environmentCollectionName, {}, cb);
+    },
+    "addUpdateEnvControllers": function (param, cb) {
+        let condition = {
+            "env": param.env.toLowerCase(),
+            "ip": param.ip
+        };
+
+        if (!process.env.SOAJS_MANUAL) {
+            condition.ip = "127.0.0.1";
+        }
+
+        if (param.data && param.data.services) {
+            for (let service in param.data.services) {
+                if (param.data.services[service].awarenessStats) {
+                    for (let hostIp in param.data.services[service].awarenessStats) {
+                        let hostIp2 = hostIp.replace(/\./g, "_dot_");
+                        param.data.services[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.services[service].awarenessStats[hostIp]);
+                        delete param.data.services[service].awarenessStats[hostIp];
+                    }
+                }
+            }
+        }
+
+        if (param.data && param.data.daemons) {
+            for (let service in param.data.daemons) {
+                if (param.data.daemons[service].awarenessStats) {
+                    for (let hostIp in param.data.daemons[service].awarenessStats) {
+                        let hostIp2 = hostIp.replace(/\./g, "_dot_");
+                        param.data.daemons[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.daemons[service].awarenessStats[hostIp]);
+                        delete param.data.daemons[service].awarenessStats[hostIp];
+                    }
+                }
+            }
+        }
+
+        let document = {
+            "$set": {
+                "data": param.data,
+                "ts": param.ts
+            }
+        };
+        mongo.update(controllersCollectionName, condition, document, {
+            "upsert": true,
+            "safe": true,
+            "multi": false
+        }, cb);
+    }
 };

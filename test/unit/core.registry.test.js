@@ -229,7 +229,7 @@ describe("testing registry functionality", function () {
 	it("Register - unable to register service. missing params", function (done) {
 		let param = {};
 		core.registry.register(param, function (error, response) {
-			assert.equal(error.toString(), "Error: unable to register service. missing params");
+			assert.equal(error.toString(), "Error: unable to register service. missing ip or name param");
 			done();
 		});
 	});
