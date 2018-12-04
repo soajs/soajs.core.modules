@@ -360,6 +360,11 @@ var build = {
                     newDaemonServiceObj.versions[param.serviceVersion] = {
                         'jobs': param.jobList
                     };
+
+                    if (param.maintenance) {
+                        newDaemonServiceObj.maintenance = param.maintenance;
+                    }
+
                     build.registerNewService(registry.coreDB.provision, newDaemonServiceObj, 'daemons', function (error) {
                         if (error) {
                             var err = new Error('Unable to register new daemon service ' + param.serviceName + ' : ' + error.message);
@@ -404,6 +409,10 @@ var build = {
                         "oauth": param.oauth,
                         "apis": param.apiList
                     };
+
+                    if (param.maintenance) {
+                        newServiceObj.maintenance = param.maintenance;
+                    }
 
                     build.registerNewService(registry.coreDB.provision, newServiceObj, 'services', function (error) {
                         if (error) {
@@ -601,6 +610,10 @@ var registryModule = {
                         'group': param.group,
                         'port': param.port
                     };
+                    if (param.maintenance) {
+                        newServiceObj.maintenance = param.maintenance;
+                    }
+
                     build.registerNewService(registry_struct[regEnvironment].coreDB.provision, newDaemonServiceObj, 'daemons', function (error) {
                         if (error) {
                             var err = new Error('Unable to register new daemon service ' + param.serviceName + ' : ' + error.message);
@@ -628,6 +641,13 @@ var registryModule = {
                         "provision_ACL": param.provision_ACL,
                         "oauth": param.oauth
                     };
+                    if (param.maintenance) {
+                        newServiceObj.maintenance = param.maintenance;
+                    }
+                    if (param.apiList) {
+                        param.version = param.version || 1;
+                        newServiceObj.versions[param.version].apis = param.apiList;
+                    }
 
                     build.registerNewService(registry_struct[regEnvironment].coreDB.provision, newServiceObj, 'services', function (error) {
                         if (error) {
