@@ -141,7 +141,8 @@ var build = {
                     "port": STRUCT[i].port,
                     "versions": STRUCT[i].versions,
                     "requestTimeoutRenewal": STRUCT[i].requestTimeoutRenewal || null,
-                    "requestTimeout": STRUCT[i].requestTimeout || null
+                    "requestTimeout": STRUCT[i].requestTimeout || null,
+                    "maintenance": STRUCT[i].maintenance || null
                 };
                 for (var ver in STRUCT[i].versions) {
                     if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
@@ -169,7 +170,8 @@ var build = {
                 servicesObj[STRUCT[i].name] = {
                     "group": STRUCT[i].group || "daemon",
                     "port": STRUCT[i].port,
-                    "versions": STRUCT[i].versions
+                    "versions": STRUCT[i].versions,
+                    "maintenance": STRUCT[i].maintenance || null
                 };
             }
         }
@@ -778,7 +780,7 @@ var registryModule = {
                 'name': param.serviceName,
                 'ip': param.serviceIp,
                 'port': param.servicePort,
-                'gatewayPort': registry.serviceConfig.ports.controller,
+                //'gatewayPort': registry.serviceConfig.ports.controller,
                 'hostname': os.hostname().toLowerCase(),
                 'version': param.serviceVersion
             };

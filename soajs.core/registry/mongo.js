@@ -197,10 +197,12 @@ module.exports = {
                         return cb(new Error("Invalid port value detected in SOAJS_SRVPORT environment variable, port value is not a number!"));
                     }
                 }
+                /*
                 else if (hostObj.name !== 'controller' && hostObj.env !== 'dashboard') {
                     hostObj.port += hostObj.gatewayPort;
                 }
                 delete hostObj.gatewayPort;
+                */
             }
 
             mongo.update(hostCollectionName, criteria, {'$set': hostObj}, {'upsert': true}, function (err) {
