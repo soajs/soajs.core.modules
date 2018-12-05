@@ -333,8 +333,22 @@ var build = {
         }
 
         if (param.serviceName === "controller") {
-            buildAll();
-            return resume("services");
+
+            let newServiceObj = {
+                'name': param.serviceName,
+                'port': registry["services"][param.serviceName].port,
+            };
+            if (param.maintenance) {
+                newServiceObj.maintenance = param.maintenance;
+            }
+            build.registerNewService(registry.coreDB.provision, newServiceObj, 'services', function (error) {
+                if (error) {
+                    var err = new Error('Unable to register new daemon service ' + param.serviceName + ' : ' + error.message);
+                    return callback(err);
+                }
+                buildAll();
+                return resume("services");
+            });
         }
         else {
             if (param.type && param.type === "daemon") {
@@ -649,9 +663,22 @@ var registryModule = {
                         newServiceObj.versions[param.version].apis = param.apiList;
                     }
 
+                    try {
+                        registryModule.registerHost({
+                            "serviceName": param.name,
+                            "serviceVersion": param.version,
+                            "servicePort": param.port,
+                            "serviceIp": param.ip
+                        }, registry_struct[regEnvironment], (registered) => {
+                        });
+                    }
+                    catch (e){
+
+                    }
+
                     build.registerNewService(registry_struct[regEnvironment].coreDB.provision, newServiceObj, 'services', function (error) {
                         if (error) {
-                            var err = new Error('Unable to register new service ' + param.serviceName + ' : ' + error.message);
+                            let err = new Error('Unable to register new service ' + param.serviceName + ' : ' + error.message);
                             return cb(err);
                         }
                         return cb(null, registry_struct[regEnvironment][what][param.name]);
