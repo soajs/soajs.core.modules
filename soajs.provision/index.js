@@ -99,6 +99,21 @@ var provision = {
             return cb(null, tenant);
         });
     },
+    "getTenantOauth": function (tId, cb) {
+        if (!tId)
+            return cb(core.error.generate(205));
+        if (struct_oauths[tId])
+            return cb(null, struct_oauths[tId]);
+
+        core.provision.getTenantOauth(tId, function (err, tenantOauth) {
+            if (err)
+                return cb(err);
+            if (!tenantOauth)
+                return cb(core.error.generate(206));
+            struct_oauths[tId] = tenantOauth;
+            return cb(null, tenantOauth);
+        });
+    },
     "getPackageData": function (code, cb) {
         if (!code)
             return cb(core.error.generate(201));
@@ -256,10 +271,13 @@ var provision = {
             return cb(false, false);
         },
         "grantTypeAllowed": function (clientId, grantType, cb) {
-            if (struct_oauths[clientId] && struct_oauths[clientId].grants && (struct_oauths[clientId].grants.indexOf(grantType) >= 0))
-                return cb(false, true);
-            else
-                return cb(false, false);
+            return cb(false, true);
+
+            //NOTE: we want the grants to be only at registry and not by tenant, thus set in MW oauth
+            //if (struct_oauths[clientId] && struct_oauths[clientId].grants && (struct_oauths[clientId].grants.indexOf(grantType) >= 0))
+            //    return cb(false, true);
+            //else
+            //    return cb(false, false);
         },
         "getAccessToken": function (bearerToken, cb) {
             core.provision.getAccessToken(bearerToken, cb);

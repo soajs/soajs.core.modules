@@ -68,6 +68,14 @@ var provision = {
             return cb(null, data.tenantData[tId]);
         });
     },
+    "getTenantOauth": function (tId, cb) {
+        return provision.model.getKeyFromDb(null, tId, true, function (err, data) {
+            if (err || !(data && data.oauthData && data.oauthData[tId])) {
+                return cb(err);
+            }
+            return cb(null, data.oauthData[tId]);
+        });
+    },
     "getPackage": function (code, cb) {
         return provision.model.getPackagesFromDb(code, function (err, data) {
             if (err || !(data && data[code])) {
