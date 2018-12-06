@@ -291,7 +291,7 @@ describe("oauthModel tests", function () {
 		it("fail - no params provided", function (done) {
 			soajsProvision.oauthModel.grantTypeAllowed(null, null, function (error, response) {
 				assert.ok(!error);
-				assert.ok(!response);
+				assert.ok(response);
 				done();
 			});
 		});
@@ -299,7 +299,7 @@ describe("oauthModel tests", function () {
 		it("fail - no grantType provided", function (done) {
 			soajsProvision.oauthModel.grantTypeAllowed('10d2cb5fc04ce51e06000001', null, function (error, response) {
 				assert.ok(!error);
-				assert.ok(!response);
+				assert.ok(response);
 				done();
 			});
 		});
