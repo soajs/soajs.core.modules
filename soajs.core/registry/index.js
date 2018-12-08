@@ -809,9 +809,12 @@ var registryModule = {
             async.each(controllerSRV.hosts[controllerSRV.hosts.latest],
                 function (ip, callback) {
                     var requestOptions = {
-                        'uri': 'http://' + ip + ':' + (controllerSRV.port + registry_struct[regEnvironment].serviceConfig.ports.maintenanceInc) + '/register'
+                        'uri': 'http://' + ip + ':' + (controllerSRV.port + registry_struct[regEnvironment].serviceConfig.ports.maintenanceInc) + '/register',
+                        "json": true,
+                        "method": "post"
                     };
-                    requestOptions.qs = {
+                    requestOptions.qs = {};
+                    requestOptions.body = {
                         "name": param.name,
                         "group": serviceSRV.group,
                         "port": serviceSRV.port,
@@ -820,18 +823,18 @@ var registryModule = {
                     };
 
                     if (param.what === "daemons") {
-                        requestOptions.qs.type = "daemon";
+                        requestOptions.body.type = "daemon";
                     }
                     else {
-                        requestOptions.qs.type = "service";
-                        requestOptions.qs.oauth = param.oauth;
-                        requestOptions.qs.urac = param.urac;
-                        requestOptions.qs.urac_Profile = param.urac_Profile;
-                        requestOptions.qs.urac_ACL = param.urac_ACL;
-                        requestOptions.qs.provision_ACL = param.provision_ACL;
-                        requestOptions.qs.extKeyRequired = serviceSRV.extKeyRequired;
-                        requestOptions.qs.requestTimeout = serviceSRV.requestTimeout;
-                        requestOptions.qs.requestTimeoutRenewal = serviceSRV.requestTimeoutRenewal;
+                        requestOptions.body.type = "service";
+                        requestOptions.body.oauth = param.oauth;
+                        requestOptions.body.urac = param.urac;
+                        requestOptions.body.urac_Profile = param.urac_Profile;
+                        requestOptions.body.urac_ACL = param.urac_ACL;
+                        requestOptions.body.provision_ACL = param.provision_ACL;
+                        requestOptions.body.extKeyRequired = serviceSRV.extKeyRequired;
+                        requestOptions.body.requestTimeout = serviceSRV.requestTimeout;
+                        requestOptions.body.requestTimeoutRenewal = serviceSRV.requestTimeoutRenewal;
                     }
 
                     if (param.serviceHATask)
