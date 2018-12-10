@@ -578,6 +578,10 @@ var registryModule = {
                     };
                 }
             }
+            else {
+                if (registry_struct[regEnvironment][what][param.name].port != param.port)
+                    registry_struct[regEnvironment][what][param.name].port = param.port;
+            }
 
             registry_struct[regEnvironment][what][param.name].extKeyRequired = param.extKeyRequired;
             registry_struct[regEnvironment][what][param.name].version = param.version;
@@ -817,7 +821,7 @@ var registryModule = {
                     requestOptions.body = {
                         "name": param.name,
                         "group": serviceSRV.group,
-                        "port": serviceSRV.port,
+                        "port": param.port || serviceSRV.port,
                         "ip": param.serviceIp,
                         "version": param.serviceVersion
                     };
