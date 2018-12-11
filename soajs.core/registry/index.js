@@ -337,8 +337,8 @@ var build = {
         if (param.serviceName === "controller") {
 
             let newServiceObj = {
-                'name': param.serviceName,
-                'port': registry["services"][param.serviceName].port,
+                'name': "controller",
+                'port': 4000,
             };
             if (param.maintenance) {
                 newServiceObj.maintenance = param.maintenance;
