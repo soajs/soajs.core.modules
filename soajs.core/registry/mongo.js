@@ -191,19 +191,6 @@ module.exports = {
             else {
                 criteria.ip = hostObj.ip;
                 criteria.hostname = hostObj.hostname;
-
-                if (process.env.SOAJS_SRVPORT) {
-                    hostObj.port = parseInt(process.env.SOAJS_SRVPORT);
-                    if (isNaN(hostObj.port)) {
-                        return cb(new Error("Invalid port value detected in SOAJS_SRVPORT environment variable, port value is not a number!"));
-                    }
-                }
-                /*
-                else if (hostObj.name !== 'controller' && hostObj.env !== 'dashboard') {
-                    hostObj.port += hostObj.gatewayPort;
-                }
-                delete hostObj.gatewayPort;
-                */
             }
 
             mongo.update(hostCollectionName, criteria, {'$set': hostObj}, {'upsert': true}, function (err) {
