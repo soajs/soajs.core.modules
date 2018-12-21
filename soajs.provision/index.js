@@ -38,6 +38,7 @@ function getKeyData(keyStruct, extKey) {
                             "acl_all_env": keyStruct.application.acl_all_env
                         },
                         "device": keyStruct.extKeys[i].device,
+                        "env": keyStruct.extKeys[i].env,
                         "geo": keyStruct.extKeys[i].geo,
                         "config": keyStruct.config
                     };

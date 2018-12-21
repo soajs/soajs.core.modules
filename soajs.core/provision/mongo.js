@@ -24,39 +24,39 @@ module.exports = {
         });
         mongo.createIndex(productsCollectionName, {'packages.code': 1}, function (err, result) {
         });
-        mongo.createIndex(oauthUracCollectionName, { userId: 1 }, { unique: true }, function (err, result) {
+        mongo.createIndex(oauthUracCollectionName, {userId: 1}, {unique: true}, function (err, result) {
         });
-        mongo.createIndex(tokenCollectionName, { token: 1, type: 1 }, function (err, result) {
+        mongo.createIndex(tokenCollectionName, {token: 1, type: 1}, function (err, result) {
         });
-	    mongo.createIndex(tokenCollectionName, { expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
-	    });
-        mongo.createIndex(daemonGrpConfCollectionName, { daemonConfigGroup: 1, daemon: 1 }, function (err, result) {
+        mongo.createIndex(tokenCollectionName, {expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
+        });
+        mongo.createIndex(daemonGrpConfCollectionName, {daemonConfigGroup: 1, daemon: 1}, function (err, result) {
         });
     },
 
     "getAccessToken": function (bearerToken, cb) {
         mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "accessToken"}, function (err, rec) {
             if (rec && rec.env === regEnvironment) {
-	            return cb(err, rec);
+                return cb(err, rec);
             }
             else {
-	            if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
-		            return cb(err, rec);
-	            else
-		            return cb(err, null);
+                if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
+                    return cb(err, rec);
+                else
+                    return cb(err, null);
             }
         });
     },
-	"getRefreshToken": function (bearerToken, cb) {
-		mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "refreshToken"}, function (err, rec) {
-			if (rec && rec.env === regEnvironment)
-				return cb(err, rec);
-			else {
-				if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
-					return cb(err, rec);
-				else
-					return cb(err, null);
-			}
+    "getRefreshToken": function (bearerToken, cb) {
+        mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "refreshToken"}, function (err, rec) {
+            if (rec && rec.env === regEnvironment)
+                return cb(err, rec);
+            else {
+                if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
+                    return cb(err, rec);
+                else
+                    return cb(err, null);
+            }
         });
     },
     "saveAccessToken": function (accessToken, clientId, expires, user, cb) {
@@ -126,7 +126,7 @@ module.exports = {
                                 var ACL_ALL_ENV = products[i].packages[j].acl;
                                 var ACL = ACL_ALL_ENV;
                                 if (ACL_ALL_ENV && typeof ACL_ALL_ENV === "object") {
-                                    if (ACL_ALL_ENV[regEnvironment] && (!Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment],'access') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment],'apis') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment],'apisRegExp') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment],'apisPermission'))) {
+                                    if (ACL_ALL_ENV[regEnvironment] && (!Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'access') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apis') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apisRegExp') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apisPermission'))) {
                                         ACL = ACL_ALL_ENV[regEnvironment];
                                     }
                                 }
@@ -196,7 +196,13 @@ module.exports = {
                                         var ACL_ALL_ENV = tenants[i].applications[j].acl;
                                         var ACL = ACL_ALL_ENV;
                                         if (ACL_ALL_ENV && typeof ACL_ALL_ENV === "object") {
-                                            if (ACL_ALL_ENV[regEnvironment] && (!Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment],'access') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment],'apis') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment],'apisRegExp') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment],'apisPermission')))
+                                            if (ACL_ALL_ENV[regEnvironment] &&
+                                                (
+                                                    !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'access') &&
+                                                    !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apis') &&
+                                                    !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apisRegExp') &&
+                                                    !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apisPermission')
+                                                ))
                                                 ACL = ACL_ALL_ENV[regEnvironment];
                                         }
                                         else {
@@ -209,7 +215,7 @@ module.exports = {
                                             "tenant": {
                                                 "id": tenants[i]._id.toString(),
                                                 "code": tenants[i].code,
-                                                "locked": tenants[i].locked?true:false
+                                                "locked": tenants[i].locked ? true : false
                                             },
                                             "application": {
                                                 "product": tenants[i].applications[j].product,
@@ -237,10 +243,10 @@ module.exports = {
             }
         });
     },
-	
-	"getTenantFromCode": function(code, cb){
-		mongo.findOne(tenantCollectionName, {"code": code.toUpperCase()}, cb);
-	},
-	
-	
+
+    "getTenantFromCode": function (code, cb) {
+        mongo.findOne(tenantCollectionName, {"code": code.toUpperCase()}, cb);
+    },
+
+
 };
