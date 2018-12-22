@@ -1,8 +1,9 @@
 'use strict';
-var fs = require('fs');
+//var fs = require('fs');
 var os = require("os");
 var request = require('request');
 var async = require('async');
+let soajsLib = require("soajs.core.libs");
 
 var autoRegHost = process.env.SOAJS_SRV_AUTOREGISTERHOST || true;
 if (autoRegHost && typeof(autoRegHost) !== 'boolean') {
@@ -144,14 +145,12 @@ var build = {
                     "requestTimeout": STRUCT[i].requestTimeout || null,
                     "maintenance": STRUCT[i].maintenance || null
                 };
-                for (var ver in STRUCT[i].versions) {
+
+                for (let ver in STRUCT[i].versions) {
                     if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
-                        var i_ver = parseInt(ver);
-                        if (isNaN(i_ver))
-                            i_ver = 1;
                         if (!servicesObj[STRUCT[i].name].version)
-                            servicesObj[STRUCT[i].name].version = i_ver;
-                        if (i_ver >= servicesObj[STRUCT[i].name].version) {
+                            servicesObj[STRUCT[i].name].version = ver;
+                        else if (soajsLib.version.isLatest(ver, servicesObj[STRUCT[i].name].version)) {
                             servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[ver].extKeyRequired || false;
                             servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[ver].oauth || false;
                         }
@@ -188,7 +187,7 @@ var build = {
                         }
 
                         if (!STRUCT[i].version)
-                            STRUCT[i].version = 1;
+                            STRUCT[i].version = "1";
                         if (!servicesObj[STRUCT[i].name].hosts) {
                             servicesObj[STRUCT[i].name].hosts = {};
                             servicesObj[STRUCT[i].name].hosts.latest = STRUCT[i].version;
@@ -197,7 +196,7 @@ var build = {
                         if (!servicesObj[STRUCT[i].name].hosts[STRUCT[i].version]) {
                             servicesObj[STRUCT[i].name].hosts[STRUCT[i].version] = [];
                         }
-                        if (STRUCT[i].version > servicesObj[STRUCT[i].name].hosts.latest) {
+                        if (soajsLib.version.isLatest(STRUCT[i].version, servicesObj[STRUCT[i].name].hosts.latest)) {
                             servicesObj[STRUCT[i].name].hosts.latest = STRUCT[i].version;
                         }
                         if (servicesObj[STRUCT[i].name].hosts[STRUCT[i].version].indexOf(STRUCT[i].ip) === -1) {
@@ -214,7 +213,7 @@ var build = {
             for (var i = 0; i < STRUCT.length; i++) {
                 if (STRUCT[i].name === "controller" && STRUCT[i].env === regEnvironment) {
                     if (!STRUCT[i].version)
-                        STRUCT[i].version = 1;
+                        STRUCT[i].version = "1";
                     if (!controllerObj.hosts) {
                         controllerObj.hosts = {};
                         controllerObj.hosts.latest = STRUCT[i].version;
@@ -665,7 +664,7 @@ var registryModule = {
                         newServiceObj.maintenance = param.maintenance;
                     }
                     if (param.apiList) {
-                        param.version = param.version || 1;
+                        param.version = "" + (param.version || 1);
                         newServiceObj.versions[param.version].apis = param.apiList;
                     }
 
