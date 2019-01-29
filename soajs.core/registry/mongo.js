@@ -157,6 +157,7 @@ module.exports = {
                 if (serviceObj.versions) {
                     for (let pv in serviceObj.versions) {
                         if (Object.hasOwnProperty.call(serviceObj.versions, pv)) {
+                            //TODO semVerX
                             for (let pvp in serviceObj.versions[pv]) {
                                 if (Object.hasOwnProperty.call(serviceObj.versions[pv], pvp)) {
                                     s.$set['versions.' + pv + '.' + pvp] = serviceObj.versions[pv][pvp];

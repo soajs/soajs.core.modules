@@ -148,6 +148,7 @@ var build = {
 
                 for (let ver in STRUCT[i].versions) {
                     if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
+                        //TODO semVerX
                         if (!servicesObj[STRUCT[i].name].version)
                             servicesObj[STRUCT[i].name].version = ver;
                         else if (soajsLib.version.isLatest(ver, servicesObj[STRUCT[i].name].version)) {
@@ -172,6 +173,8 @@ var build = {
                     "versions": STRUCT[i].versions,
                     "maintenance": STRUCT[i].maintenance || null
                 };
+
+                //TODO semVerX
             }
         }
     },
