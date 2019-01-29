@@ -1,8 +1,8 @@
 'use strict';
 //var fs = require('fs');
-var os = require("os");
-var request = require('request');
-var async = require('async');
+let os = require("os");
+let request = require('request');
+let async = require('async');
 let soajsLib = require("soajs.core.libs");
 
 var autoRegHost = process.env.SOAJS_SRV_AUTOREGISTERHOST || true;
@@ -140,19 +140,26 @@ var build = {
                 servicesObj[STRUCT[i].name] = {
                     "group": STRUCT[i].group || "service",
                     "port": STRUCT[i].port,
-                    "versions": STRUCT[i].versions,
+                    //"versions": STRUCT[i].versions,
                     "requestTimeoutRenewal": STRUCT[i].requestTimeoutRenewal || null,
                     "requestTimeout": STRUCT[i].requestTimeout || null,
                     "maintenance": STRUCT[i].maintenance || null
                 };
 
-                for (let ver in STRUCT[i].versions) {
-                    if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
-                        if (!servicesObj[STRUCT[i].name].version)
-                            servicesObj[STRUCT[i].name].version = ver;
-                        else if (soajsLib.version.isLatest(ver, servicesObj[STRUCT[i].name].version)) {
-                            servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[ver].extKeyRequired || false;
-                            servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[ver].oauth || false;
+                //TODO semVerX
+                if (STRUCT[i].versions) {
+                    servicesObj[STRUCT[i].name].versions = {};
+                    for (let ver in STRUCT[i].versions) {
+                        if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
+                            let unsanitizedVer = soajsLib.version.unsanitize(ver);
+                            servicesObj[STRUCT[i].name].versions[unsanitizedVer] = STRUCT[i].versions[ver];
+
+                            if (!servicesObj[STRUCT[i].name].version)
+                                servicesObj[STRUCT[i].name].version = unsanitizedVer;
+                            else if (soajsLib.version.isLatest(unsanitizedVer, servicesObj[STRUCT[i].name].version)) {
+                                servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[ver].extKeyRequired || false;
+                                servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[ver].oauth || false;
+                            }
                         }
                     }
                 }
@@ -169,9 +176,20 @@ var build = {
                 servicesObj[STRUCT[i].name] = {
                     "group": STRUCT[i].group || "daemon",
                     "port": STRUCT[i].port,
-                    "versions": STRUCT[i].versions,
+                    //"versions": STRUCT[i].versions,
                     "maintenance": STRUCT[i].maintenance || null
                 };
+
+                //TODO semVerX
+                if (STRUCT[i].versions) {
+                    servicesObj[STRUCT[i].name].versions = {};
+                    for (let ver in STRUCT[i].versions) {
+                        if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
+                            let unsanitizedVer = soajsLib.version.unsanitize(ver);
+                            servicesObj[STRUCT[i].name].versions[unsanitizedVer] = STRUCT[i].versions[ver];
+                        }
+                    }
+                }
             }
         }
     },

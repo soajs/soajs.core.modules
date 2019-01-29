@@ -1,7 +1,8 @@
 'use strict';
-var fs = require('fs');
-var Mongo = require('../../soajs.mongo');
-var soajsUtils = require("soajs.core.libs").utils;
+let fs = require('fs');
+let Mongo = require('../../soajs.mongo');
+let soajsLib = require("soajs.core.libs");
+let soajsUtils = soajsLib.utils;
 
 var regFile = (process.env.SOAJS_PROFILE || __dirname + "/../../profiles/single.js");
 var mongo;
@@ -157,6 +158,8 @@ module.exports = {
                 if (serviceObj.versions) {
                     for (let pv in serviceObj.versions) {
                         if (Object.hasOwnProperty.call(serviceObj.versions, pv)) {
+                            //TODO semVerX
+                            pv = soajsLib.version.sanitize(pv);
                             for (let pvp in serviceObj.versions[pv]) {
                                 if (Object.hasOwnProperty.call(serviceObj.versions[pv], pvp)) {
                                     s.$set['versions.' + pv + '.' + pvp] = serviceObj.versions[pv][pvp];
