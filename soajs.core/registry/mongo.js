@@ -159,7 +159,7 @@ module.exports = {
                     for (let pv in serviceObj.versions) {
                         if (Object.hasOwnProperty.call(serviceObj.versions, pv)) {
                             //TODO semVerX
-                            pv = soajsLib.sanitize(pv);
+                            pv = soajsLib.version.sanitize(pv);
                             for (let pvp in serviceObj.versions[pv]) {
                                 if (Object.hasOwnProperty.call(serviceObj.versions[pv], pvp)) {
                                     s.$set['versions.' + pv + '.' + pvp] = serviceObj.versions[pv][pvp];

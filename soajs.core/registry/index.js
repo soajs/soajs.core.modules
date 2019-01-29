@@ -151,7 +151,7 @@ var build = {
                     servicesObj[STRUCT[i].name].versions = {};
                     for (let ver in STRUCT[i].versions) {
                         if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
-                            let unsanitizedVer = soajsLib.unsanitize(ver);
+                            let unsanitizedVer = soajsLib.version.unsanitize(ver);
                             servicesObj[STRUCT[i].name].versions[unsanitizedVer] = STRUCT[i].versions[ver];
 
                             if (!servicesObj[STRUCT[i].name].version)
@@ -185,7 +185,7 @@ var build = {
                     servicesObj[STRUCT[i].name].versions = {};
                     for (let ver in STRUCT[i].versions) {
                         if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
-                            let unsanitizedVer = soajsLib.unsanitize(ver);
+                            let unsanitizedVer = soajsLib.version.unsanitize(ver);
                             servicesObj[STRUCT[i].name].versions[unsanitizedVer] = STRUCT[i].versions[ver];
                         }
                     }
