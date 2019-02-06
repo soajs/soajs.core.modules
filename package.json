@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -31,7 +31,7 @@
     "mocha": "3.2.0",
     "shelljs": "0.7.5",
     "sinon": "1.17.6",
-    "soajs.mongodb.data": "2.0.*"
+    "soajs.mongodb.data": "2.1.*"
   },
   "dependencies": {
     "async": "2.1.4",
@@ -51,6 +51,6 @@
     "nodemailer-smtp-transport": "2.7.2",
     "object-hash": "1.1.5",
     "request": "2.84.0",
-    "soajs.core.libs": "1.0.3"
+    "soajs.core.libs": "1.1.0"
   }
 }
