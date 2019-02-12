@@ -695,7 +695,7 @@ var registryModule = {
                         }, registry_struct[regEnvironment], (registered) => {
                         });
                     }
-                    catch (e) {
+                    catch (e){
 
                     }
 
@@ -803,7 +803,7 @@ var registryModule = {
                 'port': param.servicePort,
                 //'gatewayPort': registry.serviceConfig.ports.controller,
                 'hostname': os.hostname().toLowerCase(),
-                'version': "" + param.serviceVersion
+                'version': param.serviceVersion
             };
             if (param.serviceHATask)
                 hostObj.serviceHATask = param.serviceHATask;
