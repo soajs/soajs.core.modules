@@ -266,6 +266,20 @@ module.exports = {
                         delete param.data.services[service].awarenessStats[hostIp];
                     }
                 }
+                if (param.data.services[service].hosts) {
+                    for (let ver in param.data.services[service].hosts) {
+                        let san_ver = soajsLib.version.sanitize(ver);
+                        param.data.services[service].hosts[san_ver] = soajsUtils.cloneObj(param.data.services[service].hosts[ver]);
+                        delete param.data.services[service].hosts[ver];
+                    }
+                }
+                if (param.data.services[service].versions) {
+                    for (let ver in param.data.services[service].versions) {
+                        let san_ver = soajsLib.version.sanitize(ver);
+                        param.data.services[service].versions[san_ver] = soajsUtils.cloneObj(param.data.services[service].versions[ver]);
+                        delete param.data.services[service].versions[ver];
+                    }
+                }
             }
         }
 
@@ -276,6 +290,20 @@ module.exports = {
                         let hostIp2 = hostIp.replace(/\./g, "_dot_");
                         param.data.daemons[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.daemons[service].awarenessStats[hostIp]);
                         delete param.data.daemons[service].awarenessStats[hostIp];
+                    }
+                }
+                if (param.data.daemons[service].hosts) {
+                    for (let ver in param.data.daemons[service].hosts) {
+                        let san_ver = soajsLib.version.sanitize(ver);
+                        param.data.daemons[service].hosts[san_ver] = soajsUtils.cloneObj(param.data.daemons[service].hosts[ver]);
+                        delete param.data.daemons[service].hosts[ver];
+                    }
+                }
+                if (param.data.daemons[service].versions) {
+                    for (let ver in param.data.daemons[service].versions) {
+                        let san_ver = soajsLib.version.sanitize(ver);
+                        param.data.daemons[service].versions[san_ver] = soajsUtils.cloneObj(param.data.daemons[service].versions[ver]);
+                        delete param.data.daemons[service].versions[ver];
                     }
                 }
             }
