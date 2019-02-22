@@ -157,8 +157,8 @@ var build = {
                             if (!servicesObj[STRUCT[i].name].version)
                                 servicesObj[STRUCT[i].name].version = unsanitizedVer;
                             else if (soajsLib.version.isLatest(unsanitizedVer, servicesObj[STRUCT[i].name].version)) {
-                                servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[ver].extKeyRequired || false;
-                                servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[ver].oauth || false;
+                                servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[unsanitizedVer].extKeyRequired || false;
+                                servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[unsanitizedVer].oauth || false;
                             }
                         }
                     }

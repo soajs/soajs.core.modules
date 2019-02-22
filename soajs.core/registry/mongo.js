@@ -263,21 +263,24 @@ module.exports = {
                     for (let hostIp in param.data.services[service].awarenessStats) {
                         let hostIp2 = hostIp.replace(/\./g, "_dot_");
                         param.data.services[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.services[service].awarenessStats[hostIp]);
-                        delete param.data.services[service].awarenessStats[hostIp];
+                        if (hostIp2 !== hostIp)
+                            delete param.data.services[service].awarenessStats[hostIp];
                     }
                 }
                 if (param.data.services[service].hosts) {
                     for (let ver in param.data.services[service].hosts) {
                         let san_ver = soajsLib.version.sanitize(ver);
                         param.data.services[service].hosts[san_ver] = soajsUtils.cloneObj(param.data.services[service].hosts[ver]);
-                        delete param.data.services[service].hosts[ver];
+                        if (san_ver !== ver)
+                            delete param.data.services[service].hosts[ver];
                     }
                 }
                 if (param.data.services[service].versions) {
                     for (let ver in param.data.services[service].versions) {
                         let san_ver = soajsLib.version.sanitize(ver);
                         param.data.services[service].versions[san_ver] = soajsUtils.cloneObj(param.data.services[service].versions[ver]);
-                        delete param.data.services[service].versions[ver];
+                        if (san_ver !== ver)
+                            delete param.data.services[service].versions[ver];
                     }
                 }
             }
