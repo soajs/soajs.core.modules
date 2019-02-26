@@ -7,12 +7,11 @@ describe("core provision lib tests", function () {
 
     let packACL = {
         "dashboard": {
-            "oauth": {
-                "1x2": {
-                    get: ["General"],
-                    delete: ["General"]
-                }
-            }
+            "oauth": [{
+                version: "1x2",
+                get: ["General"],
+                delete: ["General"]
+            }]
         }
     };
     let scopeACL = {

@@ -1,6 +1,34 @@
 'use strict';
 
 
+function getACL(tempScopeCursor, tempPackCursor) {
+    let ACL = {};
+    if (tempScopeCursor.hasOwnProperty('access'))
+        ACL.access = tempScopeCursor.access;
+    if (tempScopeCursor.hasOwnProperty('apisPermission'))
+        ACL.apisPermission = tempScopeCursor.apisPermission;
+
+    for (let method in tempPackCursor) {
+        if (method !== "version") {
+            if (tempScopeCursor[method] && (Object.hasOwnProperty.call(tempPackCursor, method))) {
+                ACL[method] = {};
+                for (let i = 0; i < tempPackCursor[method].length; i++) {
+                    let apigroup = tempPackCursor[method][i];
+                    if (tempScopeCursor[method].hasOwnProperty(apigroup)) {
+                        if (tempScopeCursor[method][apigroup].hasOwnProperty('apis'))
+                            ACL[method].apis = tempScopeCursor[method][apigroup].apis;
+                        if (tempScopeCursor[method][apigroup].hasOwnProperty('apisRegExp'))
+                            ACL[method].apisRegExp = tempScopeCursor[method][apigroup].apisRegExp;
+                        if (tempScopeCursor[method][apigroup].hasOwnProperty('apisPermission'))
+                            ACL[method].apisPermission = tempScopeCursor[method][apigroup].apisPermission;
+                    }
+                }
+            }
+        }
+    }
+    return ACL;
+}
+
 module.exports = {
     "getACLFromScope": function (scopeACL, packACL) {
         let ACL = null;
@@ -12,32 +40,16 @@ module.exports = {
                     for (let service in packACL[env]) {
                         if (scopeACL[env][service] && (Object.hasOwnProperty.call(packACL[env], service))) {
                             ACL[env][service] = {};
-                            for (let ver in packACL[env][service]) {
-                                if (scopeACL[env][service][ver] && (Object.hasOwnProperty.call(packACL[env][service], ver))) {
-                                    ACL[env][service][ver] = {};
+                            for (let i = 0; i < packACL[env][service].length; i++) {
 
-                                    if (scopeACL[env][service][ver].hasOwnProperty('access'))
-                                        ACL[env][service][ver].access = scopeACL[env][service][ver].access;
-                                    if (scopeACL[env][service][ver].hasOwnProperty('apisPermission'))
-                                        ACL[env][service][ver].apisPermission = scopeACL[env][service][ver].apisPermission;
-
-                                    for (let method in packACL[env][service][ver]) {
-                                        if (scopeACL[env][service][ver][method] && (Object.hasOwnProperty.call(packACL[env][service][ver], method))) {
-                                            ACL[env][service][ver][method] = {};
-                                            for (let i=0; i < packACL[env][service][ver][method].length; i++){
-                                                let apigroup = packACL[env][service][ver][method][i];
-                                                console.log(apigroup)
-                                                if (scopeACL[env][service][ver][method].hasOwnProperty(apigroup)) {
-                                                    if (scopeACL[env][service][ver][method][apigroup].hasOwnProperty('apis'))
-                                                        ACL[env][service][ver][method].apis = scopeACL[env][service][ver][method][apigroup].apis;
-                                                    if (scopeACL[env][service][ver][method][apigroup].hasOwnProperty('apisRegExp'))
-                                                        ACL[env][service][ver][method].apisRegExp = scopeACL[env][service][ver][method][apigroup].apisRegExp;
-                                                    if (scopeACL[env][service][ver][method][apigroup].hasOwnProperty('apisPermission'))
-                                                        ACL[env][service][ver][method].apisPermission = scopeACL[env][service][ver][method][apigroup].apisPermission;
-                                                }
-                                            }
-                                        }
+                                if (packACL[env][service][i].version) {
+                                    let version = packACL[env][service][i].version;
+                                    if (scopeACL[env][service][version]) {
+                                        ACL[env][service][version] = getACL(scopeACL[env][service][version], packACL[env][service][i]);
                                     }
+                                }
+                                else {
+                                    ACL[env][service] = getACL(scopeACL[env][service], packACL[env][service][i]);
                                 }
                             }
                         }
