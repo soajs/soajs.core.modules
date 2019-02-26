@@ -11,6 +11,7 @@ var regEnvironment = (process.env.SOAJS_ENV || "dev");
 regEnvironment = regEnvironment.toLowerCase();
 
 const sensitiveEnvCodes = ["dashboard", "portal"];
+const localLib = require('./lib.js');
 
 module.exports = {
     "init": function (dbConfig) {
@@ -123,8 +124,16 @@ module.exports = {
                                     struct = {};
                                 }
 
-                                var ACL_ALL_ENV = products[i].packages[j].acl;
-                                var ACL = ACL_ALL_ENV;
+                                let ACL_ALL_ENV = null;
+                                let ACL = null;
+                                if (products[i].scope) {
+                                    ACL_ALL_ENV = localLib.getACLFromScope(products[i].scope.acl, products[i].packages[j].acl);
+                                    ACL = ACL_ALL_ENV;
+                                }
+                                else {
+                                    ACL_ALL_ENV = products[i].packages[j].acl;
+                                    ACL = ACL_ALL_ENV;
+                                }
                                 if (ACL_ALL_ENV && typeof ACL_ALL_ENV === "object") {
                                     if (ACL_ALL_ENV[regEnvironment] && (!Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'access') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apis') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apisRegExp') && !Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apisPermission'))) {
                                         ACL = ACL_ALL_ENV[regEnvironment];
@@ -134,6 +143,7 @@ module.exports = {
                                     ACL_ALL_ENV = null;
                                     ACL = null;
                                 }
+
                                 struct[products[i].packages[j].code] = {
                                     "acl": ACL,
                                     "acl_all_env": ACL_ALL_ENV,
