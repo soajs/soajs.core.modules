@@ -141,11 +141,14 @@ var build = {
                     "group": STRUCT[i].group || "service",
                     "port": STRUCT[i].port,
                     //"versions": STRUCT[i].versions,
-                    "requestTimeoutRenewal": STRUCT[i].requestTimeoutRenewal || null,
-                    "requestTimeout": STRUCT[i].requestTimeout || null,
+                    "requestTimeoutRenewal": STRUCT[i].requestTimeoutRenewal || 0,
+                    "requestTimeout": STRUCT[i].requestTimeout || 30,
                     "maintenance": STRUCT[i].maintenance || null
                 };
-
+                if (STRUCT[i].src && STRUCT[i].src.provider && STRUCT[i].src.provider === "endpoint") {
+                    servicesObj[STRUCT[i].name].srcType = STRUCT[i].src.provider;
+                    servicesObj[STRUCT[i].name].src = STRUCT[i].src;
+                }
                 //TODO semVerX
                 if (STRUCT[i].versions) {
                     servicesObj[STRUCT[i].name].versions = {};
@@ -294,8 +297,8 @@ var build = {
                 "maxPoolSize": registryDBInfo.ENV_schema.services.controller.maxPoolSize,
                 "authorization": registryDBInfo.ENV_schema.services.controller.authorization,
                 "port": registryDBInfo.ENV_schema.services.config.ports.controller,
-                "requestTimeout": registryDBInfo.ENV_schema.services.controller.requestTimeout || null,
-                "requestTimeoutRenewal": registryDBInfo.ENV_schema.services.controller.requestTimeoutRenewal || null
+                "requestTimeout": registryDBInfo.ENV_schema.services.controller.requestTimeout || 30,
+                "requestTimeoutRenewal": registryDBInfo.ENV_schema.services.controller.requestTimeoutRenewal || 0
             }
         };
 
