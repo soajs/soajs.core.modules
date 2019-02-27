@@ -281,6 +281,8 @@ var build = {
         registry["protocol"] = registryDBInfo.ENV_schema.protocol;
         registry["port"] = registryDBInfo.ENV_schema.port;
 
+        registry["endpoints"] = registryDBInfo.ENV_schema.endpoints || {};
+
         registry["serviceConfig"] = registryDBInfo.ENV_schema.services.config;
 
         registry["deployer"] = registryDBInfo.ENV_schema.deployer || {};

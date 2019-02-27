@@ -31,6 +31,7 @@
     "mocha": "3.2.0",
     "shelljs": "0.7.5",
     "sinon": "1.17.6",
+
     "soajs.mongodb.data": "2.1.*"
   },
   "dependencies": {
@@ -51,6 +52,7 @@
     "nodemailer-smtp-transport": "2.7.2",
     "object-hash": "1.1.5",
     "request": "2.84.0",
+
     "soajs.core.libs": "1.2.0"
   }
 }
