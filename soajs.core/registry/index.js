@@ -157,9 +157,13 @@ var build = {
                             let unsanitizedVer = soajsLib.version.unsanitize(ver);
                             servicesObj[STRUCT[i].name].versions[unsanitizedVer] = STRUCT[i].versions[ver];
 
-                            if (!servicesObj[STRUCT[i].name].version)
+                            if (!servicesObj[STRUCT[i].name].version) {
                                 servicesObj[STRUCT[i].name].version = unsanitizedVer;
+                                servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[unsanitizedVer].extKeyRequired || false;
+                                servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[unsanitizedVer].oauth || false;
+                            }
                             else if (soajsLib.version.isLatest(unsanitizedVer, servicesObj[STRUCT[i].name].version)) {
+                                servicesObj[STRUCT[i].name].version = unsanitizedVer;
                                 servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[unsanitizedVer].extKeyRequired || false;
                                 servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[unsanitizedVer].oauth || false;
                             }
