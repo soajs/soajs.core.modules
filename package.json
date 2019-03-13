@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
