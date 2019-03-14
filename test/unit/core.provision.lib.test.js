@@ -21,32 +21,29 @@ describe("core provision lib tests", function () {
                     "1x2": {
                         access: false,
                         apisPermission: "restricted",
-                        get: {
-                            General: {
-                                apis: {
-                                    "/authorization": {}
+                        get: [{
+                            group: "General",
+                            apis: {
+                                "/authorization": {}
+                            }
+                        }],
+                        post: [{
+                            group: "General",
+                            apis: {
+                                "/token": {}
+                            }
+                        }],
+                        delete: [{
+                            group: "General",
+                            apis: {
+                                "/accessToken/:token": {
+                                    access: false
+                                },
+                                "/refreshToken/:token": {
+                                    access: false
                                 }
                             }
-                        },
-                        post: {
-                            General: {
-                                apis: {
-                                    "/token": {}
-                                }
-                            }
-                        },
-                        delete: {
-                            General: {
-                                apis: {
-                                    "/accessToken/:token": {
-                                        access: false
-                                    },
-                                    "/refreshToken/:token": {
-                                        access: false
-                                    }
-                                }
-                            }
-                        }
+                        }]
                     }
                 }
             }
@@ -86,24 +83,23 @@ describe("core provision lib tests", function () {
         let scopeACL = {
             "dashboard": {
                 "oauth": {
-                    access: false,
-                    apisPermission: "restricted",
-                    get: {
-                        General: {
+                    "1x2": {
+                        access: false,
+                        apisPermission: "restricted",
+                        get: [{
+                            group: "General",
                             apis: {
                                 "/authorization": {}
                             }
-                        }
-                    },
-                    post: {
-                        General: {
+                        }],
+                        post: [{
+                            group: "General",
                             apis: {
                                 "/token": {}
                             }
-                        }
-                    },
-                    delete: {
-                        General: {
+                        }],
+                        delete: [{
+                            group: "General",
                             apis: {
                                 "/accessToken/:token": {
                                     access: false
@@ -112,9 +108,8 @@ describe("core provision lib tests", function () {
                                     access: false
                                 }
                             }
-                        }
+                        }]
                     }
-
                 }
             }
         };

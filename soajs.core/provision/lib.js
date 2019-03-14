@@ -14,13 +14,15 @@ function getACL(tempScopeCursor, tempPackCursor) {
                 ACL[method] = {};
                 for (let i = 0; i < tempPackCursor[method].length; i++) {
                     let apigroup = tempPackCursor[method][i];
-                    if (tempScopeCursor[method].hasOwnProperty(apigroup)) {
-                        if (tempScopeCursor[method][apigroup].hasOwnProperty('apis'))
-                            ACL[method].apis = tempScopeCursor[method][apigroup].apis;
-                        if (tempScopeCursor[method][apigroup].hasOwnProperty('apisRegExp'))
-                            ACL[method].apisRegExp = tempScopeCursor[method][apigroup].apisRegExp;
-                        if (tempScopeCursor[method][apigroup].hasOwnProperty('apisPermission'))
-                            ACL[method].apisPermission = tempScopeCursor[method][apigroup].apisPermission;
+                    for (let j = 0; j < tempScopeCursor[method].length; j++) {
+                        if (tempScopeCursor[method][j].group === apigroup) {
+                            if (tempScopeCursor[method][j].hasOwnProperty('apis'))
+                                ACL[method].apis = tempScopeCursor[method][j].apis;
+                            if (tempScopeCursor[method][j].hasOwnProperty('apisRegExp'))
+                                ACL[method].apisRegExp = tempScopeCursor[method][j].apisRegExp;
+                            if (tempScopeCursor[method][j].hasOwnProperty('apisPermission'))
+                                ACL[method].apisPermission = tempScopeCursor[method][j].apisPermission;
+                        }
                     }
                 }
             }
