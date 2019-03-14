@@ -83,33 +83,31 @@ describe("core provision lib tests", function () {
         let scopeACL = {
             "dashboard": {
                 "oauth": {
-                    "1x2": {
-                        access: false,
-                        apisPermission: "restricted",
-                        get: [{
-                            group: "General",
-                            apis: {
-                                "/authorization": {}
+                    access: false,
+                    apisPermission: "restricted",
+                    get: [{
+                        group: "General",
+                        apis: {
+                            "/authorization": {}
+                        }
+                    }],
+                    post: [{
+                        group: "General",
+                        apis: {
+                            "/token": {}
+                        }
+                    }],
+                    delete: [{
+                        group: "General",
+                        apis: {
+                            "/accessToken/:token": {
+                                access: false
+                            },
+                            "/refreshToken/:token": {
+                                access: false
                             }
-                        }],
-                        post: [{
-                            group: "General",
-                            apis: {
-                                "/token": {}
-                            }
-                        }],
-                        delete: [{
-                            group: "General",
-                            apis: {
-                                "/accessToken/:token": {
-                                    access: false
-                                },
-                                "/refreshToken/:token": {
-                                    access: false
-                                }
-                            }
-                        }]
-                    }
+                        }
+                    }]
                 }
             }
         };
