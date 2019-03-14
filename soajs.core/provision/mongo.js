@@ -126,7 +126,7 @@ module.exports = {
 
                                 let ACL_ALL_ENV = null;
                                 let ACL = null;
-                                if (products[i].scope) {
+                                if (products[i].scope && !(products[i].packages[j].aclType && products[i].packages[j].aclType === "granular")) {
                                     ACL_ALL_ENV = localLib.getACLFromScope(products[i].scope.acl, products[i].packages[j].acl);
                                     ACL = ACL_ALL_ENV;
                                 }
