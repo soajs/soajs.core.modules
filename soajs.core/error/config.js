@@ -24,10 +24,12 @@ module.exports = {
         '143': "invalid_request: Malformed auth header",
 
         '144': "The provided key cannot be used with this environment",
+        '148': "Unable to load the key information",
+        '149': "Unable to load the product package information",
 
         '150': "Something blew up @ service core!",
         '151': "You are trying to reach an unknown rest service!",
-        '152': "Unable to load you product package information. Check provision configuration for this key.",
+        '152': "Unable to load the product package information. Check provision configuration for this key.",
         '153': "Unable to load provision information for the provided key.",
         '154': "Access denied: The service is not available in your current package.",
         '155': "Geographic location forbidden",
