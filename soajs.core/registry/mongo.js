@@ -20,15 +20,13 @@ function initMongo(dbConfiguration) {
 
         mongo.createIndex(environmentCollectionName, {code: 1}, {unique: true}, function (err, result) {
         });
-        mongo.createIndex(hostCollectionName, {env: 1}, function (err, result) {
+        mongo.createIndex(hostCollectionName, {env: 1}, {}, function (err, result) {
         });
-        mongo.createIndex(hostCollectionName, {name: 1, env: 1}, function (err, result) {
+        mongo.createIndex(hostCollectionName, {name: 1, env: 1}, {}, function (err, result) {
         });
-       // mongo.createIndex(servicesCollectionName, {name: 1}, function (err, result) {
-        //});
-        mongo.createIndex(servicesCollectionName, {port: 1, name: 1}, {unique: true}, function (err, result) {
+        mongo.createIndex(servicesCollectionName, {name: 1}, {}, function (err, result) {
         });
-
+        mongo.createIndex(servicesCollectionName, {port: 1, name: 1}, {unique: true}, function (err, result) {});
     }
 }
 

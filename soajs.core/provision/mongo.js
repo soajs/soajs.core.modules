@@ -19,19 +19,19 @@ module.exports = {
 
         mongo.createIndex(tenantCollectionName, {code: 1}, {unique: true}, function (err, result) {
         });
-        mongo.createIndex(tenantCollectionName, {'applications.keys.key': 1}, function (err, result) {
+        mongo.createIndex(tenantCollectionName, {'applications.keys.key': 1}, {}, function (err, result) {
         });
         mongo.createIndex(productsCollectionName, {code: 1}, {unique: true}, function (err, result) {
         });
-        mongo.createIndex(productsCollectionName, {'packages.code': 1}, function (err, result) {
+        mongo.createIndex(productsCollectionName, {'packages.code': 1}, {}, function (err, result) {
         });
         mongo.createIndex(oauthUracCollectionName, {userId: 1}, {unique: true}, function (err, result) {
         });
-        mongo.createIndex(tokenCollectionName, {token: 1, type: 1}, function (err, result) {
+        mongo.createIndex(tokenCollectionName, {token: 1, type: 1}, {}, function (err, result) {
         });
         mongo.createIndex(tokenCollectionName, {expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
         });
-        mongo.createIndex(daemonGrpConfCollectionName, {daemonConfigGroup: 1, daemon: 1}, function (err, result) {
+        mongo.createIndex(daemonGrpConfCollectionName, {daemonConfigGroup: 1, daemon: 1}, {}, function (err, result) {
         });
     },
 
