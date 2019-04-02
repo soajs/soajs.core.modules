@@ -831,7 +831,8 @@ var registryModule = {
     "autoRegisterService": function (param, cb) {
         var controllerSRV = registry_struct[regEnvironment].services.controller;
         var serviceSRV = registry_struct[regEnvironment][param.what][param.name];
-        if (!serviceSRV || !serviceSRV.newServiceOrHost) {
+        // if param.mw=1 means endpoint is registering, we should call register on gateway
+        if ((!serviceSRV || !serviceSRV.newServiceOrHost) && !param.mw) {
             return cb(null, false);
         }
 
@@ -865,6 +866,7 @@ var registryModule = {
                         requestOptions.body.extKeyRequired = serviceSRV.extKeyRequired;
                         requestOptions.body.requestTimeout = serviceSRV.requestTimeout;
                         requestOptions.body.requestTimeoutRenewal = serviceSRV.requestTimeoutRenewal;
+                        requestOptions.body.mw = param.mw;
                     }
 
                     if (param.serviceHATask)
