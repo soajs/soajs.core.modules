@@ -24,6 +24,7 @@ module.exports = {
         '143': "invalid_request: Malformed auth header",
 
         '144': "The provided key cannot be used with this environment",
+        '145': "You need to be logged in with pin to access this System.",
         '148': "Unable to load the key information",
         '149': "Unable to load the product package information",
 
