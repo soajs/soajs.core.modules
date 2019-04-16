@@ -19,15 +19,23 @@ function getACL(tempScopeCursor, tempPackCursor) {
                         if (tempScopeCursor[method][j].group === apigroup) {
 
                             if (tempScopeCursor[method][j].hasOwnProperty('apis')) {
-                                if ( ACL[method].apis){
-                                    ACL[method].apis = {...ACL[method].apis, ...tempScopeCursor[method][j].apis};
+                                if (ACL[method].apis) {
+                                    for (let api in tempScopeCursor[method][j].apis) {
+                                        if (tempScopeCursor[method][j].apis.hasOwnProperty(api))
+                                            ACL[method].apis[api] = tempScopeCursor[method][j].apis[api];
+                                        //ACL[method].apis = {...ACL[method].apis, ...tempScopeCursor[method][j].apis};
+                                    }
                                 }
                                 else
                                     ACL[method].apis = tempScopeCursor[method][j].apis;
                             }
                             if (tempScopeCursor[method][j].hasOwnProperty('apisRegExp')) {
-                                if (ACL[method].apisRegExp){
-                                    ACL[method].apisRegExp = {...ACL[method].apisRegExp, ...tempScopeCursor[method][j].apisRegExp};
+                                if (ACL[method].apisRegExp) {
+                                    for (let api in tempScopeCursor[method][j].apisRegExp) {
+                                        if (tempScopeCursor[method][j].apisRegExp.hasOwnProperty(api))
+                                            ACL[method].apisRegExp[api] = tempScopeCursor[method][j].apisRegExp[api];
+                                        //ACL[method].apisRegExp = {...ACL[method].apisRegExp, ...tempScopeCursor[method][j].apisRegExp};
+                                    }
                                 }
                                 else
                                     ACL[method].apisRegExp = tempScopeCursor[method][j].apisRegExp;
