@@ -11,17 +11,30 @@ function getACL(tempScopeCursor, tempPackCursor) {
     for (let method in tempPackCursor) {
         if (method !== "version") {
             if (tempScopeCursor[method] && (Object.hasOwnProperty.call(tempPackCursor, method))) {
-                ACL[method] = {};
+                if (!ACL[method])
+                    ACL[method] = {};
                 for (let i = 0; i < tempPackCursor[method].length; i++) {
                     let apigroup = tempPackCursor[method][i];
                     for (let j = 0; j < tempScopeCursor[method].length; j++) {
                         if (tempScopeCursor[method][j].group === apigroup) {
-                            if (tempScopeCursor[method][j].hasOwnProperty('apis'))
-                                ACL[method].apis = tempScopeCursor[method][j].apis;
-                            if (tempScopeCursor[method][j].hasOwnProperty('apisRegExp'))
-                                ACL[method].apisRegExp = tempScopeCursor[method][j].apisRegExp;
-                            if (tempScopeCursor[method][j].hasOwnProperty('apisPermission'))
-                                ACL[method].apisPermission = tempScopeCursor[method][j].apisPermission;
+
+                            if (tempScopeCursor[method][j].hasOwnProperty('apis')) {
+                                if ( ACL[method].apis){
+                                    ACL[method].apis = {...ACL[method].apis, ...tempScopeCursor[method][j].apis};
+                                }
+                                else
+                                    ACL[method].apis = tempScopeCursor[method][j].apis;
+                            }
+                            if (tempScopeCursor[method][j].hasOwnProperty('apisRegExp')) {
+                                if (ACL[method].apisRegExp){
+                                    ACL[method].apisRegExp = {...ACL[method].apisRegExp, ...tempScopeCursor[method][j].apisRegExp};
+                                }
+                                else
+                                    ACL[method].apisRegExp = tempScopeCursor[method][j].apisRegExp;
+                            }
+                            //if (tempScopeCursor[method][j].hasOwnProperty('apisPermission'))
+                            //    ACL[method].apisPermission = tempScopeCursor[method][j].apisPermission;
+                            break;
                         }
                     }
                 }
