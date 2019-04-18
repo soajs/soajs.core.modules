@@ -447,6 +447,8 @@ var build = {
                         "urac": param.urac,
                         "urac_Profile": param.urac_Profile,
                         "urac_ACL": param.urac_ACL,
+                        "urac_Config": param.urac_Config,
+                        "urac_GroupConfig": param.urac_GroupConfig,
                         "provision_ACL": param.provision_ACL,
                         "oauth": param.oauth,
                         "apis": param.apiList
@@ -620,6 +622,8 @@ var registryModule = {
                 registry_struct[regEnvironment][what][param.name].versions[param.version].urac = param.urac;
                 registry_struct[regEnvironment][what][param.name].versions[param.version].urac_Profile = param.urac_Profile;
                 registry_struct[regEnvironment][what][param.name].versions[param.version].urac_ACL = param.urac_ACL;
+                registry_struct[regEnvironment][what][param.name].versions[param.version].urac_Config = param.urac_Config;
+                registry_struct[regEnvironment][what][param.name].versions[param.version].urac_GroupConfig = param.urac_GroupConfig;
                 registry_struct[regEnvironment][what][param.name].versions[param.version].provision_ACL = param.provision_ACL;
             }
             else {
@@ -629,6 +633,8 @@ var registryModule = {
                     "urac": param.urac,
                     "urac_Profile": param.urac_Profile,
                     "urac_ACL": param.urac_ACL,
+                    "urac_Config": param.urac_Config,
+                    "urac_GroupConfig": param.urac_GroupConfig,
                     "provision_ACL": param.provision_ACL
                 };
             }
@@ -684,6 +690,8 @@ var registryModule = {
                         "urac": param.urac,
                         "urac_Profile": param.urac_Profile,
                         "urac_ACL": param.urac_ACL,
+                        "urac_Config": param.urac_Config,
+                        "urac_GroupConfig": param.urac_GroupConfig,
                         "provision_ACL": param.provision_ACL,
                         "oauth": param.oauth
                     };
@@ -862,6 +870,8 @@ var registryModule = {
                         requestOptions.body.urac = param.urac;
                         requestOptions.body.urac_Profile = param.urac_Profile;
                         requestOptions.body.urac_ACL = param.urac_ACL;
+                        requestOptions.body.urac_Config = param.urac_Config;
+                        requestOptions.body.urac_GroupConfig = param.urac_GroupConfig;
                         requestOptions.body.provision_ACL = param.provision_ACL;
                         requestOptions.body.extKeyRequired = serviceSRV.extKeyRequired;
                         requestOptions.body.requestTimeout = serviceSRV.requestTimeout;
