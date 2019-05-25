@@ -225,7 +225,8 @@ module.exports = {
                                             "tenant": {
                                                 "id": tenants[i]._id.toString(),
                                                 "code": tenants[i].code,
-                                                "locked": tenants[i].locked ? true : false
+                                                "locked": tenants[i].locked ? true : false,
+                                                "type": tenants[i].type
                                             },
                                             "application": {
                                                 "product": tenants[i].applications[j].product,
@@ -239,6 +240,9 @@ module.exports = {
                                             "_TTL": tenants[i].applications[j]._TTL,
                                             "_TIME": new Date().getTime()
                                         };
+                                        if (tenants[i].type === "client" && tenants[i].tenant && tenants[i].tenant.id && tenants[i].tenant.code){
+                                            keyStruct[tenants[i].applications[j].keys[k].key].tenant.main = tenants[i].tenant;
+                                        }
                                     }
                                 }
                             }
