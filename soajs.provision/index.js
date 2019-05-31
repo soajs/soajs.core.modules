@@ -28,7 +28,8 @@ function getKeyData(keyStruct, extKey) {
                         "tenant": {
                             "id": keyStruct.tenant.id,
                             "code": keyStruct.tenant.code,
-                            "locked": keyStruct.tenant.locked
+                            "locked": keyStruct.tenant.locked,
+                            "type": keyStruct.tenant.type
                         },
                         "application": {
                             "product": keyStruct.application.product,
@@ -42,6 +43,8 @@ function getKeyData(keyStruct, extKey) {
                         "geo": keyStruct.extKeys[i].geo,
                         "config": keyStruct.config
                     };
+                    if (keyStruct.tenant.main)
+                        obj.tenant.main = keyStruct.tenant.main;
                 }
             }
         }
