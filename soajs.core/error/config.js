@@ -69,6 +69,7 @@ module.exports = {
         '204': 'Unable to generate internal key.',
         '205': 'You need to provide a tenant ID.',
 	    '206': "Unable to load provision information for the provided tenant ID.",
-	    '207': "Unable to load provisioned information for the provided env code"
+	    '207': "Unable to load provisioned information for the provided env code",
+        '208': "Protocol and Domain are needed, make sure they are set at registry"
     }
 };
