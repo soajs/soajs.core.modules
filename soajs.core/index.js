@@ -1,10 +1,12 @@
 'use strict';
 
-var registry = require('./registry/index');
+const os = require('os');
+
+let registry = require('./registry/index');
 registry.init();
 exports.registry = registry;
 
-var soajsLogger = require('./logger/index');
+let soajsLogger = require('./logger/index');
 exports.getLogger = soajsLogger.getLogger;
 exports.getLog = soajsLogger.getLog;
 
@@ -16,12 +18,11 @@ exports.security = require('./security/index');
 exports.getMail = require('./mail/index');
 exports.validator = require('./validator/index');
 exports.getHostIp = function (cb) {
-    var ips = [];
-    var ifnameLookupSequence = [];
+    let ips = {};
+    let ifnameLookupSequence = ["eth0", "en0", "eth1", "en1"];
+    let ifnameLookupSequenceVar = [];
 
-    var os = require('os');
-    var ifaces = os.networkInterfaces();
-    ifnameLookupSequence = ["eth0", "en0", "eth1", "en1"];
+    let ifaces = os.networkInterfaces();
     Object.keys(ifaces).forEach(function (ifname) {
         ifaces[ifname].forEach(function (iface) {
             if ('IPv4' !== iface.family || iface.internal !== false) {
@@ -29,16 +30,29 @@ exports.getHostIp = function (cb) {
                 return;
             }
             ips[ifname] = iface.address;
+            if (!ifnameLookupSequence.includes(ifname))
+                ifnameLookupSequenceVar.push (ifname);
         });
     });
-    for (var i = 0; i < ifnameLookupSequence.length; i++) {
-        if (ips[ifnameLookupSequence[i]])
+    for (let i = 0; i < ifnameLookupSequence.length; i++) {
+        if (ips[ifnameLookupSequence[i]]) {
             return cb({
                 "result": true,
                 "ip": ips[ifnameLookupSequence[i]],
                 "extra": {"ips": ips, "n": ifnameLookupSequence}
             });
+        }
     }
+    for (let i = 0; i < ifnameLookupSequenceVar.length; i++) {
+        if (ips[ifnameLookupSequenceVar[i]]) {
+            return cb({
+                "result": true,
+                "ip": ips[ifnameLookupSequenceVar[i]],
+                "extra": {"ips": ips, "n": ifnameLookupSequenceVar}
+            });
+        }
+    }
+
     return cb({"result": false, "ip": null, "extra": {"ips": ips, "n": ifnameLookupSequence}});
 
 };
