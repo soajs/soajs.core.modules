@@ -15,13 +15,13 @@ module.exports = {
         '134': "All requests to the service you are trying to reach are timing out.", //504
         '135': "Error occurred while redirecting your request to the service", //503
         // '136': "Controller catched an error while redirecting to service.",
-	    '137': "Access Forbidden to requested environment", //401
-	    '138': "Access Forbidden to requested environment", //401
-	    '139': "Invalid or no Remote service requested.", //501
+        '137': "Access Forbidden to requested environment", //401
+        '138': "Access Forbidden to requested environment", //401
+        '139': "Invalid or no Remote service requested.", //501
         '14x': "SERVICE CORE",
-        '141': "Unable to start the service.",
-        '142': "extKeyRequired is ON for this service, Make sure your request is going through soajs.controller and a key is in the header",
-        '143': "invalid_request: Malformed auth header",
+        '141': "Unable to start the service.", //500
+        '142': "extKeyRequired is ON for this service, Make sure your request is going through soajs.controller and a key is in the header", //500
+        '143': "invalid_request: Malformed auth header", //500
 
         '144': "The provided key cannot be used with this environment", //401
         '145': "You need to be logged in with pin to access this System.", //401
@@ -68,8 +68,30 @@ module.exports = {
         '203': 'Unable to generate external key from provided key.', //500
         '204': 'Unable to generate internal key.', //500
         '205': 'You need to provide a tenant ID.', //500
-	    '206': "Unable to load provision information for the provided tenant ID.", //500
-	    '207': "Unable to load provisioned information for the provided env code", //500
+        '206': "Unable to load provision information for the provided tenant ID.", //500
+        '207': "Unable to load provisioned information for the provided env code", //500
         '208': "Protocol, Domain and Port are needed, make sure they are set at registry" //500
+    },
+    'status': {
+        '130': '404',
+        '132': '403',
+        '133': '504',
+        '134': '504',
+        '135': '503',
+        '137': '401',
+        '138': '401',
+        '139': '501',
+        '144': '401',
+        '145': '401',
+        '151': '400',
+        '154': '401',
+        '155': '403',
+        '156': '403',
+        '157': '401',
+        '158': '401',
+        '159': '401',
+        '160': '401',
+        '161': '401',
+        '200': '403'
     }
 };

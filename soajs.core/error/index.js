@@ -14,6 +14,10 @@ module.exports = {
 		if(errorCode && config.errors[errorCode]) {
 			errorObj.msg = config.errors[errorCode];
 		}
+		if (errorCode && config.status && config.status[errorCode]){
+            errorObj.status = config.status[errorCode];
+		}
+
 		return errorObj;
 	}
 };
