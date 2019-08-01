@@ -6,6 +6,9 @@ module.exports = {
 		var error = new Error();
 		error.code = errorCode;
 		error.message = config.errors[errorCode];
+        if (errorCode && config.status && config.status[errorCode]){
+            error.status = config.status[errorCode];
+        }
 
 		return error;
 	},
