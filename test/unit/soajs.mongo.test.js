@@ -628,7 +628,7 @@ describe("TESTING soajs.mongo", function() {
 			});
 		});
 
-		it('success - all working', function(done) {
+		it.skip('success - all working', function(done) {
 			mongo.aggregate("myCollection", { $match: { a: "c" } }, function(error, response) {
 				assert.ifError(error);
 				assert.equal(response.length, 1);

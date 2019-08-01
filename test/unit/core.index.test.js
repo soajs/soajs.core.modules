@@ -8,6 +8,7 @@ describe("testing get Host Ip", function() {
 	
 	it("success - should return a host ip", function(done) {
 		core.getHostIp(function(response){
+		    console.log(response)
 			assert.ok(response);
 			assert.equal(response.result, true);
 			assert.ok(response.ip);
