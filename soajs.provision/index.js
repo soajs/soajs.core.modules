@@ -29,7 +29,8 @@ function getKeyData(keyStruct, extKey) {
                             "id": keyStruct.tenant.id,
                             "code": keyStruct.tenant.code,
                             "locked": keyStruct.tenant.locked,
-                            "type": keyStruct.tenant.type
+                            "type": keyStruct.tenant.type,
+                            "profile": keyStruct.tenant.profile
                         },
                         "application": {
                             "product": keyStruct.application.product,

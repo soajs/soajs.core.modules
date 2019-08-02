@@ -226,7 +226,8 @@ module.exports = {
                                                 "id": tenants[i]._id.toString(),
                                                 "code": tenants[i].code,
                                                 "locked": tenants[i].locked ? true : false,
-                                                "type": tenants[i].type
+                                                "type": tenants[i].type,
+                                                "profile": tenants[i].profile || {}
                                             },
                                             "application": {
                                                 "product": tenants[i].applications[j].product,
