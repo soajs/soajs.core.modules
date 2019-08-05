@@ -449,6 +449,7 @@ var build = {
                         "urac_ACL": param.urac_ACL,
                         "urac_Config": param.urac_Config,
                         "urac_GroupConfig": param.urac_GroupConfig,
+                        "tenant_Profile": param.tenant_Profile,
                         "provision_ACL": param.provision_ACL,
                         "oauth": param.oauth,
                         "apis": param.apiList
@@ -624,6 +625,7 @@ var registryModule = {
                 registry_struct[regEnvironment][what][param.name].versions[param.version].urac_ACL = param.urac_ACL;
                 registry_struct[regEnvironment][what][param.name].versions[param.version].urac_Config = param.urac_Config;
                 registry_struct[regEnvironment][what][param.name].versions[param.version].urac_GroupConfig = param.urac_GroupConfig;
+                registry_struct[regEnvironment][what][param.name].versions[param.version].tenant_Profile = param.tenant_Profile;
                 registry_struct[regEnvironment][what][param.name].versions[param.version].provision_ACL = param.provision_ACL;
             }
             else {
@@ -635,6 +637,7 @@ var registryModule = {
                     "urac_ACL": param.urac_ACL,
                     "urac_Config": param.urac_Config,
                     "urac_GroupConfig": param.urac_GroupConfig,
+                    "tenant_Profile": param.tenant_Profile,
                     "provision_ACL": param.provision_ACL
                 };
             }
@@ -692,6 +695,7 @@ var registryModule = {
                         "urac_ACL": param.urac_ACL,
                         "urac_Config": param.urac_Config,
                         "urac_GroupConfig": param.urac_GroupConfig,
+                        "tenant_Profile": param.tenant_Profile,
                         "provision_ACL": param.provision_ACL,
                         "oauth": param.oauth
                     };
@@ -872,6 +876,7 @@ var registryModule = {
                         requestOptions.body.urac_ACL = param.urac_ACL;
                         requestOptions.body.urac_Config = param.urac_Config;
                         requestOptions.body.urac_GroupConfig = param.urac_GroupConfig;
+                        requestOptions.body.tenant_Profile = param.tenant_Profile;
                         requestOptions.body.provision_ACL = param.provision_ACL;
                         requestOptions.body.extKeyRequired = serviceSRV.extKeyRequired;
                         requestOptions.body.requestTimeout = serviceSRV.requestTimeout;
