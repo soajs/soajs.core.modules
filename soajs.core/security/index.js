@@ -127,13 +127,14 @@ var hasher = {
 		var plainText = arguments[0];
 		if(arguments.length === 3 && arguments[1] === true && typeof (arguments[2]) === 'function'){
 			var cb = arguments[2];
-			bcrypt.genSalt(this.config.hashIterations, this.config.seedLength, function(err, salt) {
+            //bcrypt.genSalt(this.config.hashIterations, this.config.seedLength, function(err, salt) {
+			bcrypt.genSalt(this.config.hashIterations, function(err, salt) {
 				if(err) return cb(err);
 				bcrypt.hash(plainText, salt, cb);
 			});
 		}
 		else{
-			var salt = bcrypt.genSaltSync(this.config.hashIterations, this.config.seedLength);
+			var salt = bcrypt.genSaltSync(this.config.hashIterations);//, this.config.seedLength);
 			return bcrypt.hashSync(plainText, salt);
 		}
 	},
