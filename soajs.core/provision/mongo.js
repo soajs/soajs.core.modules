@@ -1,6 +1,10 @@
 'use strict';
 var Mongo = require('../../soajs.mongo');
+
 var mongo = null;
+var oauthMongo = null;
+var oauthSeperate = false;
+
 var tenantCollectionName = "tenants";
 var productsCollectionName = "products";
 var tokenCollectionName = "oauth_token";
@@ -15,7 +19,15 @@ const localLib = require('./lib.js');
 
 module.exports = {
     "init": function (dbConfig) {
-        mongo = new Mongo(dbConfig);
+        if (dbConfig.provision && dbConfig.oauth) {
+            mongo = new Mongo(dbConfig.provision);
+            oauthMongo = new Mongo(dbConfig.oauth);
+            oauthSeperate = true;
+        }
+        else{
+            mongo = new Mongo(dbConfig);
+            oauthMongo = mongo;
+        }
 
         mongo.createIndex(tenantCollectionName, {code: 1}, {unique: true}, function (err, result) {
         });
@@ -27,29 +39,46 @@ module.exports = {
         });
         mongo.createIndex(oauthUracCollectionName, {userId: 1}, {unique: true}, function (err, result) {
         });
-        mongo.createIndex(tokenCollectionName, {token: 1, type: 1}, {}, function (err, result) {
+        oauthMongo.createIndex(tokenCollectionName, {token: 1, type: 1}, {}, function (err, result) {
         });
-        mongo.createIndex(tokenCollectionName, {expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
+        oauthMongo.createIndex(tokenCollectionName, {expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
         });
         mongo.createIndex(daemonGrpConfCollectionName, {daemonConfigGroup: 1, daemon: 1}, {}, function (err, result) {
         });
     },
 
     "getAccessToken": function (bearerToken, cb) {
-        mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "accessToken"}, function (err, rec) {
+        oauthMongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "accessToken"}, function (err, rec) {
             if (rec && rec.env === regEnvironment) {
                 return cb(err, rec);
             }
             else {
                 if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
                     return cb(err, rec);
-                else
-                    return cb(err, null);
+                else {
+                    if (oauthSeperate){
+                        mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "accessToken"}, function (err, rec) {
+                            if (rec && rec.env === regEnvironment) {
+                                return cb(err, rec);
+                            }
+                            else {
+                                if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
+                                    return cb(err, rec);
+                                else {
+                                    return cb(err, null);
+                                }
+                            }
+                        });
+                    }
+                    else {
+                        return cb(err, null);
+                    }
+                }
             }
         });
     },
     "getRefreshToken": function (bearerToken, cb) {
-        mongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "refreshToken"}, function (err, rec) {
+        oauthMongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "refreshToken"}, function (err, rec) {
             if (rec && rec.env === regEnvironment)
                 return cb(err, rec);
             else {
@@ -69,7 +98,7 @@ module.exports = {
             env: regEnvironment,
             expires: expires
         };
-        mongo.insert(tokenCollectionName, tokenRecord, function (err, data) {
+        oauthMongo.insert(tokenCollectionName, tokenRecord, function (err, data) {
             return cb(err);
         });
     },
@@ -82,7 +111,7 @@ module.exports = {
             env: regEnvironment,
             expires: expires
         };
-        mongo.insert(tokenCollectionName, tokenRecord, function (err, data) {
+        oauthMongo.insert(tokenCollectionName, tokenRecord, function (err, data) {
             return cb(err);
         });
     },
