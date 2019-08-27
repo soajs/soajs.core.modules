@@ -19,7 +19,7 @@ const localLib = require('./lib.js');
 
 module.exports = {
     "init": function (dbConfig) {
-        if (dbConfig.provision && dbConfig.oauth) {
+        if (dbConfig && dbConfig.provision && dbConfig.oauth) {
             mongo = new Mongo(dbConfig.provision);
             oauthMongo = new Mongo(dbConfig.oauth);
             oauthSeperate = true;
