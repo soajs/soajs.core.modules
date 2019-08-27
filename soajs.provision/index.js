@@ -1,13 +1,15 @@
 'use strict';
 
-var core = require("../soajs.core");
-var auth = require('basic-auth');
-var log = null;
+const core = require("../soajs.core");
+const auth = require('basic-auth');
+let log = null;
 
-var struct_oauths = {};
-var struct_keys = {};
-var struct_packages = {};
-var struct_tenants = {};
+const async = require ("async");
+
+let struct_oauths = {};
+let struct_keys = {};
+let struct_packages = {};
+let struct_tenants = {};
 
 /**
  *
@@ -130,9 +132,67 @@ var provision = {
             if (err)
                 return cb(err);
 
-            struct_packages[code] = pack;
-            return cb(null, pack);
+            if (pack) {
+                struct_packages[code] = pack;
+                return cb(null, pack);
+            }
+            else {
+                return cb(core.error.generate(201));
+            }
         });
+    },
+    "getPackagesData": function (arrCodes, cb) {
+        if (!arrCodes || !Array.isArray(arrCodes) || arrCodes.length < 1) {
+            return cb(core.error.generate(209), null);
+        }
+        let packagesData = [];
+        if (arrCodes.length === 1) {
+            provision.getPackageData(arrCodes[0], (err, pack) => {
+                if (err) {
+                    return cb(err, null);
+                }
+                else {
+                    packagesData.push(pack);
+                    return cb(null, packagesData);
+                }
+            });
+        }
+        else {
+            async.each(arrCodes, (code, callback) => {
+                if (struct_packages[code] &&
+                    (!struct_packages[code]._TTL ||
+                        (struct_packages[code]._TTL &&
+                            struct_packages[code]._TIME &&
+                            (struct_packages[code]._TIME > (new Date().getTime() - struct_packages[code]._TTL))))) {
+                    packagesData.push(struct_packages[code]);
+                    return callback();
+                }
+                else {
+                    core.provision.getPackages(function (err, packs) {
+                        if (err) {
+                            log.error("unable to load all packages from provision: ", err);
+                            return callback(err);
+                        }
+                        else {
+                            struct_packages = packs;
+                            if (struct_packages[code]) {
+                                packagesData.push(struct_packages[code]);
+                                return callback();
+                            }
+                            else {
+                                log.error("unable to load all packages from provision: cannot find package - " + code);
+                                return callback(core.error.generate(209));
+                            }
+                        }
+                    });
+                }
+            }, (err) =>{
+                if (err)
+                    return cb(err, null);
+                else
+                    return cb(null, packagesData);
+            });
+        }
     },
     "loadProvision": function (cb) {
 
@@ -216,52 +276,60 @@ var provision = {
             });
         });
     },
-	
-	"getTenantByCode": function(tenantCode, cb){
-		core.provision.getTenantByCode(tenantCode, cb);
-	},
-	
-	"getEnvironmentExtKeyWithDashboardAccess": function(tenant, cb){
-		core.provision.getTenantByCode(tenant, cb);
-	},
-	
-	"getEnvironmentsFromACL": function(ACL, Environments){
-		return core.provision.getTenantByCode(ACL, Environments);
-	},
-	
+
+    "getTenantByCode": function (tenantCode, cb) {
+        core.provision.getTenantByCode(tenantCode, cb);
+    },
+
+    "getEnvironmentExtKeyWithDashboardAccess": function (tenant, cb) {
+        core.provision.getTenantByCode(tenant, cb);
+    },
+
+    "getEnvironmentsFromACL": function (ACL, Environments) {
+        return core.provision.getTenantByCode(ACL, Environments);
+    },
+
     "generateSaveAccessRefreshToken": function (user, req, cb) {
         var userFromAuthorise = auth(req);
         var clientId = (userFromAuthorise) ? userFromAuthorise.name : req.soajs.tenant.id.toString();
-        
+
         provision.oauthModel.generateToken("accessToken", req, function (error, aToken) {
-        	if(error){ return cb(error); }
-        	
+            if (error) {
+                return cb(error);
+            }
+
             provision.oauthModel.generateToken("refreshToken", req, function (error, rToken) {
-	            if(error){ return cb(error); }
-	            
-	            var registry = core.registry.get();
+                if (error) {
+                    return cb(error);
+                }
+
+                var registry = core.registry.get();
                 var oauthConfiguration = registry.serviceConfig.oauth;
-	            
+
                 var now = new Date();
                 var aExpires = new Date(now);
                 aExpires.setSeconds(aExpires.getSeconds() + oauthConfiguration.accessTokenLifetime);
-                
+
                 var rExpires = new Date(now);
-	            rExpires.setSeconds(rExpires.getSeconds() + oauthConfiguration.refreshTokenLifetime);
-	            
+                rExpires.setSeconds(rExpires.getSeconds() + oauthConfiguration.refreshTokenLifetime);
+
                 provision.oauthModel.saveAccessToken(aToken, clientId, aExpires, user, function (error) {
-	                if(error){ return cb(error); }
-                	
-                    provision.oauthModel.saveRefreshToken(rToken, clientId, rExpires, user, function(error){
-                    	if(error){ return cb(error); }
-                    	
-                    	return cb(null, {
-		                    "token_type": "bearer",
-		                    "access_token": aToken,
-		                    "expires_in": oauthConfiguration.accessTokenLifetime,
-		                    "refresh_token": rToken
-		
-	                    })
+                    if (error) {
+                        return cb(error);
+                    }
+
+                    provision.oauthModel.saveRefreshToken(rToken, clientId, rExpires, user, function (error) {
+                        if (error) {
+                            return cb(error);
+                        }
+
+                        return cb(null, {
+                            "token_type": "bearer",
+                            "access_token": aToken,
+                            "expires_in": oauthConfiguration.accessTokenLifetime,
+                            "refresh_token": rToken
+
+                        })
                     });
                 });
             });

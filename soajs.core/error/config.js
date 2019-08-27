@@ -70,7 +70,8 @@ module.exports = {
         '205': 'You need to provide a tenant ID.', //500
         '206': "Unable to load provision information for the provided tenant ID.", //500
         '207': "Unable to load provisioned information for the provided env code", //500
-        '208': "Protocol, Domain and Port are needed, make sure they are set at registry" //500
+        '208': "Protocol, Domain and Port are needed, make sure they are set at registry", //500
+        '209': 'You need to provide an array of package codes.' //500
     },
     'status': {
         '130': '404',
