@@ -612,6 +612,10 @@ var registryModule = {
                     registry_struct[regEnvironment][what][param.name].port = param.port;
             }
 
+            if (param.maintenance) {
+                registry_struct[regEnvironment][what][param.name].maintenance = param.maintenance;
+            }
+
             registry_struct[regEnvironment][what][param.name].extKeyRequired = param.extKeyRequired;
             registry_struct[regEnvironment][what][param.name].version = param.version;
 
