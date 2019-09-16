@@ -55,7 +55,7 @@ function getACL(tempScopeCursor, tempPackCursor) {
 module.exports = {
     "getACLFromScope": function (scopeACL, packACL) {
         let ACL = null;
-        if (packACL) {
+        if (packACL && scopeACL) {
             ACL = {};
             for (let env in packACL) {
                 if (scopeACL[env] && (Object.hasOwnProperty.call(packACL, env))) {
