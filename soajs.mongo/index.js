@@ -249,21 +249,21 @@ MongoDriver.prototype.save = function (collectionName, docs, versioning, options
  * Params: collectionName, criteria, record, [options,] [versioning,] cb
  * Deprecated: use updateOne, updateMany or bulkWrite
  */
-MongoDriver.prototype.update = function (collectionName, criteria, record, options, versioning, cb) {
+MongoDriver.prototype.update = function () {
 	let self = this;
 	
-	if (!cb && typeof options === "function") {
-		cb = options;
-		versioning = false;
+	let collectionName = arguments[0]
+		, criteria = arguments[1]
+		, record = arguments[2]
+		, options = arguments[3]
+		, versioning = arguments.length === 6 ? arguments[4] : arguments[3]
+		, cb = arguments[arguments.length - 1];
+	
+	if (typeof options !== "object") {
 		options = null;
 	}
-	if (!cb && typeof versioning === "function") {
-		cb = versioning;
+	if (typeof versioning !== 'boolean') {
 		versioning = false;
-	}
-	
-	if (!cb){
-		cb  = arguments[arguments.length - 1];
 	}
 	
 	if (!collectionName) {
@@ -503,6 +503,12 @@ MongoDriver.prototype.createIndex = function (collectionName, keys, options, cb)
 		}
 	});
 };
+MongoDriver.prototype.ensureIndex = function (collectionName, keys, options, cb) {
+	let self = this;
+	
+	displayLog("***** ensureIndex is deprecated use createIndexes instead");
+	self.createIndex(collectionName, keys, options, cb);
+};
 
 /**
  * v 3.x verified
@@ -554,6 +560,52 @@ MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
 		}
 		console.log(args)
 		self.db.collection(collectionName).find.apply(self.db.collection(collectionName), args).toArray(cb);
+	});
+};
+
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, query, sort, doc, options, cb
+ */
+MongoDriver.prototype.findAndModify = function () {
+	let args = Array.prototype.slice.call(arguments)
+		, collectionName = args.shift()
+		, cb = args[args.length - 1]
+		, self = this;
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	displayLog("***** findAndModify is deprecated use findOneAndUpdate, findOneAndReplace or findOneAndDelete instead");
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		self.db.collection(collectionName).findAndModify.apply(self.db.collection(collectionName), args);
+	});
+};
+
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, query, sort, options, cb
+ */
+MongoDriver.prototype.findAndRemove = function () {
+	let args = Array.prototype.slice.call(arguments)
+		, collectionName = args.shift()
+		, cb = args[args.length - 1]
+		, self = this;
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	displayLog("***** findAndRemove is deprecated use findOneAndDelete instead");
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		self.db.collection(collectionName).findAndRemove.apply(self.db.collection(collectionName), args);
 	});
 };
 
@@ -662,6 +714,11 @@ MongoDriver.prototype.dropCollection = function (collectionName, options, cb) {
  */
 MongoDriver.prototype.dropDatabase = function (options, cb) {
 	let self = this;
+	
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
+	}
 	
 	connect(self, function (err) {
 		if (err) {
@@ -913,6 +970,10 @@ function connect(obj, cb) {
 			obj.pending = false;
 			return cb(err);
 		} else {
+			if (!obj.config.name || obj.config.name === '') {
+				obj.pending = false;
+				return cb(new Error("You must specify a db name."));
+			}
 			client.on('timeout', function () {
 				displayLog("Connection To Mongo has timed out!", obj.config.name);
 				obj.flushDb();
