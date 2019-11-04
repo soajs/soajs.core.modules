@@ -1,14 +1,13 @@
 'use strict';
-var core = require("../soajs.core");
-var mongodb = require('mongodb');
-var merge = require('merge');
-var objectHash = require("object-hash");
-var localConfig = require("./config");
+const core = require("../soajs.core");
+const mongodb = require('mongodb');
+const merge = require('merge');
+const objectHash = require("object-hash");
 
-var cacheDB = {};
+let cacheDB = {};
 
 
-var cacheDBLib = {
+let cacheDBLib = {
 	"init": function (registryLocation) {
 		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
 			if (!cacheDB)
@@ -69,35 +68,65 @@ var cacheDBLib = {
  * }
  *
  * REF: http://mongodb.github.io/node-mongodb-native/driver-articles/mongoclient.html#mongoclient-connect
+ *      https://mongodb.github.io/node-mongodb-native/3.3/api/index.html
+ *      https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#distinct
  */
 function MongoDriver(dbConfig) {
-	var self = this;
+	let self = this;
 	self.config = dbConfig;
 	self.db = null;
+	self.client = null;
 	self.pending = false;
 	self.ObjectId = mongodb.ObjectID;
 	self.mongodb = mongodb;
 	if (self.config)
 		cacheDBLib.init(self.config.registryLocation);
 }
+
 /**
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Object} docs
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, docs (object | Array.<object>), [versioning,] [options,] callback
+ * Deprecated: Use insertOne, insertMany or bulkWrite
  */
-MongoDriver.prototype.insert = function (collectionName, docs, cb) {
-	var self = this;
-	var versioning = false;
+MongoDriver.prototype.insert = function (collectionName, docs, versioning, options, cb) {
+	let self = this;
 	
 	if (!collectionName || !docs) {
 		return cb(core.error.generate(191));
 	}
 	
-	if (arguments.length === 4) {
-		versioning = arguments[2];
-		cb = arguments[3];
+	if (!cb && typeof versioning === "function") {
+		cb = versioning;
+		versioning = false;
+	}
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
+	}
+	
+	displayLog("***** insert is deprecated please use insertOne, insertMany or bulkWrite");
+	if (Array.isArray(docs)) {
+		self.insertMany(collectionName, docs, options, versioning, cb);
+	}
+	else {
+		self.insertOne(collectionName, docs, options, versioning, cb);
+	}
+};
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, doc, options, [versioning,] cb
+ */
+MongoDriver.prototype.insertOne = function (collectionName, doc, options, versioning, cb) {
+	let self = this;
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	if (!cb && typeof versioning === "function") {
+		cb = versioning;
+		versioning = false;
 	}
 	
 	connect(self, function (err) {
@@ -105,30 +134,63 @@ MongoDriver.prototype.insert = function (collectionName, docs, cb) {
 			return cb(err);
 		}
 		if (versioning) {
-			if (Array.isArray(docs)) {
-				docs.forEach(function (oneDoc) {
-					oneDoc.v = 1;
-					oneDoc.ts = new Date().getTime();
-				});
-			}
-			else {
-				docs.v = 1;
-				docs.ts = new Date().getTime();
-			}
-			self.db.collection(collectionName).insert(docs, {'safe': true}, function (error, response) {
+			doc.v = 1;
+			doc.ts = new Date().getTime();
+			self.db.collection(collectionName).insertOne(doc, options, function (error, response) {
 				if (error) {
 					return cb(error);
 				}
-				
+				return cb(null, response.ops);
+			});
+		} else {
+			self.db.collection(collectionName).insertOne(doc, options, function (error, response) {
+				if (error) {
+					return cb(error);
+				}
 				return cb(null, response.ops);
 			});
 		}
-		else {
-			self.db.collection(collectionName).insert(docs, {'safe': true}, function (error, response) {
+	});
+};
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, docs, options, [versioning,] cb
+ */
+MongoDriver.prototype.insertMany = function (collectionName, docs, options, versioning, cb) {
+	let self = this;
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	if (!Array.isArray(docs)) {
+		return cb(core.error.generate(197));
+	}
+	if (!cb && typeof versioning === "function") {
+		cb = versioning;
+		versioning = false;
+	}
+	
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		if (versioning) {
+			docs.forEach(function (oneDoc) {
+				oneDoc.v = 1;
+				oneDoc.ts = new Date().getTime();
+			});
+			self.db.collection(collectionName).insertMany(docs, options, function (error, response) {
 				if (error) {
 					return cb(error);
 				}
-				
+				return cb(null, response.ops);
+			});
+		} else {
+			self.db.collection(collectionName).insertMany(docs, options, function (error, response) {
+				if (error) {
+					return cb(error);
+				}
 				return cb(null, response.ops);
 			});
 		}
@@ -136,23 +198,28 @@ MongoDriver.prototype.insert = function (collectionName, docs, cb) {
 };
 
 /**
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Object} docs
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, doc, [versioning,] [options,] callback
+ * Deprecated: use insertOne, insertMany, updateOne or updateMany
  */
-MongoDriver.prototype.save = function (collectionName, docs, cb) {
-	var self = this;
-	var versioning = false;
-	if (arguments.length === 4) {
-		versioning = arguments[2];
-		cb = arguments[3];
-	}
+MongoDriver.prototype.save = function (collectionName, docs, versioning, options, cb) {
+	let self = this;
 	
 	if (!collectionName || !docs) {
 		return cb(core.error.generate(191));
 	}
+	
+	if (!cb && typeof versioning === "function") {
+		cb = versioning;
+		versioning = false;
+	}
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
+	}
+	
+	displayLog("***** save is deprecated please use insertOne, insertMany, updateOne or updateMany");
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -175,31 +242,98 @@ MongoDriver.prototype.save = function (collectionName, docs, cb) {
 };
 
 /**
- * Updates documents based on the query or criteria and the fields to update
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Object} criteria
- * @param {Object} record
- * @param {Object} options
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, criteria, record, [options,] [versioning,] cb
+ * Deprecated: use updateOne, updateMany or bulkWrite
  */
-MongoDriver.prototype.update = function (/*collectionName, criteria, record, [options,] versioning, cb*/) {
-	var collectionName = arguments[0]
-		, criteria = arguments[1]
-		, updateOptions = arguments[2]
-		, extra = arguments[3]
-		, versioning = arguments.length === 6 ? arguments[4] : arguments[3]
-		, cb = arguments[arguments.length - 1];
-	
-	if (typeof(extra) === 'boolean') {
-		extra = {'safe': true, 'multi': true, 'upsert': false};
+MongoDriver.prototype.update = function (collectionName, criteria, record, options, versioning, cb) {
+	let self = this;
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
 	}
-	if (typeof(versioning) !== 'boolean') {
+	if (!cb && typeof versioning === "function") {
+		cb = versioning;
 		versioning = false;
 	}
 	
-	var self = this;
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	
+	displayLog("***** update is deprecated use updateOne, updateMany or bulkWrite");
+	if (options && options.multi) {
+		if (versioning) {
+			displayLog("update with versioning does not work for multi document. do not set multi to true");
+		}
+		self.updateMany(collectionName, criteria, record, options, versioning, cb);
+	} else {
+		connect(self, function (err) {
+			if (err) {
+				return cb(err);
+			}
+			if (versioning) {
+				self.findOne(collectionName, criteria, function (error, originalRecord) {
+					if (error) {
+						return cb(error);
+					}
+					if (!originalRecord && options.upsert) {
+						record['$set'].v = 1;
+						record['$set'].ts = new Date().getTime();
+						self.db.collection(collectionName).update(criteria, record, options, function (error, response) {
+							if (error) {
+								return cb(error);
+							}
+							return cb(null, response.result.n);
+						});
+					} else {
+						MongoDriver.addVersionToRecords.call(self, collectionName, originalRecord, function (error) {
+							if (error) {
+								return cb(error);
+							}
+							if (!record['$inc']) {
+								record['$inc'] = {};
+							}
+							record['$inc'].v = 1;
+							
+							if (!record['$set']) {
+								record['$set'] = {};
+							}
+							record['$set'].ts = new Date().getTime();
+							
+							self.db.collection(collectionName).update(criteria, record, options, function (error, response) {
+								if (error) {
+									return cb(error);
+								}
+								return cb(null, response.result.n);
+							});
+						});
+					}
+				});
+			} else {
+				self.db.collection(collectionName).update(criteria, record, options, function (error, response) {
+					if (error) {
+						return cb(error);
+					}
+					return cb(null, response.result.n);
+				});
+			}
+		});
+	}
+};
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, filter, updateOptions, options, [versioning,] cb
+ */
+MongoDriver.prototype.updateOne = function (collectionName, filter, updateOptions, options, versioning, cb) {
+	let self = this;
+	
+	if (!cb && typeof versioning === "function") {
+		cb = versioning;
+		versioning = false;
+	}
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -208,29 +342,25 @@ MongoDriver.prototype.update = function (/*collectionName, criteria, record, [op
 		if (err) {
 			return cb(err);
 		}
-		
 		if (versioning) {
-			self.findOne(collectionName, criteria, function (error, originalRecord) {
+			self.findOne(collectionName, filter, function (error, originalRecord) {
 				if (error) {
 					return cb(error);
 				}
-				
-				if (!originalRecord && extra.upsert) {
+				if (!originalRecord && options.upsert) {
 					updateOptions['$set'].v = 1;
 					updateOptions['$set'].ts = new Date().getTime();
-					self.db.collection(collectionName).update(criteria, updateOptions, extra, function (error, response) {
+					self.db.collection(collectionName).updateOne(filter, updateOptions, options, function (error, response) {
 						if (error) {
 							return cb(error);
 						}
 						return cb(null, response.result.n);
 					});
-				}
-				else {
-					MongoDriver.addVersionToRecords.call(self, collectionName, originalRecord, function (error, versionedRecord) {
+				} else {
+					MongoDriver.addVersionToRecords.call(self, collectionName, originalRecord, function (error) {
 						if (error) {
 							return cb(error);
 						}
-						
 						if (!updateOptions['$inc']) {
 							updateOptions['$inc'] = {};
 						}
@@ -241,7 +371,7 @@ MongoDriver.prototype.update = function (/*collectionName, criteria, record, [op
 						}
 						updateOptions['$set'].ts = new Date().getTime();
 						
-						self.db.collection(collectionName).update(criteria, updateOptions, extra, function (error, response) {
+						self.db.collection(collectionName).updateOne(filter, updateOptions, options, function (error, response) {
 							if (error) {
 								return cb(error);
 							}
@@ -250,9 +380,8 @@ MongoDriver.prototype.update = function (/*collectionName, criteria, record, [op
 					});
 				}
 			});
-		}
-		else {
-			self.db.collection(collectionName).update(criteria, updateOptions, extra, function (error, response) {
+		} else {
+			self.db.collection(collectionName).updateOne(filter, updateOptions, options, function (error, response) {
 				if (error) {
 					return cb(error);
 				}
@@ -261,16 +390,39 @@ MongoDriver.prototype.update = function (/*collectionName, criteria, record, [op
 		}
 	});
 };
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, filter, updateOptions, options, cb
+ */
+MongoDriver.prototype.updateMany = function (collectionName, filter, updateOptions, options, cb) {
+	let self = this;
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
+	}
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		self.db.collection(collectionName).updateMany(filter, updateOptions, options, function (error, response) {
+			if (error) {
+				return cb(error);
+			}
+			return cb(null, response.result.n);
+		});
+	});
+};
 
 /**
  * Inserts a new version of the record in collectionName_versioning
- * @param {String} collection
- * @param {Object} oneRecord
- * @param {Function} cb
- * @returns {*}
  */
 MongoDriver.addVersionToRecords = function (collection, oneRecord, cb) {
-	var self = this;
+	let self = this;
 	if (!oneRecord) {
 		return cb(core.error.generate(192));
 	}
@@ -294,28 +446,20 @@ MongoDriver.addVersionToRecords = function (collection, oneRecord, cb) {
 
 /**
  * Removes all the version of a record
- * @param {String} collection
- * @param {ObjectId} recordId
- * @param {Function} cb
- * @returns {*}
  */
 MongoDriver.prototype.clearVersions = function (collection, recordId, cb) {
-	var self = this;
+	let self = this;
 	if (!collection) {
 		return cb(core.error.generate(191));
 	}
-	self.remove(collection + '_versioning', {'refId': recordId}, cb);
+	self.deleteMany(collection + '_versioning', {'refId': recordId}, null, cb);
 };
 
 /**
  * Returns all the version of a record, sorted by v value descending
- * @param {String} collection
- * @param {ObjectId} oneRecordId
- * @param {Function} cb
- * @returns {*}
  */
 MongoDriver.prototype.getVersions = function (collection, oneRecordId, cb) {
-	var self = this;
+	let self = this;
 	if (!collection) {
 		return cb(core.error.generate(191));
 	}
@@ -323,81 +467,54 @@ MongoDriver.prototype.getVersions = function (collection, oneRecordId, cb) {
 };
 
 /**
- * Creates an index on the specified field if the index does not already exist.
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Object} keys
- * @param {Object} options
- * @param {Function} cb
- * @returns {*}
- */
-MongoDriver.prototype.ensureIndex = function (collectionName, keys, options, cb) {
-	var self = this;
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
-	displayLog("EnsureIndex is deprecated please use createIndex");
-	connect(self, function (err) {
-		if (err) {
-			if (cb && typeof cb === "function")
-				return cb(err);
-		}
-		else
-			self.db.ensureIndex(collectionName, keys, options, cb);
-	});
-};
-
-/**
- * Creates an index on the specified field if the index does not already exist.
- *
- * @param {String} collectionName
- * @param {Object} keys
- * @param {Object} options
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, fieldOrSpec, options, callback
  */
 MongoDriver.prototype.createIndex = function (collectionName, keys, options, cb) {
-	var self = this;
+	let self = this;
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
 	connect(self, function (err) {
 		if (err) {
-			if (cb && typeof cb === "function")
+			if (cb && typeof cb === "function") {
 				return cb(err);
-		}
-		else
+			}
+		} else {
 			self.db.createIndex(collectionName, keys, options, cb);
+		}
 	});
 };
 
 /**
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, options, callback
  */
-MongoDriver.prototype.getCollection = function (collectionName, cb) {
-	var self = this;
+MongoDriver.prototype.getCollection = function (collectionName, options, cb) {
+	let self = this;
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
 	connect(self, function (err) {
 		if (err) {
-			if (cb && typeof cb === "function")
+			if (cb && typeof cb === "function") {
 				return cb(err);
+			}
+		} else {
+			self.db.collection(collectionName, options, cb);
 		}
-		else
-			self.db.collection(collectionName, {'safe': true}, cb);
 	});
 };
 
 /**
+ * v 3.x verified
  *
- * @type {Function}
+ * Params: collectionName, query, options, callback
  */
 MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
-	var args = Array.prototype.slice.call(arguments)
+	let args = Array.prototype.slice.call(arguments)
 		, collectionName = args.shift()
 		, cb = args[args.length - 1]
 		, self = this;
@@ -410,75 +527,18 @@ MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
 		if (err) {
 			return cb(err);
 		}
+		console.log(args)
 		self.db.collection(collectionName).find.apply(self.db.collection(collectionName), args).toArray(cb);
 	});
 };
 
 /**
- * Returns a stream for querying records.
+ * v 3.x verified
  *
- * @method findStream
- * @param {String} collectionName
- * @param {Object} criteria
- * @param {Object} options
- * @param {Function} callback
+ * Params: collectionName, filter, update, options, callback
  */
-MongoDriver.prototype.findStream = MongoDriver.prototype.findFieldsStream = function () {
-	var args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
-	args.pop();
-	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
-	connect(self, function (err) {
-		if (err) {
-			return cb(err);
-		}
-		var batchSize = 0;
-		if (self.config && self.config.streaming) {
-			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize)
-				batchSize = self.config.streaming[collectionName].batchSize;
-			else if (self.config.streaming.batchSize)
-				batchSize = self.config.streaming.batchSize;
-		}
-		if (batchSize)
-			return cb(null, self.db.collection(collectionName).find.apply(self.db.collection(collectionName), args).batchSize(batchSize).stream());
-		else
-			return cb(null, self.db.collection(collectionName).find.apply(self.db.collection(collectionName), args).stream());
-	});
-};
-
-/**
- *
- * @returns {*}
- */
-MongoDriver.prototype.findAndModify = function (/*collectionName, criteria, updateOps, options, cb*/) {
-	var args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
-	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
-	displayLog("findAndModify is deprecated please use findOneAndUpdate");
-	connect(self, function (err) {
-		if (err) {
-			return cb(err);
-		}
-		self.db.collection(collectionName).findAndModify.apply(self.db.collection(collectionName), args);
-	});
-};
-
-/**
- *
- * @returns {*}
- */
-MongoDriver.prototype.findOneAndUpdate = function (/*collectionName, criteria, updateOps, options, cb*/) {
-	var args = Array.prototype.slice.call(arguments)
+MongoDriver.prototype.findOneAndUpdate = function () {
+	let args = Array.prototype.slice.call(arguments)
 		, collectionName = args.shift()
 		, cb = args[args.length - 1]
 		, self = this;
@@ -495,33 +555,12 @@ MongoDriver.prototype.findOneAndUpdate = function (/*collectionName, criteria, u
 };
 
 /**
+ * v 3.x verified
  *
- * @returns {*}
- */
-MongoDriver.prototype.findAndRemove = function () {
-	var args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
-	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
-	displayLog("findAndRemove is deprecated please use findOneAndDelete");
-	connect(self, function (err) {
-		if (err) {
-			return cb(err);
-		}
-		self.db.collection(collectionName).findAndRemove.apply(self.db.collection(collectionName), args);
-	});
-};
-
-/**
- *
- * @returns {*}
+ * Params: collectionName, filter, options, callback
  */
 MongoDriver.prototype.findOneAndDelete = function () {
-	var args = Array.prototype.slice.call(arguments)
+	let args = Array.prototype.slice.call(arguments)
 		, collectionName = args.shift()
 		, cb = args[args.length - 1]
 		, self = this;
@@ -538,19 +577,22 @@ MongoDriver.prototype.findOneAndDelete = function () {
 };
 
 /**
- * Finds a single document based on the query or criteria
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Object} criteria
- * @param {Object} fields
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, query, options, <extra>, cb
+ * extra is being ignore since the new mongo driver does nto support this
  */
-MongoDriver.prototype.findOne = MongoDriver.prototype.findOneFields = function (/* collectionName, criteria, fields, callback */) {
-	var args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+MongoDriver.prototype.findOne = MongoDriver.prototype.findOneFields = function () {
+	let self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let cb = args[args.length - 1];
+	if (args.length > 4 && typeof cb === "function") {
+		args[3] = cb;
+		args.pop();
+	}
+	let collectionName = args.shift();
+	
+	console.log(args);
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -564,14 +606,11 @@ MongoDriver.prototype.findOne = MongoDriver.prototype.findOneFields = function (
 };
 
 /**
- * Drops the specified collection
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Function} cb
- * @returns {*}
  */
-MongoDriver.prototype.dropCollection = function (collectionName, cb) {
-	var self = this;
+MongoDriver.prototype.dropCollection = function (collectionName, options, cb) {
+	let self = this;
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
@@ -579,61 +618,64 @@ MongoDriver.prototype.dropCollection = function (collectionName, cb) {
 		if (err) {
 			return cb(err);
 		}
-		self.db.collection(collectionName).drop(cb);
+		self.db.dropCollection(collectionName, options, cb);
 	});
 };
 
 /**
+ * v 3.x verified
  *
- * @param Function}  cb
  */
-MongoDriver.prototype.dropDatabase = function (cb) {
-	var self = this;
+MongoDriver.prototype.dropDatabase = function (options, cb) {
+	let self = this;
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
 		}
-		self.db.dropDatabase(cb);
+		self.db.dropDatabase(options, cb);
 	});
 };
 
 /**
- * Counts the number of criteria matching documents in a collection
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Object} criteria
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, criteria, [options,] cb
+ * Deprecated: use countDocuments or estimatedDocumentCount
  */
-MongoDriver.prototype.count = function (collectionName, criteria, cb) {
-	var self = this;
+MongoDriver.prototype.count = function (collectionName, criteria, options, cb) {
+	let self = this;
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
-	var options = {};
-	var args = Array.prototype.slice.call(arguments);
-	if (args.length === 4) {
-		options = cb = args[args.length - 2];
-		cb = args[args.length - 1];
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
+	}
+	
+	displayLog("***** count is deprecated please use countDocuments or estimatedDocumentCount");
+	
+	self.countDocuments(collectionName, criteria, options, cb);
+};
+MongoDriver.prototype.countDocuments = function (collectionName, criteria, options, cb) {
+	let self = this;
+	if (!collectionName) {
+		return cb(core.error.generate(191));
 	}
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
 		}
-		self.db.collection(collectionName).count(criteria, options, cb);
+		self.db.collection(collectionName).countDocuments(criteria, options, cb);
 	});
 };
 
 /**
- * Returns an array of Distinct values from a collection
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Array} fields
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, key, query, options, cb
  */
 MongoDriver.prototype.distinct = function () {
-	var args = Array.prototype.slice.call(arguments)
+	let args = Array.prototype.slice.call(arguments)
 		, collectionName = args.shift()
 		, cb = args[args.length - 1]
 		, self = this;
@@ -649,8 +691,13 @@ MongoDriver.prototype.distinct = function () {
 	});
 };
 
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, pipeline, options, cb
+ */
 MongoDriver.prototype.aggregate = function () {
-	var args = Array.prototype.slice.call(arguments)
+	let args = Array.prototype.slice.call(arguments)
 		, collectionName = args.shift()
 		, cb = args[args.length - 1]
 		, self = this;
@@ -666,99 +713,38 @@ MongoDriver.prototype.aggregate = function () {
 	});
 };
 
-MongoDriver.prototype.distinctStream = function (collectionName, fieldName, criteria, options, cb) {
-	var self = this;
-	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
-	connect(self, function (err) {
-		if (err) {
-			return cb(err);
-		}
-		var args = [
-			{
-				$group: {
-					"_id": "$" + fieldName
-				}
-			}
-		];
-		
-		if (criteria) {
-			args.unshift(criteria);
-		}
-		
-		if (options) {
-			for (var i in options) {
-				if (Object.hasOwnProperty.call(options, i)) {
-					var oneOption = {};
-					oneOption[i] = options[i];
-					args.push(oneOption);
-				}
-			}
-		}
-		
-		var batchSize = 0;
-		if (self.config && self.config.streaming) {
-			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize)
-				batchSize = self.config.streaming[collectionName].batchSize;
-			else if (self.config.streaming.batchSize)
-				batchSize = self.config.streaming.batchSize;
-		}
-		if (batchSize) {
-			return cb(null, self.db.collection(collectionName).aggregate(args).batchSize(batchSize));
-		}
-		else {
-			return cb(null, self.db.collection(collectionName).aggregate(args));
-		}
-	});
-};
-
-MongoDriver.prototype.aggregateStream = function () {
-	var args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
-	args.pop();
-	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
-	connect(self, function (err) {
-		if (err) {
-			return cb(err);
-		}
-		
-		var batchSize = 0;
-		if (self.config && self.config.streaming) {
-			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize)
-				batchSize = self.config.streaming[collectionName].batchSize;
-			else if (self.config.streaming.batchSize)
-				batchSize = self.config.streaming.batchSize;
-		}
-		if (batchSize) {
-			return cb(null, self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args).batchSize(batchSize));
-		}
-		else {
-			return cb(null, self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args));
-		}
-	});
-};
-
 /**
- * Removes the objects matching the criteria from the specified collection
+ * v 3.x verified
  *
- * @param {String} collectionName
- * @param {Object} criteria
- * @param {Function} cb
- * @returns {*}
+ * Params: collectionName, criteria, [options,] cb
+ * Deprecated: use deleteOne, deleteMany or bulkWrite
  */
-MongoDriver.prototype.remove = function (collectionName, criteria, cb) {
-	var self = this;
+MongoDriver.prototype.remove = function (collectionName, criteria, options, cb) {
+	let self = this;
 	if (!criteria) {
 		criteria = {};
 	}
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
+	}
 	
+	displayLog("***** remove is deprecated please use deleteOne, deleteMany or bulkWrite");
+	
+	if (options && options.single) {
+		self.deleteOne(collectionName, criteria, options, cb);
+	} else {
+		self.deleteMany(collectionName, criteria, options, cb);
+	}
+};
+MongoDriver.prototype.deleteOne = function (collectionName, criteria, options, cb) {
+	let self = this;
+	if (!criteria) {
+		criteria = {};
+	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
@@ -766,34 +752,49 @@ MongoDriver.prototype.remove = function (collectionName, criteria, cb) {
 		if (err) {
 			return cb(err);
 		}
-		self.db.collection(collectionName).remove(criteria, {'safe': true}, cb);
+		self.db.collection(collectionName).deleteOne(criteria, options, cb);
 	});
 };
+MongoDriver.prototype.deleteMany = function (collectionName, criteria, options, cb) {
+	let self = this;
+	if (!criteria) {
+		criteria = {};
+	}
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		self.db.collection(collectionName).deleteMany(criteria, options, cb);
+	});
+};
+
 
 /**
  * Closes Mongo connection
  */
 MongoDriver.prototype.closeDb = function () {
-	var self = this;
-	if (self.db) {
-		self.db.close();
+	let self = this;
+	if (self.client) {
+		self.client.close();
 		self.flushDb();
 	}
 };
-
 MongoDriver.prototype.flushDb = function () {
-	var self = this;
-	
+	let self = this;
+	self.client = null;
 	self.db = null;
-	
 	if (self.config)
 		cacheDBLib.flush(self.config.registryLocation);
 };
 
 // this is to expose mongo db and replace getMongoSkinDB.
 // we can move to mongo native client driver
+// to get the DB and trigger any method directly
 MongoDriver.prototype.getMongoDB = function (cb) {
-	var self = this;
+	let self = this;
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -802,17 +803,13 @@ MongoDriver.prototype.getMongoDB = function (cb) {
 	});
 };
 
-
 /**
  * Ensure a connection to mongo without any race condition problem
  *
- * @param {Object} obj
- * @param {Function} cb
- * @returns {*}
  */
 function connect(obj, cb) {
-	var timeConnected = 0;
-	var configCloneHash = null;
+	let timeConnected = 0;
+	let configCloneHash = null;
 	if (!obj.config) {
 		return cb(core.error.generate(195));
 	}
@@ -820,24 +817,26 @@ function connect(obj, cb) {
 	if (obj.config && obj.config.registryLocation && obj.config.registryLocation.env && obj.config.registryLocation.l1 && obj.config.registryLocation.l2) {
 		obj.config = core.registry.get(obj.config.registryLocation.env)[obj.config.registryLocation.l1][obj.config.registryLocation.l2];
 		
-		var cache = cacheDBLib.getCache(obj.config.registryLocation);
+		let cache = cacheDBLib.getCache(obj.config.registryLocation);
 		
-		if (!obj.db && cache.db)
+		if (!obj.db && cache.db) {
 			obj.db = cache.db;
-		if (cache.timeConnected)
+		}
+		if (cache.timeConnected) {
 			timeConnected = cache.timeConnected;
-		if (cache.configCloneHash)
+		}
+		if (cache.configCloneHash) {
 			configCloneHash = cache.configCloneHash;
+		}
 	}
 	
-	if(obj.config.credentials){
-		if(Object.hasOwnProperty.call(obj.config.credentials, 'username') && obj.config.credentials.username === ''){
+	if (obj.config.credentials) {
+		if (Object.hasOwnProperty.call(obj.config.credentials, 'username') && obj.config.credentials.username === '') {
 			delete obj.config.credentials;
 		}
 	}
 	
-	
-	var url = constructMongoLink(obj.config);
+	let url = constructMongoLink(obj.config);
 	if (!url) {
 		return cb(core.error.generate(190));
 	}
@@ -847,7 +846,7 @@ function connect(obj, cb) {
 	}
 	
 	if (obj.db && (!obj.config.timeConnected || (timeConnected !== obj.config.timeConnected))) {
-		var currentConfObj = merge(true, obj.config);
+		let currentConfObj = merge(true, obj.config);
 		delete currentConfObj.timeConnected;
 		currentConfObj = objectHash(currentConfObj);
 		if (currentConfObj === configCloneHash) {
@@ -864,26 +863,34 @@ function connect(obj, cb) {
 	}
 	obj.pending = true;
 	
-	mongodb.connect(url, obj.config.URLParam, function (err, db) {
+	mongodb.connect(url, obj.config.URLParam, function (err, client) {
 		obj.config.timeConnected = new Date().getTime();
 		if (err) {
 			obj.pending = false;
 			return cb(err);
 		} else {
-			db.on('timeout', function () {
+			client.on('timeout', function () {
 				displayLog("Connection To Mongo has timed out!", obj.config.name);
 				obj.flushDb();
 			});
 			
-			db.on('close', function () {
+			client.on('close', function () {
 				displayLog("Connection To Mongo has been closed!", obj.config.name);
 				obj.flushDb();
 			});
 			
-			if (obj.db)
-				obj.db.close();
+			if (obj.client)
+				obj.client.close();
 			
-			obj.db = db;
+			obj.client = client;
+			
+			let prefix = obj.config.prefix;
+			let dbName = obj.config.name;
+			if (prefix && prefix !== "") {
+				dbName = prefix + dbName;
+			}
+			obj.db = obj.client.db(dbName);
+			
 			cacheDBLib.setCache(obj);
 			obj.pending = false;
 			return cb();
@@ -891,12 +898,11 @@ function connect(obj, cb) {
 	});
 }
 
-function displayLog(msg, extra){
-	var logger = core.getLog();
+function displayLog(msg, extra) {
+	let logger = core.getLog();
 	if (logger) {
 		logger.warn(msg, extra || "");
-	}
-	else {
+	} else {
 		console.log(msg, extra || "");
 	}
 }
@@ -904,34 +910,26 @@ function displayLog(msg, extra){
 /**
  *constructMongoLink: is a function that takes the below param and return the URL need to by mongodb.connect
  *
- * @param dbName
- * @param prefix
- * @param servers
- * @param params
- * @param credentials
- * @returns {*}
  */
 function constructMongoLink(params) {
-	var dbName = params.name;
-	var prefix = params.prefix;
-	var servers = params.servers;
-	var credentials = params.credentials;
+	let servers = params.servers;
+	let credentials = params.credentials;
 	
-	if (dbName && Array.isArray(servers)) {
-		var url = "mongodb://";
+	if (Array.isArray(servers)) {
+		let url = params.protocol || "mongodb://";
 		if (credentials && Object.hasOwnProperty.call(credentials, 'username') && credentials.hasOwnProperty.call(credentials, 'password')) {
-			if(credentials.username !== '' && credentials.password !== ''){
+			if (credentials.username !== '' && credentials.password !== '') {
 				url = url.concat(credentials.username, ':', credentials.password, '@');
 			}
 		}
 		
 		servers.forEach(function (element, index, array) {
-			url = url.concat(element.host, ':', element.port, (index === array.length - 1 ? '' : ','));
+			if (element.host && element.port) {
+				url = url.concat(element.host, ':', element.port, (index === array.length - 1 ? '' : ','));
+			} else {
+				url = url.concat(element.host, (index === array.length - 1 ? '' : ','));
+			}
 		});
-		
-		url = url.concat('/');
-		if (prefix) url = url.concat(prefix);
-		url = url.concat(dbName);
 		
 		url = constructMongoOptions(url, params);
 		
@@ -950,48 +948,29 @@ function constructMongoLink(params) {
 	 * @returns {*}
 	 */
 	function constructMongoOptions(url, config) {
-		
-		var options = {};
-		var mongodbVersion = require("mongodb/package.json").version.split(".");
-		
-		//check if old mongo client driver
-		if (parseInt(mongodbVersion[0]) === 2 && parseInt(mongodbVersion[1]) < 2) {
-			var params = config.URLParam;
-			options = config.extraParam;
-			if (params && 'object' === typeof params && Object.keys(params).length) {
-				url = url.concat('?');
-				for (var i = 0; i < Object.keys(params).length; i++) {
-					url = url.concat(Object.keys(params)[i], '=', params[Object.keys(params)[i]], i === Object.keys(params).length - 1 ? '' : "&");
-				}
-			}
-		}
-		else {
-			options = config.URLParam;
-			if(config.extraParam && Object.keys(config.extraParam).length > 0){
-				flatternObject(options, config.extraParam);
-			}
-			
-			delete options.maxPoolSize;
-			delete options.wtimeoutMS;
-			delete options.slaveOk;
-			delete options.auto_reconnect;
-			
-			config.URLParam = options;
-			delete config.extraParam;
+		let options = config.URLParam;
+		if (config.extraParam && Object.keys(config.extraParam).length > 0) {
+			flatternObject(options, config.extraParam);
 		}
 		
+		delete options.maxPoolSize;
+		delete options.wtimeoutMS;
+		delete options.slaveOk;
+		delete options.auto_reconnect;
+		
+		config.URLParam = options;
+		
+		delete config.extraParam;
 		return url;
 		
 		//flattern extraParams to become one object but priority is for URLParam
-		function flatternObject(options, params){
-			for(var i in params){
-				
+		function flatternObject(options, params) {
+			for (let i in params) {
 				//if URLParam[i] exists, don't override it.
-				if(!Object.hasOwnProperty.call(options,i)){
-					if(typeof(params[i]) === 'object'){
+				if (!Object.hasOwnProperty.call(options, i)) {
+					if (typeof(params[i]) === 'object') {
 						flatternObject(options, params[i]);
-					}
-					else{
+					} else {
 						options[i] = params[i];
 					}
 				}

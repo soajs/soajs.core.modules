@@ -60,6 +60,7 @@ module.exports = {
         "194": "Invalid record version provided to Mongo", //500
         "195": "Invalid DB Config. please send a valid DB config to MongoDriver's constructor", //500
         "196": "Invalid ES Config. please send a valid ES config to ESDriver's constructor", //500
+	    "197": "Invalid arguments, an array of docs is expected", //500
 
         '20x': "PROVISION",
         '200': 'You need to provide an external key.', //403
