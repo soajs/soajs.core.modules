@@ -133,7 +133,7 @@ module.exports = function (grunt) {
 			mochaTest: {
 				SOAJS_ENV: "dev",
 				SOAJS_PROFILE: __dirname + "/profiles/single.js",
-				APP_DIR_FOR_CODE_COVERAGE: '../test/coverage/instrument/'
+				APP_DIR_FOR_CODE_COVERAGE: '../'
 			},
 			coverage: {
 				SOAJS_ENV: "dev",

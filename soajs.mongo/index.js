@@ -92,10 +92,6 @@ function MongoDriver(dbConfig) {
 MongoDriver.prototype.insert = function (collectionName, docs, versioning, options, cb) {
 	let self = this;
 	
-	if (!collectionName || !docs) {
-		return cb(core.error.generate(191));
-	}
-	
 	if (!cb && typeof versioning === "function") {
 		cb = versioning;
 		versioning = false;
@@ -103,6 +99,10 @@ MongoDriver.prototype.insert = function (collectionName, docs, versioning, optio
 	if (!cb && typeof options === "function") {
 		cb = options;
 		options = null;
+	}
+	
+	if (!collectionName || !docs) {
+		return cb(core.error.generate(191));
 	}
 	
 	displayLog("***** insert is deprecated please use insertOne, insertMany or bulkWrite");
@@ -121,12 +121,13 @@ MongoDriver.prototype.insert = function (collectionName, docs, versioning, optio
 MongoDriver.prototype.insertOne = function (collectionName, doc, options, versioning, cb) {
 	let self = this;
 	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
 	if (!cb && typeof versioning === "function") {
 		cb = versioning;
 		versioning = false;
+	}
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
 	}
 	
 	connect(self, function (err) {
@@ -160,15 +161,16 @@ MongoDriver.prototype.insertOne = function (collectionName, doc, options, versio
 MongoDriver.prototype.insertMany = function (collectionName, docs, options, versioning, cb) {
 	let self = this;
 	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
 	if (!Array.isArray(docs)) {
 		return cb(core.error.generate(197));
 	}
 	if (!cb && typeof versioning === "function") {
 		cb = versioning;
 		versioning = false;
+	}
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
 	}
 	
 	connect(self, function (err) {
@@ -206,10 +208,6 @@ MongoDriver.prototype.insertMany = function (collectionName, docs, options, vers
 MongoDriver.prototype.save = function (collectionName, docs, versioning, options, cb) {
 	let self = this;
 	
-	if (!collectionName || !docs) {
-		return cb(core.error.generate(191));
-	}
-	
 	if (!cb && typeof versioning === "function") {
 		cb = versioning;
 		versioning = false;
@@ -217,6 +215,10 @@ MongoDriver.prototype.save = function (collectionName, docs, versioning, options
 	if (!cb && typeof options === "function") {
 		cb = options;
 		options = null;
+	}
+	
+	if (!collectionName || !docs) {
+		return cb(core.error.generate(191));
 	}
 	
 	displayLog("***** save is deprecated please use insertOne, insertMany, updateOne or updateMany");
@@ -249,13 +251,19 @@ MongoDriver.prototype.save = function (collectionName, docs, versioning, options
  */
 MongoDriver.prototype.update = function (collectionName, criteria, record, options, versioning, cb) {
 	let self = this;
+	
 	if (!cb && typeof options === "function") {
 		cb = options;
+		versioning = false;
 		options = null;
 	}
 	if (!cb && typeof versioning === "function") {
 		cb = versioning;
 		versioning = false;
+	}
+	
+	if (!cb){
+		cb  = arguments[arguments.length - 1];
 	}
 	
 	if (!collectionName) {
@@ -338,6 +346,7 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -397,6 +406,7 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
  */
 MongoDriver.prototype.updateMany = function (collectionName, filter, updateOptions, options, cb) {
 	let self = this;
+	
 	if (!cb && typeof options === "function") {
 		cb = options;
 		options = null;
@@ -423,6 +433,7 @@ MongoDriver.prototype.updateMany = function (collectionName, filter, updateOptio
  */
 MongoDriver.addVersionToRecords = function (collection, oneRecord, cb) {
 	let self = this;
+	
 	if (!oneRecord) {
 		return cb(core.error.generate(192));
 	}
@@ -449,9 +460,11 @@ MongoDriver.addVersionToRecords = function (collection, oneRecord, cb) {
  */
 MongoDriver.prototype.clearVersions = function (collection, recordId, cb) {
 	let self = this;
+	
 	if (!collection) {
 		return cb(core.error.generate(191));
 	}
+	
 	self.deleteMany(collection + '_versioning', {'refId': recordId}, null, cb);
 };
 
@@ -460,9 +473,11 @@ MongoDriver.prototype.clearVersions = function (collection, recordId, cb) {
  */
 MongoDriver.prototype.getVersions = function (collection, oneRecordId, cb) {
 	let self = this;
+	
 	if (!collection) {
 		return cb(core.error.generate(191));
 	}
+	
 	self.find(collection + '_versioning', {'refId': oneRecordId}, cb);
 };
 
@@ -473,9 +488,11 @@ MongoDriver.prototype.getVersions = function (collection, oneRecordId, cb) {
  */
 MongoDriver.prototype.createIndex = function (collectionName, keys, options, cb) {
 	let self = this;
+	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			if (cb && typeof cb === "function") {
@@ -490,13 +507,20 @@ MongoDriver.prototype.createIndex = function (collectionName, keys, options, cb)
 /**
  * v 3.x verified
  *
- * Params: collectionName, options, callback
+ * Params: collectionName, [options,] cb
  */
 MongoDriver.prototype.getCollection = function (collectionName, options, cb) {
 	let self = this;
+	
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
+	}
+	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			if (cb && typeof cb === "function") {
@@ -523,6 +547,7 @@ MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -546,6 +571,7 @@ MongoDriver.prototype.findOneAndUpdate = function () {
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -568,6 +594,7 @@ MongoDriver.prototype.findOneAndDelete = function () {
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -584,6 +611,7 @@ MongoDriver.prototype.findOneAndDelete = function () {
  */
 MongoDriver.prototype.findOne = MongoDriver.prototype.findOneFields = function () {
 	let self = this;
+	
 	let args = Array.prototype.slice.call(arguments);
 	let cb = args[args.length - 1];
 	if (args.length > 4 && typeof cb === "function") {
@@ -592,11 +620,10 @@ MongoDriver.prototype.findOne = MongoDriver.prototype.findOneFields = function (
 	}
 	let collectionName = args.shift();
 	
-	console.log(args);
-	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -611,9 +638,16 @@ MongoDriver.prototype.findOne = MongoDriver.prototype.findOneFields = function (
  */
 MongoDriver.prototype.dropCollection = function (collectionName, options, cb) {
 	let self = this;
+	
+	if (!cb && typeof options === "function") {
+		cb = options;
+		options = null;
+	}
+	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -628,6 +662,7 @@ MongoDriver.prototype.dropCollection = function (collectionName, options, cb) {
  */
 MongoDriver.prototype.dropDatabase = function (options, cb) {
 	let self = this;
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -644,12 +679,14 @@ MongoDriver.prototype.dropDatabase = function (options, cb) {
  */
 MongoDriver.prototype.count = function (collectionName, criteria, options, cb) {
 	let self = this;
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
+	
 	if (!cb && typeof options === "function") {
 		cb = options;
 		options = null;
+	}
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
 	}
 	
 	displayLog("***** count is deprecated please use countDocuments or estimatedDocumentCount");
@@ -658,9 +695,11 @@ MongoDriver.prototype.count = function (collectionName, criteria, options, cb) {
 };
 MongoDriver.prototype.countDocuments = function (collectionName, criteria, options, cb) {
 	let self = this;
+	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -705,6 +744,7 @@ MongoDriver.prototype.aggregate = function () {
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -721,15 +761,17 @@ MongoDriver.prototype.aggregate = function () {
  */
 MongoDriver.prototype.remove = function (collectionName, criteria, options, cb) {
 	let self = this;
+	
 	if (!criteria) {
 		criteria = {};
-	}
-	if (!collectionName) {
-		return cb(core.error.generate(191));
 	}
 	if (!cb && typeof options === "function") {
 		cb = options;
 		options = null;
+	}
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
 	}
 	
 	displayLog("***** remove is deprecated please use deleteOne, deleteMany or bulkWrite");
@@ -748,6 +790,7 @@ MongoDriver.prototype.deleteOne = function (collectionName, criteria, options, c
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -763,6 +806,7 @@ MongoDriver.prototype.deleteMany = function (collectionName, criteria, options, 
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
+	
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
