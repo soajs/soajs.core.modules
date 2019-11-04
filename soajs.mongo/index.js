@@ -584,10 +584,11 @@ MongoDriver.prototype.findStream = MongoDriver.prototype.findFieldsStream = func
 		}
 		let batchSize = 0;
 		if (self.config && self.config.streaming) {
-			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize)
+			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize) {
 				batchSize = self.config.streaming[collectionName].batchSize;
-			else if (self.config.streaming.batchSize)
+			} else if (self.config.streaming.batchSize) {
 				batchSize = self.config.streaming.batchSize;
+			}
 		}
 		if (batchSize) {
 			return cb(null, self.db.collection(collectionName).find.apply(self.db.collection(collectionName), args).batchSize(batchSize).stream());
@@ -824,6 +825,65 @@ MongoDriver.prototype.distinct = function () {
 /**
  * v 3.x verified
  *
+ * Params: collectionName, key, query, options, cb
+ */
+MongoDriver.prototype.distinctStream = function (collectionName, fieldName, criteria, options, cb) {
+	let self = this;
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		let args = [
+			{
+				$group: {
+					"_id": "$" + fieldName
+				}
+			}
+		];
+		
+		if (criteria) {
+			args.unshift(criteria);
+		}
+		
+		if (options) {
+			for (let i in options) {
+				if (Object.hasOwnProperty.call(options, i)) {
+					let oneOption = {};
+					oneOption[i] = options[i];
+					args.push(oneOption);
+				}
+			}
+		}
+		
+		let batchSize = 0;
+		if (self.config && self.config.streaming) {
+			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize) {
+				batchSize = self.config.streaming[collectionName].batchSize;
+			} else if (self.config.streaming.batchSize) {
+				batchSize = self.config.streaming.batchSize;
+			}
+		}
+		args.push((error, cursor) => {
+			if (error) {
+				return cb(error);
+			}
+			if (batchSize) {
+				return cb(null, cursor.batchSize(batchSize).stream());
+			} else {
+				return cb(null, cursor.stream());
+			}
+		});
+		self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args);
+	});
+};
+
+/**
+ * v 3.x verified
+ *
  * Params: collectionName, pipeline, options, cb
  */
 MongoDriver.prototype.aggregate = function () {
@@ -866,10 +926,11 @@ MongoDriver.prototype.aggregateStream = function () {
 		}
 		let batchSize = 0;
 		if (self.config && self.config.streaming) {
-			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize)
+			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize) {
 				batchSize = self.config.streaming[collectionName].batchSize;
-			else if (self.config.streaming.batchSize)
+			} else if (self.config.streaming.batchSize) {
 				batchSize = self.config.streaming.batchSize;
+			}
 		}
 		args.push((error, cursor) => {
 			if (error) {

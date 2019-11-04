@@ -574,7 +574,7 @@ describe("TESTING soajs.mongo", function() {
 	});
 
 	describe("testing distinctStream", function() {
-		it.skip("fail - no collectionName", function(done) {
+		it("fail - no collectionName", function(done) {
 			mongo.distinctStream(null, null, null, null, function(error) {
 				assert.ok(error);
 				assert.ok(error.message);
@@ -583,7 +583,7 @@ describe("TESTING soajs.mongo", function() {
 			});
 		});
 
-		it.skip('success - all working', function(done) {
+		it('success - all working', function(done) {
 			mongo.distinctStream("myCollection", 'a', null, null, function(error, streamer) {
 				assert.ifError(error);
 				assert.ok(streamer);
@@ -598,7 +598,7 @@ describe("TESTING soajs.mongo", function() {
 			});
 		});
 
-		it.skip('success - all working with options', function(done) {
+		it('success - all working with options', function(done) {
 			mongo.distinctStream("myCollection", 'a', null, {
 				"$skip": 0,
 				"$limit": 10000,
