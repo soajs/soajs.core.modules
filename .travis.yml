@@ -4,26 +4,34 @@ language: node_js
 
 node_js: 8
 
-branches:
-  only:
-    - master
+jobs:
+  include:
 
-addons:
-  apt:
-  hosts:
-    - localhost
+  - stage: install, check code style and coverage
+    services:
+    - mongodb
+    before_install:
+    - curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.0/elasticsearch-2.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.0.deb && sudo service elasticsearch start
+    - sudo apt-get update && sudo apt-get install sendmail python make g++
+    addons:
+      hosts:
+      - localhost
+    before_script:
+    - npm install -g grunt-cli
+    - sleep 10
+    script:
+    - if [ "$TRAVIS_BRANCH" != "master" ]; then grunt test; fi
+    - if [ "$TRAVIS_BRANCH" = "master" ]; then grunt coverage; fi
 
-services:
-  - mongodb
-
-before_install:
-  - curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.0/elasticsearch-2.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.0.deb && sudo service elasticsearch start
-  - sudo apt-get update && sudo apt-get install sendmail python make g++
-
-before_script:
-  - npm install -g grunt-cli
-  - sleep 10
-
-script:
-  - grunt coverage
+  - stage: Publish to npm
+    if: branch =~ /(release)/
+    script:
+    - echo "PUBLISH npm"
+    deploy:
+      provider: npm
+      email: $NPM_EMAIL
+      api_key: $NPM_TOKEN
+      on:
+        all_branches: true
+        condition: $TRAVIS_BRANCH =~ ^(release)*
 
