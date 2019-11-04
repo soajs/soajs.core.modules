@@ -541,7 +541,8 @@ MongoDriver.prototype.getCollection = function (collectionName, options, cb) {
 /**
  * v 3.x verified
  *
- * Params: collectionName, query, options, callback
+ * Params: collectionName, query, options, cb
+ * returns the cursor as array
  */
 MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
 	let args = Array.prototype.slice.call(arguments)
@@ -558,8 +559,41 @@ MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
 		if (err) {
 			return cb(err);
 		}
-		console.log(args)
 		self.db.collection(collectionName).find.apply(self.db.collection(collectionName), args).toArray(cb);
+	});
+};
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, query, options, cb
+ * exactly like find but it returns the cursor as stream
+ */
+MongoDriver.prototype.findStream = MongoDriver.prototype.findFieldsStream = function () {
+	let args = Array.prototype.slice.call(arguments)
+		, collectionName = args.shift()
+		, cb = args[args.length - 1]
+		, self = this;
+	args.pop();
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		let batchSize = 0;
+		if (self.config && self.config.streaming) {
+			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize)
+				batchSize = self.config.streaming[collectionName].batchSize;
+			else if (self.config.streaming.batchSize)
+				batchSize = self.config.streaming.batchSize;
+		}
+		if (batchSize) {
+			return cb(null, self.db.collection(collectionName).find.apply(self.db.collection(collectionName), args).batchSize(batchSize).stream());
+		} else {
+			return cb(null, self.db.collection(collectionName).find.apply(self.db.collection(collectionName), args).stream());
+		}
 	});
 };
 
@@ -806,6 +840,47 @@ MongoDriver.prototype.aggregate = function () {
 		if (err) {
 			return cb(err);
 		}
+		self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args);
+	});
+};
+/**
+ * v 3.x verified
+ *
+ * Params: collectionName, pipeline, options, cb
+ * exactly like aggregate but it returns the cursor as stream
+ */
+MongoDriver.prototype.aggregateStream = function () {
+	let args = Array.prototype.slice.call(arguments)
+		, collectionName = args.shift()
+		, cb = args[args.length - 1]
+		, self = this;
+	args.pop();
+	
+	if (!collectionName) {
+		return cb(core.error.generate(191));
+	}
+	
+	connect(self, function (err) {
+		if (err) {
+			return cb(err);
+		}
+		let batchSize = 0;
+		if (self.config && self.config.streaming) {
+			if (self.config.streaming[collectionName] && self.config.streaming[collectionName].batchSize)
+				batchSize = self.config.streaming[collectionName].batchSize;
+			else if (self.config.streaming.batchSize)
+				batchSize = self.config.streaming.batchSize;
+		}
+		args.push((error, cursor) => {
+			if (error) {
+				return cb(error);
+			}
+			if (batchSize) {
+				return cb(null, cursor.batchSize(batchSize).stream());
+			} else {
+				return cb(null, cursor.stream());
+			}
+		});
 		self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args);
 	});
 };
