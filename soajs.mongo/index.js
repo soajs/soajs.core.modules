@@ -293,7 +293,7 @@ MongoDriver.prototype.update = function () {
 							if (error) {
 								return cb(error);
 							}
-							return cb(null, response.result.n);
+							return cb(null, response.result.ok);
 						});
 					} else {
 						MongoDriver.addVersionToRecords.call(self, collectionName, originalRecord, function (error) {
@@ -314,7 +314,7 @@ MongoDriver.prototype.update = function () {
 								if (error) {
 									return cb(error);
 								}
-								return cb(null, response.result.n);
+								return cb(null, response.result.ok);
 							});
 						});
 					}
@@ -324,7 +324,7 @@ MongoDriver.prototype.update = function () {
 					if (error) {
 						return cb(error);
 					}
-					return cb(null, response.result.n);
+					return cb(null, response.result.ok);
 				});
 			}
 		});
