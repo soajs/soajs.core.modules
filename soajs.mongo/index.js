@@ -363,7 +363,7 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 						if (error) {
 							return cb(error);
 						}
-						return cb(null, response.result.n);
+						return cb(null, response.result);
 					});
 				} else {
 					MongoDriver.addVersionToRecords.call(self, collectionName, originalRecord, function (error) {
@@ -384,7 +384,7 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 							if (error) {
 								return cb(error);
 							}
-							return cb(null, response.result.n);
+							return cb(null, response.result);
 						});
 					});
 				}
@@ -394,7 +394,7 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 				if (error) {
 					return cb(error);
 				}
-				return cb(null, response.result.n);
+				return cb(null, response.result);
 			});
 		}
 	});
@@ -423,7 +423,7 @@ MongoDriver.prototype.updateMany = function (collectionName, filter, updateOptio
 			if (error) {
 				return cb(error);
 			}
-			return cb(null, response.result.n);
+			return cb(null, response.result);
 		});
 	});
 };
