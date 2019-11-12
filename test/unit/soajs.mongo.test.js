@@ -329,7 +329,7 @@ describe("TESTING soajs.mongo", function() {
 		});
 
 		it('success - all working', function(done) {
-			mongo.update("myCollection", {'a': 'b'}, {$set: {'a': 'b'}}, function(error, response) {
+			mongo.update("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, function(error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();

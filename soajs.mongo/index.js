@@ -271,11 +271,28 @@ MongoDriver.prototype.update = function () {
 	}
 	
 	displayLog("***** update is deprecated use updateOne, updateMany or bulkWrite");
+	
+	function handleResponse(response, cb) {
+		if (response.result.nModified) {
+			return cb(null, response.result.nModified);
+		} else {
+			if (response.result.ok && response.result.upserted) {
+				return cb(null, response.result.upserted.length);
+			}
+			return cb(null, 0);
+		}
+	}
+	
 	if (options && options.multi) {
 		if (versioning) {
 			displayLog("update with versioning does not work for multi document. do not set multi to true");
 		}
-		self.updateMany(collectionName, criteria, record, options, versioning, cb);
+		self.updateMany(collectionName, criteria, record, options, versioning, (error, response) => {
+			if (error) {
+				return cb(error);
+			}
+			return handleResponse(response, cb);
+		});
 	} else {
 		connect(self, function (err) {
 			if (err) {
@@ -293,7 +310,7 @@ MongoDriver.prototype.update = function () {
 							if (error) {
 								return cb(error);
 							}
-							return cb(null, response.result.nModified);
+							return handleResponse(response, cb);
 						});
 					} else {
 						MongoDriver.addVersionToRecords.call(self, collectionName, originalRecord, function (error) {
@@ -314,7 +331,7 @@ MongoDriver.prototype.update = function () {
 								if (error) {
 									return cb(error);
 								}
-								return cb(null, response.result.nModified);
+								return handleResponse(response, cb);
 							});
 						});
 					}
@@ -324,7 +341,7 @@ MongoDriver.prototype.update = function () {
 					if (error) {
 						return cb(error);
 					}
-					return cb(null, response.result.nModified);
+					return handleResponse(response, cb);
 				});
 			}
 		});
