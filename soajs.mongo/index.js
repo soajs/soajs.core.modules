@@ -209,6 +209,17 @@ MongoDriver.prototype.update = function (/*collectionName, criteria, record, [op
 			return cb(err);
 		}
 		
+		function handleResponse(response, cb) {
+			if (response.result.nModified) {
+				return cb(null, response.result.nModified);
+			} else {
+				if (response.result.ok && response.result.upserted && Array.isArray(response.result.upserted)) {
+					return cb(null, response.result.upserted.length);
+				}
+				return cb(null, 0);
+			}
+		}
+		
 		if (versioning) {
 			self.findOne(collectionName, criteria, function (error, originalRecord) {
 				if (error) {
@@ -222,7 +233,7 @@ MongoDriver.prototype.update = function (/*collectionName, criteria, record, [op
 						if (error) {
 							return cb(error);
 						}
-						return cb(null, response.result.n);
+						return handleResponse(response, cb);
 					});
 				}
 				else {
@@ -245,7 +256,7 @@ MongoDriver.prototype.update = function (/*collectionName, criteria, record, [op
 							if (error) {
 								return cb(error);
 							}
-							return cb(null, response.result.n);
+							return handleResponse(response, cb);
 						});
 					});
 				}
@@ -256,7 +267,7 @@ MongoDriver.prototype.update = function (/*collectionName, criteria, record, [op
 				if (error) {
 					return cb(error);
 				}
-				return cb(null, response.result.n);
+				return handleResponse(response, cb);
 			});
 		}
 	});
