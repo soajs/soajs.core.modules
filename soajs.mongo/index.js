@@ -276,7 +276,7 @@ MongoDriver.prototype.update = function () {
 		if (response.result.nModified) {
 			return cb(null, response.result.nModified);
 		} else {
-			if (response.result.ok && response.result.upserted) {
+			if (response.result.ok && response.result.upserted && Array.isArray(response.result.upserted)) {
 				return cb(null, response.result.upserted.length);
 			}
 			return cb(null, 0);
