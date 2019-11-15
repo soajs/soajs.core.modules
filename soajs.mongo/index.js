@@ -10,14 +10,18 @@ let cacheDB = {};
 let cacheDBLib = {
 	"init": function (registryLocation) {
 		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
-			if (!cacheDB)
+			if (!cacheDB) {
 				cacheDB = {};
-			if (!cacheDB[registryLocation.env])
+			}
+			if (!cacheDB[registryLocation.env]) {
 				cacheDB[registryLocation.env] = {};
-			if (!cacheDB[registryLocation.env][registryLocation.l1])
+			}
+			if (!cacheDB[registryLocation.env][registryLocation.l1]) {
 				cacheDB[registryLocation.env][registryLocation.l1] = {};
-			if (!cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2])
+			}
+			if (!cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2]) {
 				cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2] = {};
+			}
 		}
 	},
 	"flush": function (registryLocation) {
@@ -27,8 +31,9 @@ let cacheDBLib = {
 	},
 	"getCache": function (registryLocation) {
 		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
-			if (cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2])
+			if (cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2]) {
 				return cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2];
+			}
 		}
 		return null;
 	},
@@ -79,8 +84,9 @@ function MongoDriver(dbConfig) {
 	self.pending = false;
 	self.ObjectId = mongodb.ObjectID;
 	self.mongodb = mongodb;
-	if (self.config)
+	if (self.config) {
 		cacheDBLib.init(self.config.registryLocation);
+	}
 }
 
 /**
@@ -108,8 +114,7 @@ MongoDriver.prototype.insert = function (collectionName, docs, versioning, optio
 	displayLog("***** insert is deprecated please use insertOne, insertMany or bulkWrite");
 	if (Array.isArray(docs)) {
 		self.insertMany(collectionName, docs, options, versioning, cb);
-	}
-	else {
+	} else {
 		self.insertOne(collectionName, docs, options, versioning, cb);
 	}
 };
@@ -236,8 +241,7 @@ MongoDriver.prototype.save = function (collectionName, docs, versioning, options
 				docs.ts = new Date().getTime();
 				self.db.collection(collectionName).save(docs, cb);
 			});
-		}
-		else {
+		} else {
 			self.db.collection(collectionName).save(docs, cb);
 		}
 	});
@@ -252,12 +256,12 @@ MongoDriver.prototype.save = function (collectionName, docs, versioning, options
 MongoDriver.prototype.update = function () {
 	let self = this;
 	
-	let collectionName = arguments[0]
-		, criteria = arguments[1]
-		, record = arguments[2]
-		, options = arguments[3]
-		, versioning = arguments.length === 6 ? arguments[4] : arguments[3]
-		, cb = arguments[arguments.length - 1];
+	let collectionName = arguments[0];
+	let criteria = arguments[1];
+	let record = arguments[2];
+	let options = arguments[3];
+	let versioning = arguments.length === 6 ? arguments[4] : arguments[3];
+	let cb = arguments[arguments.length - 1];
 	
 	if (typeof options !== "object") {
 		options = null;
@@ -304,8 +308,8 @@ MongoDriver.prototype.update = function () {
 						return cb(error);
 					}
 					if (!originalRecord && options.upsert) {
-						record['$set'].v = 1;
-						record['$set'].ts = new Date().getTime();
+						record.$set.v = 1;
+						record.$set.ts = new Date().getTime();
 						self.db.collection(collectionName).update(criteria, record, options, function (error, response) {
 							if (error) {
 								return cb(error);
@@ -317,15 +321,15 @@ MongoDriver.prototype.update = function () {
 							if (error) {
 								return cb(error);
 							}
-							if (!record['$inc']) {
-								record['$inc'] = {};
+							if (!record.$inc) {
+								record.$inc = {};
 							}
-							record['$inc'].v = 1;
+							record.$inc.v = 1;
 							
-							if (!record['$set']) {
-								record['$set'] = {};
+							if (!record.$set) {
+								record.$set = {};
 							}
-							record['$set'].ts = new Date().getTime();
+							record.$set.ts = new Date().getTime();
 							
 							self.db.collection(collectionName).update(criteria, record, options, function (error, response) {
 								if (error) {
@@ -374,8 +378,8 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 					return cb(error);
 				}
 				if (!originalRecord && options.upsert) {
-					updateOptions['$set'].v = 1;
-					updateOptions['$set'].ts = new Date().getTime();
+					updateOptions.$set.v = 1;
+					updateOptions.$set.ts = new Date().getTime();
 					self.db.collection(collectionName).updateOne(filter, updateOptions, options, function (error, response) {
 						if (error) {
 							return cb(error);
@@ -387,15 +391,15 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 						if (error) {
 							return cb(error);
 						}
-						if (!updateOptions['$inc']) {
-							updateOptions['$inc'] = {};
+						if (!updateOptions.$inc) {
+							updateOptions.$inc = {};
 						}
-						updateOptions['$inc'].v = 1;
+						updateOptions.$inc.v = 1;
 						
-						if (!updateOptions['$set']) {
-							updateOptions['$set'] = {};
+						if (!updateOptions.$set) {
+							updateOptions.$set = {};
 						}
-						updateOptions['$set'].ts = new Date().getTime();
+						updateOptions.$set.ts = new Date().getTime();
 						
 						self.db.collection(collectionName).updateOne(filter, updateOptions, options, function (error, response) {
 							if (error) {
@@ -562,10 +566,10 @@ MongoDriver.prototype.getCollection = function (collectionName, options, cb) {
  * returns the cursor as array
  */
 MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	args.pop();
 	
 	if (!collectionName) {
@@ -586,10 +590,10 @@ MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
  * exactly like find but it returns the cursor as stream
  */
 MongoDriver.prototype.findStream = MongoDriver.prototype.findFieldsStream = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	args.pop();
 	
 	if (!collectionName) {
@@ -621,10 +625,10 @@ MongoDriver.prototype.findStream = MongoDriver.prototype.findFieldsStream = func
  * Params: collectionName, query, sort, doc, options, cb
  */
 MongoDriver.prototype.findAndModify = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -644,10 +648,10 @@ MongoDriver.prototype.findAndModify = function () {
  * Params: collectionName, query, sort, options, cb
  */
 MongoDriver.prototype.findAndRemove = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -667,10 +671,10 @@ MongoDriver.prototype.findAndRemove = function () {
  * Params: collectionName, filter, update, options, callback
  */
 MongoDriver.prototype.findOneAndUpdate = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -690,10 +694,10 @@ MongoDriver.prototype.findOneAndUpdate = function () {
  * Params: collectionName, filter, options, callback
  */
 MongoDriver.prototype.findOneAndDelete = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -823,10 +827,10 @@ MongoDriver.prototype.countDocuments = function (collectionName, criteria, optio
  * Params: collectionName, key, query, options, cb
  */
 MongoDriver.prototype.distinct = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -904,10 +908,10 @@ MongoDriver.prototype.distinctStream = function (collectionName, fieldName, crit
  * Params: collectionName, pipeline, options, cb
  */
 MongoDriver.prototype.aggregate = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -927,10 +931,10 @@ MongoDriver.prototype.aggregate = function () {
  * exactly like aggregate but it returns the cursor as stream
  */
 MongoDriver.prototype.aggregateStream = function () {
-	let args = Array.prototype.slice.call(arguments)
-		, collectionName = args.shift()
-		, cb = args[args.length - 1]
-		, self = this;
+	let args = Array.prototype.slice.call(arguments);
+	let collectionName = args.shift();
+	let cb = args[args.length - 1];
+	let self = this;
 	args.pop();
 	
 	if (!collectionName) {
@@ -1040,8 +1044,9 @@ MongoDriver.prototype.flushDb = function () {
 	let self = this;
 	self.client = null;
 	self.db = null;
-	if (self.config)
+	if (self.config) {
 		cacheDBLib.flush(self.config.registryLocation);
+	}
 };
 
 // this is to expose mongo db and replace getMongoSkinDB.
@@ -1137,9 +1142,9 @@ function connect(obj, cb) {
 				obj.flushDb();
 			});
 			
-			if (obj.client)
+			if (obj.client) {
 				obj.client.close();
-			
+			}
 			obj.client = client;
 			
 			let prefix = obj.config.prefix;
@@ -1224,12 +1229,13 @@ function constructMongoLink(params) {
 		//flattern extraParams to become one object but priority is for URLParam
 		function flatternObject(options, params) {
 			for (let i in params) {
-				//if URLParam[i] exists, don't override it.
-				if (!Object.hasOwnProperty.call(options, i)) {
-					if (typeof(params[i]) === 'object') {
-						flatternObject(options, params[i]);
-					} else {
-						options[i] = params[i];
+				if (Object.hasOwnProperty.call(params, i)) {
+					if (!Object.hasOwnProperty.call(options, i)) {
+						if (typeof(params[i]) === 'object') {
+							flatternObject(options, params[i]);
+						} else {
+							options[i] = params[i];
+						}
 					}
 				}
 			}
