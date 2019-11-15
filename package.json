@@ -42,7 +42,7 @@
     "bunyan-format": "0.2.1",
     "elasticsearch": "12.1.3",
     "elasticsearch-deletebyquery": "1.6.0",
-    "handlebars": "4.4.0",
+    "handlebars": "4.5.2",
     "jsonschema": "1.1.1",
     "merge": "1.2.1",
     "mongodb": "2.2.31",
