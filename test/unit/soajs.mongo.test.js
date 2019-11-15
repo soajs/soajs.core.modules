@@ -329,7 +329,7 @@ describe("TESTING soajs.mongo", function() {
 		});
 
 		it('success - all working', function(done) {
-			mongo.update("myCollection", {'a': 'b'}, {$set: {'a': 'b'}}, function(error, response) {
+			mongo.update("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, function(error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
@@ -628,11 +628,13 @@ describe("TESTING soajs.mongo", function() {
 			});
 		});
 
-		it.skip('success - all working', function(done) {
-			mongo.aggregate("myCollection", { $match: { a: "c" } }, function(error, response) {
+		it('success - all working', function(done) {
+			mongo.aggregate("myCollection", [{ $match: { a: "c" } }], function(error, cursor) {
 				assert.ifError(error);
-				assert.equal(response.length, 1);
-				done();
+				cursor.toArray((error, docs)=>{
+					assert.equal(docs.length, 1);
+					done();
+				});
 			});
 		});
 	});
@@ -647,7 +649,7 @@ describe("TESTING soajs.mongo", function() {
 		});
 
 		it('success - all working', function(done) {
-			mongo.aggregateStream("myCollection", { $match: { a: "c" } }, function(error, streamer) {
+			mongo.aggregateStream("myCollection", [{ $match: { a: "c" } }], function(error, streamer) {
 				assert.ifError(error);
 				assert.ok(streamer);
 

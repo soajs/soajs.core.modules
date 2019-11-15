@@ -7,3 +7,10 @@ The following repository provides a set of modules used by SOAJS framework.
 
 #### Documentation
 API & Usage: [Reference Link](https://soajsorg.atlassian.net/wiki/spaces/SOAJ/overview)
+
+
+### License
+*Copyright SOAJS All Rights Reserved.*
+
+Use of this source code is governed by an Apache license that can be found in the LICENSE file at the root of this repository.
+
