@@ -1,7 +1,9 @@
 'use strict';
 
 
-function getACL(tempScopeCursor, tempPackCursor) {
+function getACL(tempScope, tempPack) {
+	let tempScopeCursor = JSON.parse(JSON.stringify(tempScope));
+	let tempPackCursor = JSON.parse(JSON.stringify(tempPack));
     let ACL = {};
     if (tempScopeCursor.hasOwnProperty('access'))
         ACL.access = tempScopeCursor.access;
