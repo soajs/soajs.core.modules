@@ -286,7 +286,7 @@ var provision = {
     },
 
     "getEnvironmentsFromACL": function (ACL, Environments) {
-        return core.provision.getTenantByCode(ACL, Environments);
+        return core.provision.getEnvironmentsFromACL(ACL, Environments);
     },
 
     "generateSaveAccessRefreshToken": function (user, req, cb) {

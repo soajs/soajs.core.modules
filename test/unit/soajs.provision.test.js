@@ -497,13 +497,13 @@ describe("Soajs Provision", function () {
             done();
         });
     });
-
+/*
     it("getEnvironmentsFromACL redirect", function (done) {
         soajsProvision.getEnvironmentsFromACL("1", function (error, response) {
             done();
         });
     });
-
+*/
     it.skip("getExternalKeyData - error", function (done) {
         soajsProvision.getExternalKeyData(function (error, response) {
             done();
