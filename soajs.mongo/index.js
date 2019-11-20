@@ -291,7 +291,7 @@ MongoDriver.prototype.update = function () {
 		if (versioning) {
 			displayLog("update with versioning does not work for multi document. do not set multi to true");
 		}
-		self.updateMany(collectionName, criteria, record, options, versioning, (error, response) => {
+		self.updateMany(collectionName, criteria, record, options, (error, response) => {
 			if (error) {
 				return cb(error);
 			}
