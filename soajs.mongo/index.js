@@ -277,11 +277,17 @@ MongoDriver.prototype.update = function () {
 	displayLog("***** update is deprecated use updateOne, updateMany or bulkWrite");
 	
 	function handleResponse(response, cb) {
-		if (response.result.nModified) {
-			return cb(null, response.result.nModified);
+		let result = null;
+		if (response && response.result){
+			result = response.result;
+		} else if (response) {
+			result = response;
+		}
+		if (result && result.nModified) {
+			return cb(null, result.nModified);
 		} else {
-			if (response.result.ok && response.result.upserted && Array.isArray(response.result.upserted)) {
-				return cb(null, response.result.upserted.length);
+			if (result && result.ok && result.upserted && Array.isArray(result.upserted)) {
+				return cb(null, result.upserted.length);
 			}
 			return cb(null, 0);
 		}
