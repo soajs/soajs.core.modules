@@ -1,8 +1,6 @@
-sudo: required
-
 language: node_js
 
-node_js: 8
+node_js: 10
 
 jobs:
   include:
@@ -28,6 +26,7 @@ jobs:
     script:
     - echo "PUBLISH npm"
     deploy:
+      skip_cleanup: true
       provider: npm
       email: $NPM_EMAIL
       api_key: $NPM_TOKEN
@@ -35,3 +34,21 @@ jobs:
         all_branches: true
         condition: $TRAVIS_BRANCH =~ ^(release)*
 
+  - stage: Tag and release
+    if: branch =~ /(release)/
+    script:
+    - echo "Tagging"
+    - export PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -Fn '{ print $2 }' | sed 's/[n:",]//g' | tr -d '[[:space:]]')
+    - export MAJOR_VERSION=$(echo ${PACKAGE_VERSION} | awk -F. '{ print $1 }')
+    - echo Package version ${PACKAGE_VERSION}
+    - echo Major version ${MAJOR_VERSION}
+
+    - git config --local user.name ${GIT_USER}
+    - git config --local user.email ${GIT_EMAIL}
+    - git tag ${PACKAGE_VERSION}
+    deploy:
+      on:
+        all_branches: true
+      provider: releases
+      api_key: ${GIT_TOKEN}
+      skip_cleanup: true
