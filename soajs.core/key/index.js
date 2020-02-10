@@ -71,9 +71,10 @@ var verify = function(extKey, cb) {
 			return cb(error.generate(100));
 		}
 		var packageCode = packageTxt.substr(n + 1);
-		if(packageCodeLen !== packageCode.length) {
-			return cb(error.generate(100));
-		}
+		//NOTE: no need to verify if the package length match since we want to give the flexibility to change the default package
+		//if(packageCodeLen !== packageCode.length) {
+		//	return cb(error.generate(100));
+		//}
 		obj.packageCode = packageCode;
 		cb(null, obj);
 	} catch(err) {
