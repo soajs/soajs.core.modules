@@ -137,6 +137,7 @@ module.exports = function (grunt) {
 			},
 			coverage: {
 				SOAJS_ENV: "dev",
+				SOAJS_BCRYPT: "true",
 				SOAJS_PROFILE: __dirname + "/profiles/single.js",
 				APP_DIR_FOR_CODE_COVERAGE: '../test/coverage/instrument/'
 			}
