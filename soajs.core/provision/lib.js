@@ -10,9 +10,11 @@ function getACL(tempScope, tempPack) {
     if (tempScopeCursor.hasOwnProperty('apisPermission'))
         ACL.apisPermission = tempScopeCursor.apisPermission;
 
+    let found_methods_in_package = 0;
     for (let method in tempPackCursor) {
         if (method !== "version") {
             if (tempScopeCursor[method] && (Object.hasOwnProperty.call(tempPackCursor, method))) {
+	            found_methods_in_package++;
                 if (!ACL[method])
                     ACL[method] = {};
                 for (let i = 0; i < tempPackCursor[method].length; i++) {
