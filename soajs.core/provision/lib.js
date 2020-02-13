@@ -5,11 +5,16 @@ function getACL(tempScope, tempPack) {
 	let tempScopeCursor = JSON.parse(JSON.stringify(tempScope));
 	let tempPackCursor = JSON.parse(JSON.stringify(tempPack));
     let ACL = {};
-    if (tempScopeCursor.hasOwnProperty('access'))
-        ACL.access = tempScopeCursor.access;
-    if (tempScopeCursor.hasOwnProperty('apisPermission'))
-        ACL.apisPermission = tempScopeCursor.apisPermission;
-
+    if (tempScopeCursor.hasOwnProperty('access')) {
+	    ACL.access = tempScopeCursor.access;
+    }
+    if (tempScopeCursor.hasOwnProperty('apisPermission')) {
+	    ACL.apisPermission = tempScopeCursor.apisPermission;
+    } else {
+    	if (tempScopeCursor.hasOwnProperty('packagesPermission')) {
+		    ACL.apisPermission = tempScopeCursor.packagesPermission;
+	    }
+    }
     let found_methods_in_package = 0;
     for (let method in tempPackCursor) {
         if (method !== "version") {
