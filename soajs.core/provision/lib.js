@@ -50,7 +50,7 @@ function getACL(tempScope, tempPack) {
                     let apigroup = tempPackCursor[method][i];
                     for (let j = 0; j < tempScopeCursor[method].length; j++) {
                         if (tempScopeCursor[method][j].group === apigroup) {
-
+							/*
                             if (tempScopeCursor[method][j].hasOwnProperty('apis')) {
                                 if (ACL[method].apis) {
                                     for (let api in tempScopeCursor[method][j].apis) {
@@ -75,6 +75,8 @@ function getACL(tempScope, tempPack) {
                             }
                             //if (tempScopeCursor[method][j].hasOwnProperty('apisPermission'))
                             //    ACL[method].apisPermission = tempScopeCursor[method][j].apisPermission;
+                            */
+	                        convert_scope_method_acl (tempScopeCursor, method, j, ACL);
                             break;
                         }
                     }
