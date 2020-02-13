@@ -1,5 +1,29 @@
 'use strict';
 
+function convert_scope_method_acl (tempScopeCursor, method, j, ACL) {
+	if (tempScopeCursor[method][j].hasOwnProperty('apis')) {
+		if (ACL[method].apis) {
+			for (let api in tempScopeCursor[method][j].apis) {
+				if (tempScopeCursor[method][j].apis.hasOwnProperty(api))
+					ACL[method].apis[api] = tempScopeCursor[method][j].apis[api];
+				//ACL[method].apis = {...ACL[method].apis, ...tempScopeCursor[method][j].apis};
+			}
+		}
+		else
+			ACL[method].apis = tempScopeCursor[method][j].apis;
+	}
+	if (tempScopeCursor[method][j].hasOwnProperty('apisRegExp')) {
+		if (ACL[method].apisRegExp) {
+			for (let api in tempScopeCursor[method][j].apisRegExp) {
+				if (tempScopeCursor[method][j].apisRegExp.hasOwnProperty(api))
+					ACL[method].apisRegExp[api] = tempScopeCursor[method][j].apisRegExp[api];
+				//ACL[method].apisRegExp = {...ACL[method].apisRegExp, ...tempScopeCursor[method][j].apisRegExp};
+			}
+		}
+		else
+			ACL[method].apisRegExp = tempScopeCursor[method][j].apisRegExp;
+	}
+}
 
 function getACL(tempScope, tempPack) {
 	let tempScopeCursor = JSON.parse(JSON.stringify(tempScope));
@@ -57,6 +81,16 @@ function getACL(tempScope, tempPack) {
                 }
             }
         }
+    }
+    if (found_methods_in_package === 0) {
+	    for (let method in tempScopeCursor) {
+		    if (method !== "access" && method !== "apisPermission" && method !== "packagesPermission") {
+			    ACL[method] = {};
+			    for (let j = 0; j < tempScopeCursor[method].length; j++) {
+				    convert_scope_method_acl (tempScopeCursor, method, j, ACL);
+			    }
+		    }
+	    }
     }
     return ACL;
 }
