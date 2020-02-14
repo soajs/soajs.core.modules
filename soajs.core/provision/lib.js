@@ -1,25 +1,56 @@
 'use strict';
 
+function convert_scope_method_acl (tempScopeCursor, method, j, ACL) {
+	if (tempScopeCursor[method][j].hasOwnProperty('apis')) {
+		if (ACL[method].apis) {
+			for (let api in tempScopeCursor[method][j].apis) {
+				if (tempScopeCursor[method][j].apis.hasOwnProperty(api))
+					ACL[method].apis[api] = tempScopeCursor[method][j].apis[api];
+				//ACL[method].apis = {...ACL[method].apis, ...tempScopeCursor[method][j].apis};
+			}
+		}
+		else
+			ACL[method].apis = tempScopeCursor[method][j].apis;
+	}
+	if (tempScopeCursor[method][j].hasOwnProperty('apisRegExp')) {
+		if (ACL[method].apisRegExp) {
+			for (let api in tempScopeCursor[method][j].apisRegExp) {
+				if (tempScopeCursor[method][j].apisRegExp.hasOwnProperty(api))
+					ACL[method].apisRegExp[api] = tempScopeCursor[method][j].apisRegExp[api];
+				//ACL[method].apisRegExp = {...ACL[method].apisRegExp, ...tempScopeCursor[method][j].apisRegExp};
+			}
+		}
+		else
+			ACL[method].apisRegExp = tempScopeCursor[method][j].apisRegExp;
+	}
+}
 
 function getACL(tempScope, tempPack) {
 	let tempScopeCursor = JSON.parse(JSON.stringify(tempScope));
 	let tempPackCursor = JSON.parse(JSON.stringify(tempPack));
     let ACL = {};
-    if (tempScopeCursor.hasOwnProperty('access'))
-        ACL.access = tempScopeCursor.access;
-    if (tempScopeCursor.hasOwnProperty('apisPermission'))
-        ACL.apisPermission = tempScopeCursor.apisPermission;
-
+    if (tempScopeCursor.hasOwnProperty('access')) {
+	    ACL.access = tempScopeCursor.access;
+    }
+    if (tempScopeCursor.hasOwnProperty('apisPermission')) {
+	    ACL.apisPermission = tempScopeCursor.apisPermission;
+    } else {
+    	if (tempScopeCursor.hasOwnProperty('packagesPermission')) {
+		    ACL.apisPermission = tempScopeCursor.packagesPermission;
+	    }
+    }
+    let found_methods_in_package = 0;
     for (let method in tempPackCursor) {
         if (method !== "version") {
             if (tempScopeCursor[method] && (Object.hasOwnProperty.call(tempPackCursor, method))) {
+	            found_methods_in_package++;
                 if (!ACL[method])
                     ACL[method] = {};
                 for (let i = 0; i < tempPackCursor[method].length; i++) {
                     let apigroup = tempPackCursor[method][i];
                     for (let j = 0; j < tempScopeCursor[method].length; j++) {
                         if (tempScopeCursor[method][j].group === apigroup) {
-
+							/*
                             if (tempScopeCursor[method][j].hasOwnProperty('apis')) {
                                 if (ACL[method].apis) {
                                     for (let api in tempScopeCursor[method][j].apis) {
@@ -44,12 +75,24 @@ function getACL(tempScope, tempPack) {
                             }
                             //if (tempScopeCursor[method][j].hasOwnProperty('apisPermission'))
                             //    ACL[method].apisPermission = tempScopeCursor[method][j].apisPermission;
+                            */
+	                        convert_scope_method_acl (tempScopeCursor, method, j, ACL);
                             break;
                         }
                     }
                 }
             }
         }
+    }
+    if (found_methods_in_package === 0) {
+	    for (let method in tempScopeCursor) {
+		    if (method !== "access" && method !== "apisPermission" && method !== "packagesPermission") {
+			    ACL[method] = {};
+			    for (let j = 0; j < tempScopeCursor[method].length; j++) {
+				    convert_scope_method_acl (tempScopeCursor, method, j, ACL);
+			    }
+		    }
+	    }
     }
     return ACL;
 }
