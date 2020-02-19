@@ -66,8 +66,8 @@ function getACL(tempScope, tempPack) {
 		ACL.apisPermission = tempScopeCursor.apisPermission;
 	} else {
 		if (tempScopeCursor.hasOwnProperty('packagesPermission')) {
-			if (found_methods_in_package > 0 || found_methods_in_scope > 0) {
-				ACL.apisPermission = tempScopeCursor.packagesPermission;
+			if (found_methods_in_package > 0) {
+				ACL.apisPermission = "restricted";
 			}
 		}
 	}
