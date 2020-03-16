@@ -236,6 +236,8 @@ module.exports = {
 				};
 				if (regFileObj.cluster) {
 					registry.coreDB.provision.registryLocation.cluster = regFileObj.cluster;
+				} else {
+					registry.coreDB.provision.registryLocation.cluster = "dash_cluster";
 				}
 				return cb(null, registry);
 			}
