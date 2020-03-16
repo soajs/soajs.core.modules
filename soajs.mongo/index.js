@@ -5,32 +5,51 @@ const merge = require('merge');
 const objectHash = require("object-hash");
 
 let cacheDB = {};
-
+let cacheCluster = {};
 
 let cacheDBLib = {
 	"init": function (registryLocation) {
-		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
+		if (registryLocation && registryLocation.env) {
 			if (!cacheDB) {
 				cacheDB = {};
 			}
 			if (!cacheDB[registryLocation.env]) {
 				cacheDB[registryLocation.env] = {};
 			}
-			if (!cacheDB[registryLocation.env][registryLocation.l1]) {
-				cacheDB[registryLocation.env][registryLocation.l1] = {};
+			if (!cacheCluster) {
+				cacheCluster = {};
 			}
-			if (!cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2]) {
-				cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2] = {};
+			if (!cacheCluster[registryLocation.env]) {
+				cacheCluster[registryLocation.env] = {};
+			}
+			
+			if (registryLocation.cluster) {
+				if (!cacheCluster[registryLocation.env][registryLocation.cluster]) {
+					cacheCluster[registryLocation.env][registryLocation.cluster] = {};
+				}
+			} else if (registryLocation.l1 && registryLocation.l2) {
+				if (!cacheDB[registryLocation.env][registryLocation.l1]) {
+					cacheDB[registryLocation.env][registryLocation.l1] = {};
+				}
+				if (!cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2]) {
+					cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2] = {};
+				}
 			}
 		}
 	},
 	"flush": function (registryLocation) {
-		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
+		if (registryLocation && registryLocation.cluster) {
+			cacheCluster[registryLocation.env][registryLocation.cluster].client = null;
+		} else if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
 			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].db = null;
 		}
 	},
 	"getCache": function (registryLocation) {
-		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
+		if (registryLocation && registryLocation.cluster) {
+			if (cacheCluster[registryLocation.env][registryLocation.cluster]) {
+				return cacheCluster[registryLocation.env][registryLocation.cluster];
+			}
+		} else if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
 			if (cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2]) {
 				return cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2];
 			}
@@ -38,26 +57,37 @@ let cacheDBLib = {
 		return null;
 	},
 	"setTimeConnected": function (registryLocation, timeConnected) {
-		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
+		if (registryLocation && registryLocation.cluster) {
+			cacheCluster[registryLocation.env][registryLocation.cluster].timeConnected = timeConnected;
+		} else if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
 			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].timeConnected = timeConnected;
 		}
 	},
-	"setDB": function (registryLocation, db) {
-		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
-			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].db = db;
+	
+	"setDB": function (registryLocation, obj) {
+		if (registryLocation && registryLocation.cluster) {
+			cacheCluster[registryLocation.env][registryLocation.cluster].client = obj.client;
+		} else if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
+			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].db = obj.db;
 		}
 	},
 	"setHash": function (registryLocation, config) {
-		if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
+		if (registryLocation && registryLocation.cluster) {
+			cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = merge(true, config);
+			delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.name;
+			delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.registryLocation;
+			delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.cluster;
+			cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = objectHash(cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash);
+		} else if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
 			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = merge(true, config);
-			delete  cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash.timeConnected;
+			delete  cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash.registryLocation;
 			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = objectHash(cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash);
 		}
 	},
+	
 	"setCache": function (obj) {
-		cacheDBLib.setDB(obj.config.registryLocation, obj.db);
+		cacheDBLib.setDB(obj.config.registryLocation, obj);
 		cacheDBLib.setHash(obj.config.registryLocation, obj.config);
-		cacheDBLib.setTimeConnected(obj.config.registryLocation, obj.config.timeConnected);
 	}
 };
 
@@ -278,7 +308,7 @@ MongoDriver.prototype.update = function () {
 	
 	function handleResponse(response, cb) {
 		let result = null;
-		if (response && response.result){
+		if (response && response.result) {
 			result = response.result;
 		} else if (response) {
 			result = response;
@@ -1042,8 +1072,10 @@ MongoDriver.prototype.deleteMany = function (collectionName, criteria, options, 
 MongoDriver.prototype.closeDb = function () {
 	let self = this;
 	if (self.client) {
-		self.client.close();
-		self.flushDb();
+		if (!process.env.SOAJS_MONGO_CON_KEEPALIVE){
+			self.client.close();
+			self.flushDb();
+		}
 	}
 };
 MongoDriver.prototype.flushDb = function () {
@@ -1073,25 +1105,42 @@ MongoDriver.prototype.getMongoDB = function (cb) {
  *
  */
 function connect(obj, cb) {
-	let timeConnected = 0;
 	let configCloneHash = null;
 	if (!obj.config) {
 		return cb(core.error.generate(195));
 	}
 	
-	if (obj.config && obj.config.registryLocation && obj.config.registryLocation.env && obj.config.registryLocation.l1 && obj.config.registryLocation.l2) {
-		obj.config = core.registry.get(obj.config.registryLocation.env)[obj.config.registryLocation.l1][obj.config.registryLocation.l2];
-		
+	if (obj.config && obj.config.registryLocation && obj.config.registryLocation.env && ((obj.config.registryLocation.l1 && obj.config.registryLocation.l2) || obj.config.registryLocation.cluster)) {
 		let cache = cacheDBLib.getCache(obj.config.registryLocation);
-		
-		if (!obj.db && cache.db) {
-			obj.db = cache.db;
+		if (cache && (cache.db || cache.client)) {
+			if (!obj.db && cache.client) {
+				obj.client = cache.client;
+				let prefix = obj.config.prefix;
+				let dbName = obj.config.name;
+				if (prefix && prefix !== "") {
+					dbName = prefix + dbName;
+				}
+				obj.db = obj.client.db(dbName);
+			}
+			if (!obj.db && cache.db) {
+				obj.db = cache.db;
+			}
+			if (cache.configCloneHash) {
+				configCloneHash = cache.configCloneHash;
+			}
 		}
-		if (cache.timeConnected) {
-			timeConnected = cache.timeConnected;
-		}
-		if (cache.configCloneHash) {
-			configCloneHash = cache.configCloneHash;
+		if (obj.db && obj.config.registryLocation) {
+			let currentConfObj = merge(true, obj.config);
+			delete currentConfObj.registryLocation;
+			delete currentConfObj.extraParam;
+			delete currentConfObj.cluster;
+			if (obj.config.registryLocation.cluster) {
+				delete currentConfObj.name;
+			}
+			currentConfObj = objectHash(currentConfObj);
+			if (currentConfObj === configCloneHash) {
+				return cb();
+			}
 		}
 	}
 	
@@ -1105,31 +1154,14 @@ function connect(obj, cb) {
 	if (!url) {
 		return cb(core.error.generate(190));
 	}
-	
-	if ((obj.db && obj.config.timeConnected && (timeConnected === obj.config.timeConnected)) || (obj.db && !obj.config.registryLocation)) {
-		return cb();
-	}
-	
-	if (obj.db && (!obj.config.timeConnected || (timeConnected !== obj.config.timeConnected))) {
-		let currentConfObj = merge(true, obj.config);
-		delete currentConfObj.timeConnected;
-		currentConfObj = objectHash(currentConfObj);
-		if (currentConfObj === configCloneHash) {
-			obj.config.timeConnected = new Date().getTime();
-			cacheDBLib.setTimeConnected(obj.config.registryLocation, obj.config.timeConnected);
-			return cb();
-		}
-	}
-	
+
 	if (obj.pending) {
 		return setImmediate(function () {
 			connect(obj, cb);
 		});
 	}
 	obj.pending = true;
-	
 	mongodb.connect(url, obj.config.URLParam, function (err, client) {
-		obj.config.timeConnected = new Date().getTime();
 		if (err) {
 			obj.pending = false;
 			return cb(err);
@@ -1148,9 +1180,6 @@ function connect(obj, cb) {
 				obj.flushDb();
 			});
 			
-			if (obj.client) {
-				obj.client.close();
-			}
 			obj.client = client;
 			
 			let prefix = obj.config.prefix;

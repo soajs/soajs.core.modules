@@ -15,6 +15,9 @@ module.exports = {
 			if(metaDB[systemName].extraParam){
 				dbConfig["extraParam"] = metaDB[systemName].extraParam;
 			}
+			if(metaDB[systemName].registryLocation){
+				dbConfig["registryLocation"] = metaDB[systemName].registryLocation;
+			}
 		}
 		return dbConfig;
 	}
