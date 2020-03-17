@@ -2,6 +2,7 @@
 
 module.exports = {
     "name": "core_provision",
+	"cluster": "dash_cluster",
     "prefix": "",
     "servers": [
         {
@@ -9,15 +10,10 @@ module.exports = {
             "port": 27017
         }
     ],
-    "credentials": null,
-    "streaming": {
-        "batchSize" : 10000,
-        "colName":{
-            "batchSize" : 10000
-        }
-    },
-    "URLParam": {
-        "maxPoolSize": 2,
-        "bufferMaxEntries": 0
-    }
+	"credentials": null,
+	"streaming": {},
+	"extraParam": {},
+	"URLParam": {
+		"useUnifiedTopology": true
+	}
 };
