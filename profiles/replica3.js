@@ -2,6 +2,7 @@
 
 module.exports = {
 	"name": "core_provision",
+	"cluster": "dash_cluster",
 	"prefix": "",
 	"servers": [
 		{
@@ -18,12 +19,8 @@ module.exports = {
 		}
 	],
 	"credentials": null,
-	"streaming": {
-		"batchSize" : 10000,
-		"colName":{
-			"batchSize" : 10000
-		}
-	},
+	"streaming": {},
+	"extraParam": {},
 	"URLParam": {
 		"readPreference": "secondaryPreferred",
 		"replicaSet": "rs",
