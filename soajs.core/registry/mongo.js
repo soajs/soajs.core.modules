@@ -217,7 +217,6 @@ module.exports = {
 	"loadProfile": function (envFrom, cb) {
 		if (fs.existsSync(regFile)) {
 			delete require.cache[require.resolve(regFile)];
-			console.log(regFile)
 			var regFileObj = require(regFile);
 			if (regFileObj && typeof regFileObj === 'object') {
 				var registry = {
