@@ -19,7 +19,7 @@ var autoReloadTimeout = {};
 var models = {};
 
 var build = {
-	"metaAndCoreDB": function (STRUCT, envCode) {
+	"metaAndCoreDB": function (STRUCT, envCode, timeLoaded) {
 		var metaAndCoreDB = {"metaDB": {}, "coreDB": {}};
 		
 		if (STRUCT && STRUCT.dbs && STRUCT.dbs.databases) {
@@ -71,12 +71,18 @@ var build = {
 								"l1": "metaDB",
 								"l2": dbObj.name,
 								"env": envCode,
-								"cluster": dbRec.cluster
+								"cluster": dbRec.cluster,
+								"timeLoaded": timeLoaded
 							};
 						}
 					}
 					else {
-						dbObj.registryLocation = {"l1": "coreDB", "l2": dbName, "env": envCode};
+						dbObj.registryLocation = {
+							"l1": "coreDB",
+							"l2": dbName,
+							"env": envCode,
+							"timeLoaded": timeLoaded
+						};
 						if (dbRec.cluster) {
 							dbObj.registryLocation.cluster = dbRec.cluster;
 						}
@@ -90,7 +96,7 @@ var build = {
 		return metaAndCoreDB;
 	},
 	
-	"sessionDB": function (STRUCT, env) {
+	"sessionDB": function (STRUCT, env, timeLoaded) {
 		var sessionDB = null;
 		if (STRUCT && STRUCT.dbs && STRUCT.dbs.config) {
 			var dbRec = {};
@@ -106,7 +112,7 @@ var build = {
 				'stringify': dbRec.stringify,
 				'expireAfter': dbRec.expireAfter,
 				'registryLocation': {
-					"l1": "coreDB", "l2": "session", "env": env
+					"l1": "coreDB", "l2": "session", "env": env, "timeLoaded": timeLoaded
 				}
 			};
 			if (dbRec.cluster) {
@@ -280,7 +286,7 @@ var build = {
 	},
 	
 	"buildRegistry": function (registry, registryDBInfo, callback) {
-		var metaAndCoreDB = build.metaAndCoreDB(registryDBInfo.ENV_schema, registry.environment);
+		var metaAndCoreDB = build.metaAndCoreDB(registryDBInfo.ENV_schema, registry.environment, registry.timeLoaded);
 		registry["tenantMetaDB"] = metaAndCoreDB.metaDB;
 		if (!registryDBInfo.ENV_schema || !registryDBInfo.ENV_schema.services || !registryDBInfo.ENV_schema.services.config) {
 			var err = new Error('Unable to get [' + registry.environment + '] environment services from db');
@@ -320,7 +326,7 @@ var build = {
 			}
 		};
 		
-		registry["coreDB"]["session"] = build.sessionDB(registryDBInfo.ENV_schema, registry.environment);
+		registry["coreDB"]["session"] = build.sessionDB(registryDBInfo.ENV_schema, registry.environment, registry.timeLoaded);
 		
 		registry["daemons"] = {};
 		return callback(null);

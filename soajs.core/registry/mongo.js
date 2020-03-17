@@ -231,7 +231,8 @@ module.exports = {
 				registry.coreDB.provision.registryLocation = {
 					"l1": "coreDB",
 					"l2": "provision",
-					"env": registry.environment
+					"env": registry.environment,
+					"timeLoaded": registry.timeLoaded
 				};
 				if (regFileObj.cluster) {
 					registry.coreDB.provision.registryLocation.cluster = regFileObj.cluster;
