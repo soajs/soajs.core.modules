@@ -73,30 +73,22 @@ let cacheDBLib = {
 		} else if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
 			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].db = obj.db;
 			if (registryLocation.timeLoaded) {
-				cacheCluster[registryLocation.env][registryLocation.cluster].timeLoaded = registryLocation.timeLoaded;
+				cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].timeLoaded = registryLocation.timeLoaded;
 			}
 		}
 	},
 	"setHash": function (registryLocation, config) {
 		if (registryLocation && registryLocation.cluster) {
 			cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = {
-				"prefix": config.prefix,
 				"servers": config.servers,
 				"credentials": config.credentials || null,
 			};
-			//cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = merge(true, config);
-			//delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.name;
-			//delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.registryLocation;
-			//delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.cluster;
 			cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = objectHash(cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash);
 		} else if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
 			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = {
-				"prefix": config.prefix,
 				"servers": config.servers,
 				"credentials": config.credentials || null,
 			};
-			//cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = merge(true, config);
-			//delete  cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash.registryLocation;
 			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = objectHash(cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash);
 		}
 	},
@@ -1170,7 +1162,6 @@ function connect(obj, cb) {
 		//	delete currentConfObj.name;
 		//}
 		let currentConfObj = {
-			"prefix": obj.config.prefix,
 			"servers": obj.config.servers,
 			"credentials": obj.config.credentials || null,
 		};
@@ -1193,7 +1184,6 @@ function connect(obj, cb) {
 	}
 	
 	obj.pending = true;
-	
 	mongodb.connect(url, obj.config.URLParam, function (err, client) {
 		if (err) {
 			obj.pending = false;
