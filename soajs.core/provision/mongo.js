@@ -165,12 +165,12 @@ module.exports = {
 												ACL_ALL_ENV = {};
 											}
 											if (products[i].scope &&
-												((products[i].packages[j].aclTypeByEnv && products[i].packages[j].aclTypeByEnv[env] && products[i].packages[j].aclTypeByEnv[env] === "granular") ||
+												!((products[i].packages[j].aclTypeByEnv && products[i].packages[j].aclTypeByEnv[env] && products[i].packages[j].aclTypeByEnv[env] === "granular") ||
 													(products[i].packages[j].aclType && products[i].packages[j].aclType === "granular"))
 											) {
-												ACL_ALL_ENV[env] = products[i].packages[j].acl[env];
-											} else {
 												ACL_ALL_ENV[env] = localLib.getACLFromScopebyEnv(products[i].scope.acl, products[i].packages[j].acl[env], env);
+											} else {
+												ACL_ALL_ENV[env] = products[i].packages[j].acl[env];
 											}
 										}
 									}
