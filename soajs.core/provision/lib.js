@@ -7,9 +7,9 @@ function convert_scope_method_acl(tempScopeCursor, method, j, ACL) {
 				if (tempScopeCursor[method][j].apis.hasOwnProperty(api))
 					ACL[method].apis[api] = tempScopeCursor[method][j].apis[api];
 			}
-		}
-		else
+		} else {
 			ACL[method].apis = tempScopeCursor[method][j].apis;
+		}
 	}
 	if (tempScopeCursor[method][j].hasOwnProperty('apisRegExp')) {
 		if (ACL[method].apisRegExp) {
@@ -17,9 +17,9 @@ function convert_scope_method_acl(tempScopeCursor, method, j, ACL) {
 				if (tempScopeCursor[method][j].apisRegExp.hasOwnProperty(api))
 					ACL[method].apisRegExp[api] = tempScopeCursor[method][j].apisRegExp[api];
 			}
-		}
-		else
+		} else {
 			ACL[method].apisRegExp = tempScopeCursor[method][j].apisRegExp;
+		}
 	}
 }
 
@@ -92,8 +92,7 @@ module.exports = {
 									if (scopeACL[env][service][version]) {
 										ACL[env][service][version] = getACL(scopeACL[env][service][version], packACL[env][service][i]);
 									}
-								}
-								else {
+								} else {
 									ACL[env][service] = getACL(scopeACL[env][service], packACL[env][service][i]);
 								}
 							}
@@ -104,5 +103,28 @@ module.exports = {
 			return ACL;
 		}
 		return null
+	},
+	"getACLFromScopebyEnv": function (scopeACL, packACL_env, env) {
+		let ACL = null;
+		if (packACL_env && scopeACL && scopeACL[env]) {
+			ACL = {};
+			for (let service in packACL_env) {
+				if (scopeACL[env][service] && (Object.hasOwnProperty.call(packACL_env, service))) {
+					ACL[service] = {};
+					for (let i = 0; i < packACL_env[service].length; i++) {
+						
+						if (packACL_env[service][i].version) {
+							let version = packACL_env[service][i].version;
+							if (scopeACL[env][service][version]) {
+								ACL[service][version] = getACL(scopeACL[env][service][version], packACL_env[service][i]);
+							}
+						} else {
+							ACL[service] = getACL(scopeACL[env][service], packACL_env[service][i]);
+						}
+					}
+				}
+			}
+		}
+		return ACL;
 	}
 };
