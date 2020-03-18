@@ -1,7 +1,7 @@
 'use strict';
 const core = require("../soajs.core");
 const mongodb = require('mongodb');
-const merge = require('merge');
+//const merge = require('merge');
 const objectHash = require("object-hash");
 
 let cacheDB = {};
@@ -79,14 +79,24 @@ let cacheDBLib = {
 	},
 	"setHash": function (registryLocation, config) {
 		if (registryLocation && registryLocation.cluster) {
-			cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = merge(true, config);
-			delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.name;
-			delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.registryLocation;
-			delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.cluster;
+			cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = {
+				"prefix": config.prefix,
+				"servers": config.servers,
+				"credentials": config.credentials || null,
+			};
+			//cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = merge(true, config);
+			//delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.name;
+			//delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.registryLocation;
+			//delete cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash.cluster;
 			cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash = objectHash(cacheCluster[registryLocation.env][registryLocation.cluster].configCloneHash);
 		} else if (registryLocation && registryLocation.env && registryLocation.l1 && registryLocation.l2) {
-			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = merge(true, config);
-			delete  cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash.registryLocation;
+			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = {
+				"prefix": config.prefix,
+				"servers": config.servers,
+				"credentials": config.credentials || null,
+			};
+			//cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = merge(true, config);
+			//delete  cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash.registryLocation;
 			cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash = objectHash(cacheDB[registryLocation.env][registryLocation.l1][registryLocation.l2].configCloneHash);
 		}
 	},
@@ -1117,7 +1127,7 @@ function connect(obj, cb) {
 		return cb(core.error.generate(195));
 	}
 	
-	if (obj.config && obj.config.registryLocation && obj.config.registryLocation.env && ((obj.config.registryLocation.l1 && obj.config.registryLocation.l2) || obj.config.registryLocation.cluster)) {
+	if (obj.config.registryLocation && obj.config.registryLocation.env && ((obj.config.registryLocation.l1 && obj.config.registryLocation.l2) || obj.config.registryLocation.cluster)) {
 		let cache = cacheDBLib.getCache(obj.config.registryLocation);
 		if (cache && (cache.db || cache.client)) {
 			if (!obj.db && cache.client) {
@@ -1143,27 +1153,31 @@ function connect(obj, cb) {
 		obj.config.registryLocation = {"timeLoaded": timeLoaded}
 	}
 	
+	if (obj.config.credentials) {
+		if (Object.hasOwnProperty.call(obj.config.credentials, 'username') && obj.config.credentials.username === '') {
+			delete obj.config.credentials;
+		}
+	}
 	if (obj.db) {
 		if (obj.config.registryLocation && obj.config.registryLocation.timeLoaded === timeLoaded) {
 			return cb();
 		}
-		let currentConfObj = merge(true, obj.config);
-		delete currentConfObj.registryLocation;
-		delete currentConfObj.extraParam;
-		delete currentConfObj.cluster;
-		if (obj.config.registryLocation && obj.config.registryLocation.cluster) {
-			delete currentConfObj.name;
-		}
+		//let currentConfObj = merge(true, obj.config);
+		//delete currentConfObj.registryLocation;
+		//delete currentConfObj.extraParam;
+		//delete currentConfObj.cluster;
+		//if (obj.config.registryLocation && obj.config.registryLocation.cluster) {
+		//	delete currentConfObj.name;
+		//}
+		let currentConfObj = {
+			"prefix": obj.config.prefix,
+			"servers": obj.config.servers,
+			"credentials": obj.config.credentials || null,
+		};
 		currentConfObj = objectHash(currentConfObj);
 		if (currentConfObj === configCloneHash) {
-			cacheDBLib.setTimeLoaded(obj.config.registryLocation, obj.config.registryLocation.timeLoaded)
+			cacheDBLib.setTimeLoaded(obj.config.registryLocation, obj.config.registryLocation.timeLoaded);
 			return cb();
-		}
-	}
-	
-	if (obj.config.credentials) {
-		if (Object.hasOwnProperty.call(obj.config.credentials, 'username') && obj.config.credentials.username === '') {
-			delete obj.config.credentials;
 		}
 	}
 	
