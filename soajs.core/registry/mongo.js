@@ -207,7 +207,7 @@ module.exports = {
 	},
 	"loadOtherEnvHosts": function (param, cb) {
 		initMongo(param.dbConfig);
-		var pattern = new RegExp("controller", "i");
+		var pattern = new RegExp(process.env.SOAJS_GATEWAY_NAME, "i");
 		var condition = (process.env.SOAJS_TEST) ? {'name': {'$regex': pattern}} : {
 			'name': {'$regex': pattern},
 			'env': {'$ne': param.envCode}

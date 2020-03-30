@@ -99,12 +99,12 @@ describe("testing registry functionality", function () {
 	it("Register", function (done) {
 		var params = {
 			'type': 'service',
-			'name': "controller",
+			'name': process.env.SOAJS_GATEWAY_NAME,
 			'group': "beaver",
 			'ip': "127.0.0.1",
-			'port': 4000,
+			'port': process.env.SOAJS_GATEWAY_PORT,
 			'extKeyRequired': false,
-			'version': "1",
+			'version': process.env.SOAJS_GATEWAY_VER,
 			requestTimeout: 30,
 			requestTimeoutRenewal: 5
 		};
@@ -118,10 +118,10 @@ describe("testing registry functionality", function () {
 	it("Register Host", function (done) {
 		var params = {
 			'env': myRegistry.name.toLowerCase(),
-			'serviceName': "controller",
+			'serviceName': process.env.SOAJS_GATEWAY_NAME,
 			'serviceIp': "127.0.0.1",
 			'hostname': os.hostname().toLowerCase(),
-			'version': "1",
+			'version': process.env.SOAJS_GATEWAY_VER,
 			serviceHATask: "myServiceTask"
 		};
 		core.registry.registerHost(params, myRegistry, function (response) {
@@ -198,9 +198,9 @@ describe("testing registry functionality", function () {
 	it("reLoad registry", function (done) {
 		core.registry.reload({
 			"reload": true,
-			"serviceName": "controller",
+			"serviceName": process.env.SOAJS_GATEWAY_NAME,
 			"serviceGroup": "beaver",
-			"serviceVersion": 1,
+			"serviceVersion": process.env.SOAJS_GATEWAY_VER,
 			"designatedPort": 4000,
 			"extKeyRequired": false,
 			"requestTimeout": 30,

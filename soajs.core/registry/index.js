@@ -254,9 +254,9 @@ var build = {
 	"controllerHosts": function (STRUCT, controllerObj) {
 		if (STRUCT && Array.isArray(STRUCT) && STRUCT.length > 0) {
 			for (var i = 0; i < STRUCT.length; i++) {
-				if (STRUCT[i].name === "controller" && STRUCT[i].env === regEnvironment) {
+				if (STRUCT[i].name === process.env.SOAJS_GATEWAY_NAME && STRUCT[i].env === regEnvironment) {
 					if (!STRUCT[i].version)
-						STRUCT[i].version = "1";
+						STRUCT[i].version = process.env.SOAJS_GATEWAY_VER;
 					if (!controllerObj.hosts) {
 						controllerObj.hosts = {};
 						controllerObj.hosts.latest = STRUCT[i].version;
@@ -317,7 +317,7 @@ var build = {
 		
 		registry["services"] = {
 			"controller": {
-				"group": "controller",
+				"group": process.env.SOAJS_GATEWAY_GROUP,
 				"maxPoolSize": registryDBInfo.ENV_schema.services.controller.maxPoolSize,
 				"authorization": registryDBInfo.ENV_schema.services.controller.authorization,
 				"port": registryDBInfo.ENV_schema.services.config.ports.controller,
@@ -378,11 +378,11 @@ var build = {
 				build.servicesHosts(registryDBInfo.ENV_hosts, registry["daemons"]);
 		}
 		
-		if (param.serviceName === "controller") {
+		if (param.serviceName === process.env.SOAJS_GATEWAY_NAME) {
 			
 			let newServiceObj = {
-				'name': "controller",
-				'port': 4000,
+				'name': process.env.SOAJS_GATEWAY_NAME,
+				'port': process.env.SOAJS_GATEWAY_PORT,
 			};
 			if (param.maintenance) {
 				newServiceObj.maintenance = param.maintenance;
@@ -687,6 +687,7 @@ var registryModule = {
 						'group': param.group,
 						'port': param.port
 					};
+					var newServiceObj = {};
 					if (param.maintenance) {
 						newServiceObj.maintenance = param.maintenance;
 					}

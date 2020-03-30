@@ -132,11 +132,17 @@ module.exports = function (grunt) {
 		env: {
 			mochaTest: {
 				SOAJS_ENV: "dev",
+				SOAJS_GATEWAY_NAME: "controller",
+				SOAJS_GATEWAY_VER: "1",
+				SOAJS_GATEWAY_PORT: 4000,
 				SOAJS_PROFILE: __dirname + "/profiles/single.js",
 				APP_DIR_FOR_CODE_COVERAGE: '../'
 			},
 			coverage: {
 				SOAJS_ENV: "dev",
+				SOAJS_GATEWAY_NAME: "controller",
+				SOAJS_GATEWAY_VER: "1",
+				SOAJS_GATEWAY_PORT: 4000,
 				SOAJS_BCRYPT: "true",
 				SOAJS_PROFILE: __dirname + "/profiles/single.js",
 				APP_DIR_FOR_CODE_COVERAGE: '../test/coverage/instrument/'
@@ -214,7 +220,7 @@ module.exports = function (grunt) {
 	grunt.registerTask("default", ['jshint']);
 	grunt.registerTask("integration", ['env:mochaTest', 'mochaTest:integration']);
 	grunt.registerTask("unit", ['env:mochaTest', 'mochaTest:unit']);
-	grunt.registerTask("test-src", ['clean', 'env:mochaTest', 'instrument', 'mochaTest:unit', 'mochaTest:integration' ]);
+	grunt.registerTask("test-src", ['clean', 'env:mochaTest', 'instrument', 'mochaTest:unit', 'mochaTest:integration']);
 	grunt.registerTask("test", ['clean', 'env:coverage', 'instrument', 'mochaTest:unit', 'mochaTest:integration', 'storeCoverage', 'makeReport']);
 	grunt.registerTask("coverage", ['clean', 'env:coverage', 'instrument', 'mochaTest:unit', 'mochaTest:integration', 'storeCoverage', 'makeReport', 'coveralls']);
 	
