@@ -285,7 +285,7 @@ var build = {
 		return registryModule.model.registerNewService(dbConfiguration, serviceObj, collection, cb);
 	},
 	
-	"buildRegistry": function (registry, registryDBInfo, callback) {
+	"buildRegistry": function (param, registry, registryDBInfo, callback) {
 		var metaAndCoreDB = build.metaAndCoreDB(registryDBInfo.ENV_schema, registry.environment, registry.timeLoaded);
 		registry["tenantMetaDB"] = metaAndCoreDB.metaDB;
 		if (!registryDBInfo.ENV_schema || !registryDBInfo.ENV_schema.services || !registryDBInfo.ENV_schema.services.config) {
@@ -320,6 +320,14 @@ var build = {
 				"name": registryDBInfo.ENV_schema.services.controller.name || "controller", //AH
 				"group": registryDBInfo.ENV_schema.services.controller.group || "SOAJS Core Service", //AH
 				"version": registryDBInfo.ENV_schema.services.controller.version || "1", //AH
+				/*
+				* We should use the below once we revamp and limit this to just controller
+				* this might not be true because of loadEnv we will always need to know the information of other env
+				*
+				"name": param.serviceName || "controller",
+				"group": param.serviceGroup || "SOAJS Core Service",
+				"version": param.serviceVersion || "1",
+				 */
 				"maxPoolSize": registryDBInfo.ENV_schema.services.controller.maxPoolSize,
 				"authorization": registryDBInfo.ENV_schema.services.controller.authorization,
 				"port": registryDBInfo.ENV_schema.services.config.ports.controller,
@@ -335,7 +343,6 @@ var build = {
 	},
 	
 	"buildSpecificRegistry": function (param, registry, registryDBInfo, callback) {
-		
 		function resume(what) {
 			if (!process.env.SOAJS_DEPLOY_HA)
 				build.controllerHosts(registryDBInfo.ENV_hosts, registry["services"].controller);
@@ -526,7 +533,7 @@ function loadRegistry(param, cb) {
 					if (error || !RegistryFromDB)
 						return cb(error);
 					else {
-						build.buildRegistry(registry, RegistryFromDB, function (err) {
+						build.buildRegistry(param, registry, RegistryFromDB, function (err) {
 							if (err)
 								return cb(err);
 							if (param.donotBbuildSpecificRegistry) {
