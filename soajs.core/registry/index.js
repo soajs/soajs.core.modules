@@ -343,32 +343,34 @@ var build = {
 	},
 	
 	"buildSpecificRegistry": function (param, registry, registryDBInfo, callback) {
-		function resume(what) {
+		function resume(what, gatewayKey) {
 			if (!process.env.SOAJS_DEPLOY_HA)
 				build.controllerHosts(registryDBInfo.ENV_hosts, registry["services"].controller);
+			
+			let keyIndex = gatewayKey || param.serviceName;
 			
 			if (!autoRegHost || param.reload) {
 				return callback(null);
 			}
 			else if (param.serviceIp) {
 				if (registry.serviceConfig.awareness.autoRegisterService) {
-					registry[what][param.serviceName].newServiceOrHost = true;
-					if (!registry[what][param.serviceName].hosts) {
-						registry[what][param.serviceName].hosts = {};
-						registry[what][param.serviceName].hosts.latest = param.serviceVersion;
-						registry[what][param.serviceName].hosts[param.serviceVersion] = [];
+					registry[what][keyIndex].newServiceOrHost = true;
+					if (!registry[what][keyIndex].hosts) {
+						registry[what][keyIndex].hosts = {};
+						registry[what][keyIndex].hosts.latest = param.serviceVersion;
+						registry[what][keyIndex].hosts[param.serviceVersion] = [];
 					}
-					if (!registry[what][param.serviceName].hosts[param.serviceVersion]) {
-						registry[what][param.serviceName].hosts[param.serviceVersion] = [];
+					if (!registry[what][keyIndex].hosts[param.serviceVersion]) {
+						registry[what][keyIndex].hosts[param.serviceVersion] = [];
 					}
-					if (registry[what][param.serviceName].hosts[param.serviceVersion].indexOf(param.serviceIp) === -1)
-						registry[what][param.serviceName].hosts[param.serviceVersion].push(param.serviceIp);
+					if (registry[what][keyIndex].hosts[param.serviceVersion].indexOf(param.serviceIp) === -1)
+						registry[what][keyIndex].hosts[param.serviceVersion].push(param.serviceIp);
 				}
 				return callback(null);
 			}
 			else {
 				if (!param.serviceIp && !process.env.SOAJS_DEPLOY_HA) {
-					var err = new Error("Unable to register new host ip [" + param.serviceIp + "] for service [" + param.serviceName + "]");
+					var err = new Error("Unable to register new host ip [" + param.serviceIp + "] for service [" + keyIndex + "]");
 					return callback(err);
 				}
 				return callback(null);
@@ -402,7 +404,7 @@ var build = {
 					return callback(err);
 				}
 				buildAll();
-				return resume("services");
+				return resume("services", "controller");
 			});
 		}
 		else {
@@ -779,7 +781,7 @@ var registryModule = {
 		if (!param) param = {};
 		param.reload = false;
 		param.envCode = regEnvironment;
-		param.setBy = "load"
+		param.setBy = "load";
 		return getRegistry(param, function (err, reg) {
 			if (err)
 				throw new Error('Unable to load Registry Db Info: ' + err.message);
