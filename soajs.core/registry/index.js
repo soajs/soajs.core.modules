@@ -254,9 +254,9 @@ var build = {
 	"controllerHosts": function (STRUCT, controllerObj) {
 		if (STRUCT && Array.isArray(STRUCT) && STRUCT.length > 0) {
 			for (var i = 0; i < STRUCT.length; i++) {
-				if (STRUCT[i].name === process.env.SOAJS_GATEWAY_NAME && STRUCT[i].env === regEnvironment) {
+				if (STRUCT[i].name === controllerObj.name && STRUCT[i].env === regEnvironment) {
 					if (!STRUCT[i].version)
-						STRUCT[i].version = process.env.SOAJS_GATEWAY_VER;
+						STRUCT[i].version = controllerObj.version;
 					if (!controllerObj.hosts) {
 						controllerObj.hosts = {};
 						controllerObj.hosts.latest = STRUCT[i].version;
@@ -317,7 +317,9 @@ var build = {
 		
 		registry["services"] = {
 			"controller": {
-				"group": process.env.SOAJS_GATEWAY_GROUP,
+				"name": registryDBInfo.ENV_schema.services.controller.name || "controller", //AH
+				"group": registryDBInfo.ENV_schema.services.controller.group || "SOAJS Core Service", //AH
+				"version": registryDBInfo.ENV_schema.services.controller.version || "1", //AH
 				"maxPoolSize": registryDBInfo.ENV_schema.services.controller.maxPoolSize,
 				"authorization": registryDBInfo.ENV_schema.services.controller.authorization,
 				"port": registryDBInfo.ENV_schema.services.config.ports.controller,
@@ -378,11 +380,11 @@ var build = {
 				build.servicesHosts(registryDBInfo.ENV_hosts, registry["daemons"]);
 		}
 		
-		if (param.serviceName === process.env.SOAJS_GATEWAY_NAME) {
+		if (param.serviceName === registry["services"].controller.name) {
 			
 			let newServiceObj = {
-				'name': process.env.SOAJS_GATEWAY_NAME,
-				'port': process.env.SOAJS_GATEWAY_PORT,
+				'name': registry["services"].controller.name,
+				'port': registry["services"].controller.port,
 			};
 			if (param.maintenance) {
 				newServiceObj.maintenance = param.maintenance;
@@ -815,11 +817,12 @@ var registryModule = {
 			return cb(null, reg);
 		});
 	},
-	"loadOtherEnvControllerHosts": function (cb) {
+	"loadOtherEnvControllerHosts": function (gatewayServiceName, cb) {
 		var dbConfig = null;
 		var getHosts = function () {
 			if (dbConfig) {
 				return registryModule.model.loadOtherEnvHosts({
+					"gatewayName": gatewayServiceName,
 					"envCode": regEnvironment,
 					"dbConfig": dbConfig
 				}, cb);

@@ -215,7 +215,7 @@ describe("testing registry functionality", function () {
 	});
 	
 	it("loadOtherEnvControllerHosts registry", function (done) {
-		core.registry.loadOtherEnvControllerHosts(function (err, reg) {
+		core.registry.loadOtherEnvControllerHosts(process.env.SOAJS_GATEWAY_NAME, function (err, reg) {
 			done();
 		});
 	});
@@ -258,7 +258,7 @@ describe("testing registry functionality", function () {
 	});
 	
 	it("loadOtherEnvControllerHosts - success", function (done) {
-		core.registry.loadOtherEnvControllerHosts(function (error, response) {
+		core.registry.loadOtherEnvControllerHosts(process.env.SOAJS_GATEWAY_NAME, function (error, response) {
 			assert.ok(response);
 			done();
 		});
