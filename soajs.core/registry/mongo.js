@@ -1,44 +1,55 @@
-'use strict';
-let fs = require('fs');
-let Mongo = require('../../soajs.mongo');
-let soajsLib = require("soajs.core.libs");
-let soajsUtils = soajsLib.utils;
+"use strict";
 
-var regFile = (process.env.SOAJS_PROFILE || __dirname + "/../../profiles/single.js");
-var mongo;
-var environmentCollectionName = 'environment';
-var hostCollectionName = 'hosts';
-var controllersCollectionName = 'controllers';
-var servicesCollectionName = 'services';
-var daemonsCollectionName = 'daemons';
-var resourcesCollectionName = 'resources';
-var customCollectionName = 'custom_registry';
+/**
+ * @license
+ * Copyright SOAJS All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache license that can be
+ * found in the LICENSE file at the root of this repository
+ */
+
+const fs = require('fs');
+const Mongo = require('../../soajs.mongo');
+const soajsLib = require("soajs.core.libs");
+const soajsUtils = soajsLib.utils;
+
+let regFile = (process.env.SOAJS_PROFILE || __dirname + "/../../profiles/single.js");
+let mongo;
+let environmentCollectionName = 'environment';
+let hostCollectionName = 'hosts';
+let controllersCollectionName = 'controllers';
+let servicesCollectionName = 'services';
+let daemonsCollectionName = 'daemons';
+let resourcesCollectionName = 'resources';
+let customCollectionName = 'custom_registry';
 
 function initMongo(dbConfiguration) {
 	if (!mongo) {
 		mongo = new Mongo(dbConfiguration);
 		
-		mongo.createIndex(environmentCollectionName, {code: 1}, {unique: true}, function (err, result) {
+		mongo.createIndex(environmentCollectionName, {code: 1}, {unique: true}, () => {
 		});
-		mongo.createIndex(hostCollectionName, {env: 1}, {}, function (err, result) {
+		mongo.createIndex(hostCollectionName, {env: 1}, {}, () => {
 		});
-		mongo.createIndex(hostCollectionName, {name: 1, env: 1}, {}, function (err, result) {
+		mongo.createIndex(hostCollectionName, {name: 1, env: 1}, {}, () => {
 		});
-		mongo.createIndex(servicesCollectionName, {name: 1}, {}, function (err, result) {
+		mongo.createIndex(servicesCollectionName, {name: 1}, {}, () => {
 		});
-		mongo.createIndex(servicesCollectionName, {port: 1, name: 1}, {unique: true}, function (err, result) {
+		mongo.createIndex(servicesCollectionName, {port: 1, name: 1}, {unique: true}, () => {
 		});
 	}
 }
 
 function buildResources(destination, resources, envCode) {
 	if (resources && Array.isArray(resources) && resources.length > 0) {
-		for (var i = 0; i < resources.length; i++) {
+		for (let i = 0; i < resources.length; i++) {
 			if (resources[i].type) {
-				if (!destination[resources[i].type])
+				if (!destination[resources[i].type]) {
 					destination[resources[i].type] = {};
-				if (resources[i].created === envCode.toUpperCase() || !resources[i].sharedEnvs || (resources[i].sharedEnvs && resources[i].sharedEnvs[envCode.toUpperCase()]))
+				}
+				if (resources[i].created === envCode.toUpperCase() || !resources[i].sharedEnvs || (resources[i].sharedEnvs && resources[i].sharedEnvs[envCode.toUpperCase()])) {
 					destination[resources[i].type][resources[i].name] = resources[i];
+				}
 			}
 		}
 	}
@@ -46,9 +57,10 @@ function buildResources(destination, resources, envCode) {
 
 function buildCustomRegistry(destination, custom, envCode) {
 	if (custom && Array.isArray(custom) && custom.length > 0) {
-		for (var i = 0; i < custom.length; i++) {
-			if (custom[i].created === envCode.toUpperCase() || !custom[i].sharedEnvs || (custom[i].sharedEnvs && custom[i].sharedEnvs[envCode.toUpperCase()]))
+		for (let i = 0; i < custom.length; i++) {
+			if (custom[i].created === envCode.toUpperCase() || !custom[i].sharedEnvs || (custom[i].sharedEnvs && custom[i].sharedEnvs[envCode.toUpperCase()])) {
 				destination[custom[i].name] = custom[i];
+			}
 		}
 	}
 }
@@ -62,21 +74,20 @@ module.exports = {
 			if (error) {
 				return callback(error);
 			}
-			var obj = {};
+			let obj = {};
 			if (envRecord && JSON.stringify(envRecord) !== '{}') {
-				obj['ENV_schema'] = envRecord;
+				obj.ENV_schema = envRecord;
+			} else {
+				obj.ENV_schema = {};
 			}
-			else
-				obj['ENV_schema'] = {};
 			//build resources plugged for this environment
-			var criteria = {};
+			let criteria = {};
 			if ("DASHBOARD" === envCode.toUpperCase()) {
 				criteria = {
 					'created': envCode.toUpperCase(),
 					'plugged': true
 				};
-			}
-			else {
+			} else {
 				criteria = {
 					$or: [
 						{
@@ -89,42 +100,42 @@ module.exports = {
 						}]
 				};
 			}
-			mongo.find(resourcesCollectionName, criteria, function (error, resourcesRecords) {
-				obj['ENV_schema'].resources = {};
+			mongo.find(resourcesCollectionName, criteria, null, function (error, resourcesRecords) {
+				obj.ENV_schema.resources = {};
 				if (resourcesRecords) {
-					buildResources(obj['ENV_schema'].resources, resourcesRecords, envCode);
+					buildResources(obj.ENV_schema.resources, resourcesRecords, envCode);
 				}
 				//build custom registry
-				mongo.find(customCollectionName, criteria, function (error, customRecords) {
-					if (!obj['ENV_schema'].custom)
-						obj['ENV_schema'].custom = {};
-					if (customRecords) {
-						buildCustomRegistry(obj['ENV_schema'].custom, customRecords, envCode);
+				mongo.find(customCollectionName, criteria, null, function (error, customRecords) {
+					if (!obj.ENV_schema.custom) {
+						obj.ENV_schema.custom = {};
 					}
-					mongo.find(servicesCollectionName, function (error, servicesRecords) {
+					if (customRecords) {
+						buildCustomRegistry(obj.ENV_schema.custom, customRecords, envCode);
+					}
+					mongo.find(servicesCollectionName, {}, null, function (error, servicesRecords) {
 						if (error) {
 							return callback(error);
 						}
 						if (servicesRecords && Array.isArray(servicesRecords) && servicesRecords.length > 0) {
-							obj['services_schema'] = servicesRecords;
+							obj.services_schema = servicesRecords;
 						}
-						mongo.find(daemonsCollectionName, function (error, daemonsRecords) {
+						mongo.find(daemonsCollectionName, {}, null, function (error, daemonsRecords) {
 							if (error) {
 								return callback(error);
 							}
 							if (servicesRecords && Array.isArray(daemonsRecords) && daemonsRecords.length > 0) {
-								obj['daemons_schema'] = daemonsRecords;
+								obj.daemons_schema = daemonsRecords;
 							}
 							if (process.env.SOAJS_DEPLOY_HA) {
 								return callback(null, obj);
-							}
-							else {
-								mongo.find(hostCollectionName, {'env': envCode}, function (error, hostsRecords) {
+							} else {
+								mongo.find(hostCollectionName, {'env': envCode}, null, function (error, hostsRecords) {
 									if (error) {
 										return callback(error);
 									}
 									if (hostsRecords && Array.isArray(hostsRecords) && hostsRecords.length > 0) {
-										obj['ENV_hosts'] = hostsRecords;
+										obj.ENV_hosts = hostsRecords;
 									}
 									return callback(null, obj);
 								});
@@ -150,8 +161,9 @@ module.exports = {
 				};
 				for (let p in serviceObj) {
 					if (Object.hasOwnProperty.call(serviceObj, p)) {
-						if (p !== "versions")
+						if (p !== "versions") {
 							s.$set[p] = serviceObj[p];
+						}
 					}
 				}
 				if (serviceObj.versions) {
@@ -167,7 +179,7 @@ module.exports = {
 						}
 					}
 				}
-				mongo.update(collection, {'name': serviceObj.name}, s, {'upsert': true}, function (error) {
+				mongo.updateOne(collection, {'name': serviceObj.name}, s, {'upsert': true}, function (error) {
 					return cb(error);
 				});
 			}
@@ -181,7 +193,7 @@ module.exports = {
 		initMongo(dbConfiguration);
 		if (hostObj) {
 			
-			var criteria = {
+			let criteria = {
 				'env': hostObj.env,
 				'name': hostObj.name,
 				'version': hostObj.version
@@ -189,37 +201,37 @@ module.exports = {
 			
 			if (hostObj.serviceHATask) {
 				criteria.serviceHATask = hostObj.serviceHATask;
-			}
-			else {
+			} else {
 				criteria.ip = hostObj.ip;
 				criteria.hostname = hostObj.hostname;
 			}
 			
-			mongo.update(hostCollectionName, criteria, {'$set': hostObj}, {'upsert': true}, function (err) {
-				if (err)
+			mongo.updateOne(hostCollectionName, criteria, {'$set': hostObj}, {'upsert': true}, function (err) {
+				if (err) {
 					return cb(err, false);
-				else
+				} else {
 					return cb(null, true);
+				}
 			});
-		}
-		else
+		} else {
 			return cb(null, false);
+		}
 	},
 	"loadOtherEnvHosts": function (param, cb) {
 		initMongo(param.dbConfig);
-		var pattern = new RegExp(param.gatewayName, "i");
-		var condition = (process.env.SOAJS_TEST) ? {'name': {'$regex': pattern}} : {
+		let pattern = new RegExp(param.gatewayName, "i");
+		let condition = (process.env.SOAJS_TEST) ? {'name': {'$regex': pattern}} : {
 			'name': {'$regex': pattern},
 			'env': {'$ne': param.envCode}
 		};
-		mongo.find(hostCollectionName, condition, cb);
+		mongo.find(hostCollectionName, condition, null, cb);
 	},
 	"loadProfile": function (envFrom, cb) {
 		if (fs.existsSync(regFile)) {
 			delete require.cache[require.resolve(regFile)];
-			var regFileObj = require(regFile);
+			let regFileObj = require(regFile);
 			if (regFileObj && typeof regFileObj === 'object') {
-				var registry = {
+				let registry = {
 					"timeLoaded": new Date().getTime(),
 					"name": envFrom,
 					"environment": envFrom,
@@ -235,17 +247,15 @@ module.exports = {
 					"timeLoaded": registry.timeLoaded
 				};
 				return cb(null, registry);
-			}
-			else {
+			} else {
 				return cb(new Error('Invalid profile file: ' + regFile), null);
 			}
-		}
-		else {
+		} else {
 			return cb(new Error('Invalid profile path: ' + regFile), null);
 		}
 	},
 	"getAllEnvironments": function (cb) {
-		mongo.find(environmentCollectionName, {}, cb);
+		mongo.find(environmentCollectionName, {}, null, cb);
 	},
 	"addUpdateEnvControllers": function (param, cb) {
 		let condition = {
@@ -259,28 +269,39 @@ module.exports = {
 		
 		if (param.data && param.data.services) {
 			for (let service in param.data.services) {
-				if (param.data.services[service].awarenessStats) {
-					for (let hostIp in param.data.services[service].awarenessStats) {
-						let hostIp2 = hostIp.replace(/\./g, "_dot_");
-						param.data.services[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.services[service].awarenessStats[hostIp]);
-						if (hostIp2 !== hostIp)
-							delete param.data.services[service].awarenessStats[hostIp];
+				if (param.data.services.hasOwnProperty(service)) {
+					if (param.data.services[service].awarenessStats) {
+						for (let hostIp in param.data.services[service].awarenessStats) {
+							if (param.data.services[service].awarenessStats.hasOwnProperty(hostIp)) {
+								let hostIp2 = hostIp.replace(/\./g, "_dot_");
+								param.data.services[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.services[service].awarenessStats[hostIp]);
+								if (hostIp2 !== hostIp) {
+									delete param.data.services[service].awarenessStats[hostIp];
+								}
+							}
+						}
 					}
-				}
-				if (param.data.services[service].hosts) {
-					for (let ver in param.data.services[service].hosts) {
-						let san_ver = soajsLib.version.sanitize(ver);
-						param.data.services[service].hosts[san_ver] = soajsUtils.cloneObj(param.data.services[service].hosts[ver]);
-						if (san_ver !== ver)
-							delete param.data.services[service].hosts[ver];
+					if (param.data.services[service].hosts) {
+						for (let ver in param.data.services[service].hosts) {
+							if (param.data.services[service].hosts.hasOwnProperty(ver)) {
+								let san_ver = soajsLib.version.sanitize(ver);
+								param.data.services[service].hosts[san_ver] = soajsUtils.cloneObj(param.data.services[service].hosts[ver]);
+								if (san_ver !== ver) {
+									delete param.data.services[service].hosts[ver];
+								}
+							}
+						}
 					}
-				}
-				if (param.data.services[service].versions) {
-					for (let ver in param.data.services[service].versions) {
-						let san_ver = soajsLib.version.sanitize(ver);
-						param.data.services[service].versions[san_ver] = soajsUtils.cloneObj(param.data.services[service].versions[ver]);
-						if (san_ver !== ver)
-							delete param.data.services[service].versions[ver];
+					if (param.data.services[service].versions) {
+						for (let ver in param.data.services[service].versions) {
+							if (param.data.services[service].versions.hasOwnProperty(ver)) {
+								let san_ver = soajsLib.version.sanitize(ver);
+								param.data.services[service].versions[san_ver] = soajsUtils.cloneObj(param.data.services[service].versions[ver]);
+								if (san_ver !== ver) {
+									delete param.data.services[service].versions[ver];
+								}
+							}
+						}
 					}
 				}
 			}
@@ -288,25 +309,33 @@ module.exports = {
 		
 		if (param.data && param.data.daemons) {
 			for (let service in param.data.daemons) {
-				if (param.data.daemons[service].awarenessStats) {
-					for (let hostIp in param.data.daemons[service].awarenessStats) {
-						let hostIp2 = hostIp.replace(/\./g, "_dot_");
-						param.data.daemons[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.daemons[service].awarenessStats[hostIp]);
-						delete param.data.daemons[service].awarenessStats[hostIp];
+				if (param.data.daemons.hasOwnProperty(service)) {
+					if (param.data.daemons[service].awarenessStats) {
+						for (let hostIp in param.data.daemons[service].awarenessStats) {
+							if (param.data.daemons[service].awarenessStats.hasOwnProperty(hostIp)) {
+								let hostIp2 = hostIp.replace(/\./g, "_dot_");
+								param.data.daemons[service].awarenessStats[hostIp2] = soajsUtils.cloneObj(param.data.daemons[service].awarenessStats[hostIp]);
+								delete param.data.daemons[service].awarenessStats[hostIp];
+							}
+						}
 					}
-				}
-				if (param.data.daemons[service].hosts) {
-					for (let ver in param.data.daemons[service].hosts) {
-						let san_ver = soajsLib.version.sanitize(ver);
-						param.data.daemons[service].hosts[san_ver] = soajsUtils.cloneObj(param.data.daemons[service].hosts[ver]);
-						delete param.data.daemons[service].hosts[ver];
+					if (param.data.daemons[service].hosts) {
+						for (let ver in param.data.daemons[service].hosts) {
+							if (param.data.daemons[service].hosts.hasOwnProperty(ver)) {
+								let san_ver = soajsLib.version.sanitize(ver);
+								param.data.daemons[service].hosts[san_ver] = soajsUtils.cloneObj(param.data.daemons[service].hosts[ver]);
+								delete param.data.daemons[service].hosts[ver];
+							}
+						}
 					}
-				}
-				if (param.data.daemons[service].versions) {
-					for (let ver in param.data.daemons[service].versions) {
-						let san_ver = soajsLib.version.sanitize(ver);
-						param.data.daemons[service].versions[san_ver] = soajsUtils.cloneObj(param.data.daemons[service].versions[ver]);
-						delete param.data.daemons[service].versions[ver];
+					if (param.data.daemons[service].versions) {
+						for (let ver in param.data.daemons[service].versions) {
+							if (param.data.daemons[service].versions.hasOwnProperty(ver)) {
+								let san_ver = soajsLib.version.sanitize(ver);
+								param.data.daemons[service].versions[san_ver] = soajsUtils.cloneObj(param.data.daemons[service].versions[ver]);
+								delete param.data.daemons[service].versions[ver];
+							}
+						}
 					}
 				}
 			}
@@ -318,10 +347,6 @@ module.exports = {
 				"ts": param.ts
 			}
 		};
-		mongo.update(controllersCollectionName, condition, document, {
-			"upsert": true,
-			"safe": true,
-			"multi": false
-		}, cb);
+		mongo.updateOne(controllersCollectionName, condition, document, {"upsert": true}, cb);
 	}
 };

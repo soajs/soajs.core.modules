@@ -1,17 +1,26 @@
-'use strict';
-var Mongo = require('../../soajs.mongo');
+"use strict";
 
-var mongo = null;
-var oauthMongo = null;
-var oauthSeperate = false;
+/**
+ * @license
+ * Copyright SOAJS All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache license that can be
+ * found in the LICENSE file at the root of this repository
+ */
 
-var tenantCollectionName = "tenants";
-var productsCollectionName = "products";
-var tokenCollectionName = "oauth_token";
-var daemonGrpConfCollectionName = "daemon_grpconf";
-var oauthUracCollectionName = "oauth_urac";
+const Mongo = require('../../soajs.mongo');
 
-var regEnvironment = (process.env.SOAJS_ENV || "dev");
+let mongo = null;
+let oauthMongo = null;
+let oauthSeperate = false;
+
+let tenantCollectionName = "tenants";
+let productsCollectionName = "products";
+let tokenCollectionName = "oauth_token";
+let daemonGrpConfCollectionName = "daemon_grpconf";
+let oauthUracCollectionName = "oauth_urac";
+
+let regEnvironment = (process.env.SOAJS_ENV || "dev");
 regEnvironment = regEnvironment.toLowerCase();
 
 const sensitiveEnvCodes = ["dashboard", "portal"];
@@ -23,27 +32,26 @@ module.exports = {
 			mongo = new Mongo(dbConfig.provision);
 			oauthMongo = new Mongo(dbConfig.oauth);
 			oauthSeperate = true;
-		}
-		else {
+		} else {
 			mongo = new Mongo(dbConfig);
 			oauthMongo = mongo;
 		}
 		
-		mongo.createIndex(tenantCollectionName, {code: 1}, {unique: true}, function (err, result) {
+		mongo.createIndex(tenantCollectionName, {code: 1}, {unique: true}, () => {
 		});
-		mongo.createIndex(tenantCollectionName, {'applications.keys.key': 1}, {}, function (err, result) {
+		mongo.createIndex(tenantCollectionName, {'applications.keys.key': 1}, {}, () => {
 		});
-		mongo.createIndex(productsCollectionName, {code: 1}, {unique: true}, function (err, result) {
+		mongo.createIndex(productsCollectionName, {code: 1}, {unique: true}, () => {
 		});
-		mongo.createIndex(productsCollectionName, {'packages.code': 1}, {}, function (err, result) {
+		mongo.createIndex(productsCollectionName, {'packages.code': 1}, {}, () => {
 		});
-		mongo.createIndex(oauthUracCollectionName, {userId: 1}, {unique: true}, function (err, result) {
+		mongo.createIndex(oauthUracCollectionName, {userId: 1}, {unique: true}, () => {
 		});
-		oauthMongo.createIndex(tokenCollectionName, {token: 1, type: 1}, {}, function (err, result) {
+		oauthMongo.createIndex(tokenCollectionName, {token: 1, type: 1}, {}, () => {
 		});
-		oauthMongo.createIndex(tokenCollectionName, {expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
+		oauthMongo.createIndex(tokenCollectionName, {expires: 1}, {expireAfterSeconds: 0}, () => {
 		});
-		mongo.createIndex(daemonGrpConfCollectionName, {daemonConfigGroup: 1, daemon: 1}, {}, function (err, result) {
+		mongo.createIndex(daemonGrpConfCollectionName, {daemonConfigGroup: 1, daemon: 1}, {}, () => {
 		});
 	},
 	
@@ -51,11 +59,10 @@ module.exports = {
 		oauthMongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "accessToken"}, function (err, rec) {
 			if (rec && rec.env === regEnvironment) {
 				return cb(err, rec);
-			}
-			else {
-				if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
+			} else {
+				if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase())) {
 					return cb(err, rec);
-				else {
+				} else {
 					if (oauthSeperate) {
 						mongo.findOne(tokenCollectionName, {
 							"token": bearerToken,
@@ -63,17 +70,15 @@ module.exports = {
 						}, function (err, rec) {
 							if (rec && rec.env === regEnvironment) {
 								return cb(err, rec);
-							}
-							else {
-								if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
+							} else {
+								if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase())) {
 									return cb(err, rec);
-								else {
+								} else {
 									return cb(err, null);
 								}
 							}
 						});
-					}
-					else {
+					} else {
 						return cb(err, null);
 					}
 				}
@@ -82,18 +87,19 @@ module.exports = {
 	},
 	"getRefreshToken": function (bearerToken, cb) {
 		oauthMongo.findOne(tokenCollectionName, {"token": bearerToken, "type": "refreshToken"}, function (err, rec) {
-			if (rec && rec.env === regEnvironment)
+			if (rec && rec.env === regEnvironment) {
 				return cb(err, rec);
-			else {
-				if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase()))
+			} else {
+				if (rec && sensitiveEnvCodes.includes(rec.env.toLowerCase())) {
 					return cb(err, rec);
-				else
+				} else {
 					return cb(err, null);
+				}
 			}
 		});
 	},
 	"saveAccessToken": function (accessToken, clientId, expires, user, cb) {
-		var tokenRecord = {
+		let tokenRecord = {
 			type: "accessToken",
 			token: accessToken,
 			clientId: clientId,
@@ -101,12 +107,12 @@ module.exports = {
 			env: regEnvironment,
 			expires: expires
 		};
-		oauthMongo.insert(tokenCollectionName, tokenRecord, function (err, data) {
+		oauthMongo.insert(tokenCollectionName, tokenRecord, function (err) {
 			return cb(err);
 		});
 	},
 	"saveRefreshToken": function (refreshToken, clientId, expires, user, cb) {
-		var tokenRecord = {
+		let tokenRecord = {
 			type: "refreshToken",
 			token: refreshToken,
 			clientId: clientId,
@@ -114,18 +120,18 @@ module.exports = {
 			env: regEnvironment,
 			expires: expires
 		};
-		oauthMongo.insert(tokenCollectionName, tokenRecord, function (err, data) {
+		oauthMongo.insert(tokenCollectionName, tokenRecord, function (err) {
 			return cb(err);
 		});
 	},
 	
 	"getDaemonGrpConf": function (grp, name, cb) {
 		if (grp && name) {
-			var criteria = {
+			let criteria = {
 				"daemonConfigGroup": grp,
 				"daemon": name
 			};
-			mongo.find(daemonGrpConfCollectionName, criteria, function (err, grpCong) {
+			mongo.find(daemonGrpConfCollectionName, criteria, null, function (err, grpCong) {
 				if (err) {
 					return cb(err);
 				}
@@ -136,21 +142,21 @@ module.exports = {
 		}
 	},
 	"getPackagesFromDb": function (code, cb) {
-		var criteria = {};
+		let criteria = {};
 		if (code) {
 			criteria['packages.code'] = code;
 		}
-		mongo.find(productsCollectionName, criteria, function (err, products) {
+		mongo.find(productsCollectionName, criteria, null, function (err, products) {
 			if (err) {
 				return cb(err);
 			}
-			var struct = null;
+			let struct = null;
 			if (products) {
-				var prodLen = products.length;
-				for (var i = 0; i < prodLen; i++) {
+				let prodLen = products.length;
+				for (let i = 0; i < prodLen; i++) {
 					if (products[i].packages) {
-						var pckLen = products[i].packages.length;
-						for (var j = 0; j < pckLen; j++) {
+						let pckLen = products[i].packages.length;
+						for (let j = 0; j < pckLen; j++) {
 							if (!code || (code && products[i].packages[j].code === code)) {
 								if (!struct) {
 									struct = {};
@@ -212,52 +218,54 @@ module.exports = {
 		});
 	},
 	"getKeyFromDb": function (key, tId, oauth, cb) {
-		var criteria = {};
+		let criteria = {};
 		if (key) {
 			criteria['applications.keys.key'] = key;
 		}
 		if (tId) {
-			criteria['_id'] = mongo.ObjectId(tId);
+			criteria._id = mongo.ObjectId(tId);
 		}
-		mongo.find(tenantCollectionName, criteria, function (err, tenants) {
+		mongo.find(tenantCollectionName, criteria, null, function (err, tenants) {
 			if (err) {
 				return cb(err);
 			}
-			var keyStruct = null;
-			var oauthStruct = null;
-			var tenantStruct = null;
+			let keyStruct = null;
+			let oauthStruct = null;
+			let tenantStruct = null;
 			if (tenants) {
-				var tenLen = tenants.length;
-				for (var i = 0; i < tenLen; i++) {
+				let tenLen = tenants.length;
+				for (let i = 0; i < tenLen; i++) {
 					
 					if (tenants[i].oauth) {
-						if (!oauthStruct)
+						if (!oauthStruct) {
 							oauthStruct = {};
+						}
 						oauthStruct[tenants[i]._id.toString()] = tenants[i].oauth;
 					}
 					
-					if (!tenantStruct)
+					if (!tenantStruct) {
 						tenantStruct = {};
+					}
 					tenantStruct[tenants[i]._id.toString()] = {"code": tenants[i].code};
 					
 					if (tenants[i].applications) {
-						var appLen = tenants[i].applications.length;
-						for (var j = 0; j < appLen; j++) {
+						let appLen = tenants[i].applications.length;
+						for (let j = 0; j < appLen; j++) {
 							if (tenants[i].applications[j].keys) {
-								var keyLen = tenants[i].applications[j].keys.length;
-								for (var k = 0; k < keyLen; k++) {
+								let keyLen = tenants[i].applications[j].keys.length;
+								for (let k = 0; k < keyLen; k++) {
 									if (!key || (key && tenants[i].applications[j].keys[k].key === key)) {
-										if (!keyStruct)
+										if (!keyStruct) {
 											keyStruct = {};
-										
-										var keyConfig = tenants[i].applications[j].keys[k].config;
-										if (keyConfig && typeof keyConfig === "object" && keyConfig[regEnvironment])
+										}
+										let keyConfig = tenants[i].applications[j].keys[k].config;
+										if (keyConfig && typeof keyConfig === "object" && keyConfig[regEnvironment]) {
 											keyConfig = keyConfig[regEnvironment];
-										else
+										} else {
 											keyConfig = {};
-										
-										var ACL_ALL_ENV = tenants[i].applications[j].acl;
-										var ACL = ACL_ALL_ENV;
+										}
+										let ACL_ALL_ENV = tenants[i].applications[j].acl;
+										let ACL = ACL_ALL_ENV;
 										if (ACL_ALL_ENV && typeof ACL_ALL_ENV === "object") {
 											if (ACL_ALL_ENV[regEnvironment] &&
 												(
@@ -265,10 +273,10 @@ module.exports = {
 													!Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apis') &&
 													!Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apisRegExp') &&
 													!Object.hasOwnProperty.call(ACL_ALL_ENV[regEnvironment], 'apisPermission')
-												))
+												)) {
 												ACL = ACL_ALL_ENV[regEnvironment];
-										}
-										else {
+											}
+										} else {
 											ACL_ALL_ENV = null;
 											ACL = null;
 										}
@@ -278,7 +286,7 @@ module.exports = {
 											"tenant": {
 												"id": tenants[i]._id.toString(),
 												"code": tenants[i].code,
-												"locked": tenants[i].locked ? true : false,
+												"locked": !!tenants[i].locked,
 												"type": tenants[i].type,
 												"profile": tenants[i].profile || {}
 											},

@@ -1,7 +1,17 @@
-'use strict';
-var bunyan = require('bunyan');
-var _log = null;
-var lib = require("soajs.core.libs");
+"use strict";
+
+/**
+ * @license
+ * Copyright SOAJS All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache license that can be
+ * found in the LICENSE file at the root of this repository
+ */
+
+
+const bunyan = require('bunyan');
+let _log = null;
+const lib = require("soajs.core.libs");
 
 /* Logger Component
  *
@@ -22,27 +32,27 @@ var lib = require("soajs.core.libs");
  * REF: https://www.npmjs.com/package/bunyan
  */
 module.exports = {
-    "getLogger": function (name, config) {
-        if (!_log) {
-            var configClone = lib.utils.cloneObj(config);
-            configClone["name"] = name;
-
-            if (config.formatter && Object.keys(config.formatter).length > 0) {
-                var bformat = require('bunyan-format');
-                var formatOut = bformat(config.formatter);
-                configClone['stream'] = formatOut;
-                delete configClone.formatter;
-            }
-
-            _log = new bunyan.createLogger(configClone);
-        }
-        return _log;
-    },
-
-    "getLog": function () {
-        if (_log) {
-            return _log;
-        }
-        return null;
-    }
+	"getLogger": function (name, config) {
+		if (!_log) {
+			let configClone = lib.utils.cloneObj(config);
+			configClone.name = name;
+			
+			if (config.formatter && Object.keys(config.formatter).length > 0) {
+				const bformat = require('bunyan-format');
+				let formatOut = bformat(config.formatter);
+				configClone.stream = formatOut;
+				delete configClone.formatter;
+			}
+			
+			_log = new bunyan.createLogger(configClone);
+		}
+		return _log;
+	},
+	
+	"getLog": function () {
+		if (_log) {
+			return _log;
+		}
+		return null;
+	}
 };

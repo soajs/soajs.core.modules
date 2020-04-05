@@ -43,7 +43,9 @@ let lib = {
 	 */
 	loadTasks: function (grunt, rootPath, tasks) {
 		tasks.forEach(function (name) {
-			if (name === 'grunt-cli') return;
+			if (name === 'grunt-cli') {
+				return;
+			}
 			let cwd = process.cwd();
 			process.chdir(rootPath); // load files from proper root, I don't want to install everything locally per module!
 			grunt.loadNpmTasks(name);
@@ -55,8 +57,7 @@ let lib = {
 module.exports = function (grunt) {
 	//Loading the needed plugins to run the grunt tasks
 	let pluginsRootPath = lib.findRoot();
-	lib.loadTasks(grunt, pluginsRootPath, ['grunt-contrib-jshint', 'grunt-jsdoc', 'grunt-contrib-clean', 'grunt-mocha-test', 'grunt-env'
-		, 'grunt-istanbul', 'grunt-coveralls', 'grunt-babel', 'grunt-contrib-copy']);
+	lib.loadTasks(grunt, pluginsRootPath, ['grunt-contrib-jshint', 'grunt-jsdoc', 'grunt-contrib-clean', 'grunt-mocha-test', 'grunt-env', 'grunt-istanbul', 'grunt-coveralls', 'grunt-babel', 'grunt-contrib-copy']);
 	grunt.initConfig({
 		babel: {
 			options: {

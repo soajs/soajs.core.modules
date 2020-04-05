@@ -285,11 +285,11 @@ describe("testing registry functionality", function () {
 			}
 		};
 		
-		core.registry.model = {
+		core.registry.setModel({
 			addUpdateServiceIP: function (provision, host, cb) {
 				return cb({message: "serviceX"}); // error
 			}
-		};
+		});
 		
 		try {
 			core.registry.registerHost(param, registry, function (error, response) {

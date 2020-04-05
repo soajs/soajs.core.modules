@@ -1,4 +1,14 @@
-'use strict';
+"use strict";
+
+/**
+ * @license
+ * Copyright SOAJS All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache license that can be
+ * found in the LICENSE file at the root of this repository
+ */
+
+
 const core = require("../soajs.core");
 const mongodb = require('mongodb');
 //const merge = require('merge');
@@ -1142,7 +1152,7 @@ function connect(obj, cb) {
 	}
 	if (!obj.config.registryLocation) {
 		timeLoaded = new Date().getTime();
-		obj.config.registryLocation = {"timeLoaded": timeLoaded}
+		obj.config.registryLocation = {"timeLoaded": timeLoaded};
 	}
 	
 	if (obj.config.credentials) {

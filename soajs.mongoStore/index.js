@@ -1,7 +1,15 @@
-'use strict';
+"use strict";
 
-var Mongo = require('../soajs.mongo');
-var util = require('util');
+/**
+ * @license
+ * Copyright SOAJS All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache license that can be
+ * found in the LICENSE file at the root of this repository
+ */
+
+const Mongo = require('../soajs.mongo');
+const util = require('util');
 
 
 /**
@@ -10,191 +18,188 @@ var util = require('util');
  * @returns {MongoStore}
  */
 module.exports = function (connect) {
-    var Store = connect.Store || connect.session.Store;
-
-    /**
-     * Initialize MongoStore with the given `options`.
-     * Calls `callback` when db connection is ready (mainly for testing purposes).
-     *
-     * @param {Object} options
-     * @param {Function} callback
-     * @api public
-     */
-
-    function MongoStore(options) {
-        if (!options || typeof options !== 'object')
-            throw new Error('MongoStore needs db info to connect : ' + options + ' ');
-
-        Store.call(this, options.store);
-
-        //NOTE: we cannot stringify the session object. we need to keep it an object in mongo in order to support multi tenancy in the set method below
-        this._options = {
-            "collection": options.collection,
-            "stringify": false,
-            "expireAfter": options.expireAfter
-        };
-
-        this.mongo = new Mongo(options);
-        this.mongo.createIndex(options.collection, {expires: 1}, {expireAfterSeconds: 0}, function (err, result) {
-            if (err) {
-                throw new Error('Error setting TTL index on collection : ' + options.collection + ' <' + err + '>');
-            }
-        });
-    }
-
-    /**
-     * Inherit from `Store`.
-     */
-    util.inherits(MongoStore, Store);
-
-    /**
-     * Attempt to fetch session by the given `sid`.
-     *
-     * @param {String} sid
-     * @param {Function} cb
-     * @api public
-     */
-    MongoStore.prototype.get = function (sid, cb) {
-        var self = this;
-        this.mongo.findOne(self._options.collection, {_id: sid}, function (err, session) {
-            if (err) {
-                return cb(err);
-            }
-
-            if (!session) {
-                return cb();
-            }
-
-            if (!session.expires || new Date < session.expires) {
-                return cb(null, deSerialize(self._options.stringify, session.session));
-            }
-            self.destroy(sid, cb);
-        });
-    };
-
-    /**
-     * Commit the given `session` object associated with the given `sid`.
-     *
-     * @param {String} sid
-     * @param {Object} session
-     * @param {Function} cb
-     * @api public
-     */
-    MongoStore.prototype.set = function (sid, session, cb) {
-        if (!session.persistSession || !session.persistSession.state || (session.persistSession.state && session.persistSession.state.DONE)) {
-            return cb();
-        }
-        var self = this;
-        var expiryDate = (session && session.cookie && session.cookie._expires) ? (new Date(session.cookie._expires)) : newDateFromFuture(self._options.expireAfter);
-        var s = {
-            '$set': {
-                'expires': expiryDate
-            }
-        };
-        var filter = {
-            '_id': sid
-        };
-        var tenant = null;
-        if (!(session.persistSession.state.ALL || session.persistSession.state.TENANT ) &&
-            (session.persistSession.state.KEY || session.persistSession.state.SERVICE || session.persistSession.state.CLIENTINFO)) {
-            tenant = getTenant(session);
-            if (!tenant) {
-                return cb();
-            }
-
-            //KEY
-            //KEY --> SERVICE
-            if (session.persistSession.state.KEY) {
-                s.$set['session.sessions.' + tenant.id + '.keys.' + tenant.key] = session.sessions[tenant.id].keys[tenant.key];
-            }
-            else {
-                if (session.persistSession.state.SERVICE) {
-                    var request = getRequest(session);// session.sessions[tenant.id].key[tenant.key].request.service;
-                    if (request && request.service) {
-                        var service = request.service;
-                        s.$set['session.sessions.' + tenant.id + '.keys.' + tenant.key + '.services.' + service] = session.sessions[tenant.id].keys[tenant.key].services[service];
-                    }
-                }
-            }
-
-            //CLIENTINFO
-            if (session.persistSession.state.CLIENTINFO) {
-                s.$set['session.sessions.' + tenant.id + '.clientInfo'] = session.sessions[tenant.id].clientInfo;
-            }
-
-            session.persistSession.state = {"DONE": true};
-            s.$set['session.persistSession'] = session.persistSession;
-        }
-        else if (!session.persistSession.state.ALL && session.persistSession.state.TENANT) {
-            tenant = getTenant(session);
-            if (!tenant) {
-                return cb();
-            }
-            s.$set['session.sessions.' + tenant.id] = session.sessions[tenant.id];
-
-            session.persistSession.state = {"DONE": true};
-            s.$set['session.persistSession'] = session.persistSession;
-        }
-        else { // if session.persistSession.state.ALL
-            session.persistSession.state = {"DONE": true};
-            s = {
-                '_id': sid,
-                'session': serialize(self._options.stringify, session),
-                'expires': expiryDate
-            };
-        }
-        if (session.persistSession.state.DONE) {
-            this.mongo.update(self._options.collection, filter, s, {
-                'upsert': true,
-                'safe': true
-            }, function (err, data) {
-                if (err) {
-                    self.mongo.closeDb();
-                    return cb(err, null);
-                } else {
-                    return cb(err, data);
-                }
-            });
-        }
-        else
-            return cb();
-    };
-
-    /**
-     * Destroy the session associated with the given `sid`.
-     *
-     * @param {String} sid
-     * @param {Function} cb
-     * @api public
-     */
-    MongoStore.prototype.destroy = function (sid, cb) {
-
-        this.mongo.remove(this._options.collection, {_id: sid}, cb);
-    };
-
-    /**
-     * Fetch number of sessions.
-     *
-     * @param {Function} cb
-     * @api public
-     */
-    MongoStore.prototype.length = function (cb) {
-
-        this.mongo.count(this._options.collection, {}, cb);
-    };
-
-    /**
-     * Clear all sessions.
-     *
-     * @param {Function} cb
-     * @api public
-     */
-    MongoStore.prototype.clear = function (cb) {
-
-        this.mongo.dropCollection(this._options.collection, cb);
-    };
-
-    return MongoStore;
+	let Store = connect.Store || connect.session.Store;
+	
+	/**
+	 * Initialize MongoStore with the given `options`.
+	 * Calls `callback` when db connection is ready (mainly for testing purposes).
+	 *
+	 * @param {Object} options
+	 * @param {Function} callback
+	 * @api public
+	 */
+	
+	function MongoStore(options) {
+		if (!options || typeof options !== 'object') {
+			throw new Error('MongoStore needs db info to connect : ' + options + ' ');
+		}
+		Store.call(this, options.store);
+		
+		//NOTE: we cannot stringify the session object. we need to keep it an object in mongo in order to support multi tenancy in the set method below
+		this._options = {
+			"collection": options.collection,
+			"stringify": false,
+			"expireAfter": options.expireAfter
+		};
+		
+		this.mongo = new Mongo(options);
+		this.mongo.createIndex(options.collection, {expires: 1}, {expireAfterSeconds: 0}, function (err) {
+			if (err) {
+				throw new Error('Error setting TTL index on collection : ' + options.collection + ' <' + err + '>');
+			}
+		});
+	}
+	
+	/**
+	 * Inherit from `Store`.
+	 */
+	util.inherits(MongoStore, Store);
+	
+	/**
+	 * Attempt to fetch session by the given `sid`.
+	 *
+	 * @param {String} sid
+	 * @param {Function} cb
+	 * @api public
+	 */
+	MongoStore.prototype.get = function (sid, cb) {
+		let self = this;
+		this.mongo.findOne(self._options.collection, {_id: sid}, function (err, session) {
+			if (err) {
+				return cb(err);
+			}
+			
+			if (!session) {
+				return cb();
+			}
+			
+			if (!session.expires || new Date() < session.expires) {
+				return cb(null, deSerialize(self._options.stringify, session.session));
+			}
+			self.destroy(sid, cb);
+		});
+	};
+	
+	/**
+	 * Commit the given `session` object associated with the given `sid`.
+	 *
+	 * @param {String} sid
+	 * @param {Object} session
+	 * @param {Function} cb
+	 * @api public
+	 */
+	MongoStore.prototype.set = function (sid, session, cb) {
+		if (!session.persistSession || !session.persistSession.state || (session.persistSession.state && session.persistSession.state.DONE)) {
+			return cb();
+		}
+		let self = this;
+		let expiryDate = (session && session.cookie && session.cookie._expires) ? (new Date(session.cookie._expires)) : newDateFromFuture(self._options.expireAfter);
+		let s = {
+			'$set': {
+				'expires': expiryDate
+			}
+		};
+		let filter = {
+			'_id': sid
+		};
+		let tenant = null;
+		if (!(session.persistSession.state.ALL || session.persistSession.state.TENANT) &&
+			(session.persistSession.state.KEY || session.persistSession.state.SERVICE || session.persistSession.state.CLIENTINFO)) {
+			tenant = getTenant(session);
+			if (!tenant) {
+				return cb();
+			}
+			
+			//KEY
+			//KEY --> SERVICE
+			if (session.persistSession.state.KEY) {
+				s.$set['session.sessions.' + tenant.id + '.keys.' + tenant.key] = session.sessions[tenant.id].keys[tenant.key];
+			} else {
+				if (session.persistSession.state.SERVICE) {
+					let request = getRequest(session);// session.sessions[tenant.id].key[tenant.key].request.service;
+					if (request && request.service) {
+						let service = request.service;
+						s.$set['session.sessions.' + tenant.id + '.keys.' + tenant.key + '.services.' + service] = session.sessions[tenant.id].keys[tenant.key].services[service];
+					}
+				}
+			}
+			
+			//CLIENTINFO
+			if (session.persistSession.state.CLIENTINFO) {
+				s.$set['session.sessions.' + tenant.id + '.clientInfo'] = session.sessions[tenant.id].clientInfo;
+			}
+			
+			session.persistSession.state = {"DONE": true};
+			s.$set['session.persistSession'] = session.persistSession;
+		} else if (!session.persistSession.state.ALL && session.persistSession.state.TENANT) {
+			tenant = getTenant(session);
+			if (!tenant) {
+				return cb();
+			}
+			s.$set['session.sessions.' + tenant.id] = session.sessions[tenant.id];
+			
+			session.persistSession.state = {"DONE": true};
+			s.$set['session.persistSession'] = session.persistSession;
+		} else { // if session.persistSession.state.ALL
+			session.persistSession.state = {"DONE": true};
+			s = {
+				'_id': sid,
+				'session': serialize(self._options.stringify, session),
+				'expires': expiryDate
+			};
+		}
+		if (session.persistSession.state.DONE) {
+			this.mongo.update(self._options.collection, filter, s, {
+				'upsert': true,
+				'safe': true
+			}, function (err, data) {
+				if (err) {
+					self.mongo.closeDb();
+					return cb(err, null);
+				} else {
+					return cb(err, data);
+				}
+			});
+		} else {
+			return cb();
+		}
+	};
+	
+	/**
+	 * Destroy the session associated with the given `sid`.
+	 *
+	 * @param {String} sid
+	 * @param {Function} cb
+	 * @api public
+	 */
+	MongoStore.prototype.destroy = function (sid, cb) {
+		
+		this.mongo.remove(this._options.collection, {_id: sid}, cb);
+	};
+	
+	/**
+	 * Fetch number of sessions.
+	 *
+	 * @param {Function} cb
+	 * @api public
+	 */
+	MongoStore.prototype.length = function (cb) {
+		
+		this.mongo.count(this._options.collection, {}, cb);
+	};
+	
+	/**
+	 * Clear all sessions.
+	 *
+	 * @param {Function} cb
+	 * @api public
+	 */
+	MongoStore.prototype.clear = function (cb) {
+		
+		this.mongo.dropCollection(this._options.collection, cb);
+	};
+	
+	return MongoStore;
 };
 
 
@@ -204,16 +209,16 @@ module.exports = function (connect) {
  * @returns {*}
  */
 function getRequest(session) {
-    var request = null;
-    if (session && session.persistSession && session.persistSession.holder && session.persistSession.holder.request) {
-        if (session.persistSession.holder.request.service) {
-            request = {
-                'service': session.persistSession.holder.request.service,
-                'api': session.persistSession.holder.request.api
-            };
-        }
-    }
-    return request;
+	let request = null;
+	if (session && session.persistSession && session.persistSession.holder && session.persistSession.holder.request) {
+		if (session.persistSession.holder.request.service) {
+			request = {
+				'service': session.persistSession.holder.request.service,
+				'api': session.persistSession.holder.request.api
+			};
+		}
+	}
+	return request;
 }
 
 /**
@@ -222,20 +227,20 @@ function getRequest(session) {
  * @returns {*}
  */
 function getTenant(session) {
-    var tenant = null;
-    if (session && session.persistSession && session.persistSession.holder && session.persistSession.holder.tenant) {
-        if (session.persistSession.holder.tenant.id && session.persistSession.holder.tenant.key) {
-            if (session.sessions[session.persistSession.holder.tenant.id]) {
-                if (session.sessions[session.persistSession.holder.tenant.id].keys[session.persistSession.holder.tenant.key]) {
-                    tenant = {
-                        'id': session.persistSession.holder.tenant.id,
-                        'key': session.persistSession.holder.tenant.key
-                    };
-                }
-            }
-        }
-    }
-    return tenant;
+	let tenant = null;
+	if (session && session.persistSession && session.persistSession.holder && session.persistSession.holder.tenant) {
+		if (session.persistSession.holder.tenant.id && session.persistSession.holder.tenant.key) {
+			if (session.sessions[session.persistSession.holder.tenant.id]) {
+				if (session.sessions[session.persistSession.holder.tenant.id].keys[session.persistSession.holder.tenant.key]) {
+					tenant = {
+						'id': session.persistSession.holder.tenant.id,
+						'key': session.persistSession.holder.tenant.key
+					};
+				}
+			}
+		}
+	}
+	return tenant;
 }
 
 /**
@@ -245,7 +250,7 @@ function getTenant(session) {
  * @returns {Date}
  */
 function newDateFromFuture(offset) {
-    return new Date(Date.now() + offset);
+	return new Date(Date.now() + offset);
 }
 
 /**
@@ -257,10 +262,10 @@ function newDateFromFuture(offset) {
  */
 function serialize(stringify, obj) {
 	//NOTE: we cannot stringify the session object. we need to keep it an object in mongo in order to support multi tenancy in the set method below
-    // if (stringify) {
-    //     return JSON.stringify(obj);
-    // }
-    return obj;
+	// if (stringify) {
+	//     return JSON.stringify(obj);
+	// }
+	return obj;
 }
 
 /**
@@ -271,8 +276,8 @@ function serialize(stringify, obj) {
  * @returns {*}
  */
 function deSerialize(stringify, str) {
-    if (stringify) {
-        return JSON.parse(str);
-    }
-    return str;
+	if (stringify) {
+		return JSON.parse(str);
+	}
+	return str;
 }
