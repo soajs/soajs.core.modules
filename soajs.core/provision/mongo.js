@@ -107,7 +107,7 @@ module.exports = {
 			env: regEnvironment,
 			expires: expires
 		};
-		oauthMongo.insert(tokenCollectionName, tokenRecord, function (err) {
+		oauthMongo.insertOne(tokenCollectionName, tokenRecord, function (err) {
 			return cb(err);
 		});
 	},
@@ -120,7 +120,7 @@ module.exports = {
 			env: regEnvironment,
 			expires: expires
 		};
-		oauthMongo.insert(tokenCollectionName, tokenRecord, function (err) {
+		oauthMongo.insertOne(tokenCollectionName, tokenRecord, function (err) {
 			return cb(err);
 		});
 	},
