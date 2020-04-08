@@ -233,6 +233,7 @@ let build = {
 					if (servicesObj[STRUCT[i].name]) {
 						
 						if (STRUCT[i].env.toUpperCase() !== 'DASHBOARD' && STRUCT[i].port && !isNaN(STRUCT[i].port)) {
+							servicesObj[STRUCT[i].name].oport = servicesObj[STRUCT[i].name].port;
 							servicesObj[STRUCT[i].name].port = STRUCT[i].port;
 						}
 						
@@ -409,7 +410,7 @@ let build = {
 			}
 			build.registerNewService(registry.coreDB.provision, newServiceObj, 'services', function (error) {
 				if (error) {
-					let err = new Error('Unable to register new daemon service ' + param.serviceName + ' : ' + error.message);
+					let err = new Error('Unable to register new service ' + param.serviceName + ' : ' + error.message);
 					return callback(err);
 				}
 				buildAll();
