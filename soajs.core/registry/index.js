@@ -229,7 +229,18 @@ let build = {
 					for (let ver in STRUCT[i].versions) {
 						if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
 							let unsanitizedVer = soajsLib.version.unsanitize(ver);
-							servicesObj[STRUCT[i].name].versions[unsanitizedVer] = STRUCT[i].versions[ver];
+							servicesObj[STRUCT[i].name].versions[unsanitizedVer] = {
+								"extKeyRequired": STRUCT[i].versions[ver].extKeyRequired || false,
+								"urac": STRUCT[i].versions[ver].urac || false,
+								"urac_Profile": STRUCT[i].versions[ver].urac_Profile || false,
+								"urac_ACL": STRUCT[i].versions[ver].urac_ACL || false,
+								"urac_Config": STRUCT[i].versions[ver].urac_Config || false,
+								"urac_GroupConfig": STRUCT[i].versions[ver].urac_GroupConfig || false,
+								"tenant_Profile": STRUCT[i].versions[ver].tenant_Profile || false,
+								"provision_ACL": STRUCT[i].versions[ver].provision_ACL || false,
+								"oauth": STRUCT[i].versions[ver].oauth || false,
+								"interConnect": STRUCT[i].versions[ver].interConnect || null
+							};
 						}
 					}
 				}
