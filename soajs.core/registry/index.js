@@ -160,7 +160,7 @@ let build = {
 	"allServices": function (STRUCT, servicesObj, gatewayServiceName) {
 		if (STRUCT && Array.isArray(STRUCT) && STRUCT.length > 0) {
 			for (let i = 0; i < STRUCT.length; i++) {
-				if (STRUCT[i].name === gatewayServiceName) {
+				if (STRUCT[i].name === gatewayServiceName || STRUCT[i].name === "controller") {
 					continue;
 				}
 				servicesObj[STRUCT[i].name] = {
@@ -193,8 +193,6 @@ let build = {
 								"oauth": STRUCT[i].versions[ver].oauth || false,
 								"interConnect": STRUCT[i].versions[ver].interConnect || null
 							};
-							
-							//servicesObj[STRUCT[i].name].versions[unsanitizedVer] = STRUCT[i].versions[ver];
 							
 							if (!servicesObj[STRUCT[i].name].version) {
 								servicesObj[STRUCT[i].name].version = unsanitizedVer;
