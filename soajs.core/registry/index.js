@@ -287,6 +287,9 @@ let build = {
 	},
 	
 	"registerNewService": function (dbConfiguration, serviceObj, collection, cb) {
+		if (process.env.SOAJS_DEPLOY_HA) {
+			return cb(null);
+		}
 		let port = parseInt(serviceObj.port);
 		if (isNaN(port)) {
 			let error1 = new Error('Service port must be integer: [' + serviceObj.port + ']');
