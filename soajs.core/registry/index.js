@@ -157,10 +157,10 @@ let build = {
 		return sessionDB;
 	},
 	
-	"allServices": function (STRUCT, servicesObj) {
+	"allServices": function (STRUCT, servicesObj, gatewayServiceName) {
 		if (STRUCT && Array.isArray(STRUCT) && STRUCT.length > 0) {
 			for (let i = 0; i < STRUCT.length; i++) {
-				if (STRUCT[i].name === 'controller') {
+				if (STRUCT[i].name === gatewayServiceName) {
 					continue;
 				}
 				servicesObj[STRUCT[i].name] = {
@@ -199,10 +199,10 @@ let build = {
 		}
 	},
 	
-	"allDaemons": function (STRUCT, servicesObj) {
+	"allDaemons": function (STRUCT, servicesObj, gatewayServiceName) {
 		if (STRUCT && Array.isArray(STRUCT) && STRUCT.length > 0) {
 			for (let i = 0; i < STRUCT.length; i++) {
-				if (STRUCT[i].name === 'controller') {
+				if (STRUCT[i].name === gatewayServiceName) {
 					continue;
 				}
 				servicesObj[STRUCT[i].name] = {
@@ -387,12 +387,12 @@ let build = {
 		}
 		
 		function buildAll() {
-			build.allServices(registryDBInfo.services_schema, registry.services);
+			build.allServices(registryDBInfo.services_schema, registry.services, registry.services.controller.name);
 			
 			if (!process.env.SOAJS_DEPLOY_HA) {
 				build.servicesHosts(registryDBInfo.ENV_hosts, registry.services);
 			}
-			build.allDaemons(registryDBInfo.daemons_schema, registry.daemons);
+			build.allDaemons(registryDBInfo.daemons_schema, registry.daemons, registry.services.controller.name);
 			
 			if (!process.env.SOAJS_DEPLOY_HA) {
 				build.servicesHosts(registryDBInfo.ENV_hosts, registry.daemons);
@@ -490,7 +490,8 @@ let build = {
 						"tenant_Profile": param.tenant_Profile,
 						"provision_ACL": param.provision_ACL,
 						"oauth": param.oauth,
-						"apis": param.apiList
+						"apis": param.apiList,
+						"interConnect": param.interConnect
 					};
 					
 					if (param.maintenance) {
@@ -668,6 +669,7 @@ let registryModule = {
 				registry_struct[regEnvironment][what][param.name].versions[param.version].urac_GroupConfig = param.urac_GroupConfig;
 				registry_struct[regEnvironment][what][param.name].versions[param.version].tenant_Profile = param.tenant_Profile;
 				registry_struct[regEnvironment][what][param.name].versions[param.version].provision_ACL = param.provision_ACL;
+				registry_struct[regEnvironment][what][param.name].versions[param.version].interConnect = param.interConnect;
 			} else {
 				registry_struct[regEnvironment][what][param.name].versions[param.version] = {
 					"extKeyRequired": param.extKeyRequired,
@@ -678,7 +680,8 @@ let registryModule = {
 					"urac_Config": param.urac_Config,
 					"urac_GroupConfig": param.urac_GroupConfig,
 					"tenant_Profile": param.tenant_Profile,
-					"provision_ACL": param.provision_ACL
+					"provision_ACL": param.provision_ACL,
+					"interConnect": param.interConnect
 				};
 			}
 			
@@ -737,7 +740,8 @@ let registryModule = {
 						"urac_GroupConfig": param.urac_GroupConfig,
 						"tenant_Profile": param.tenant_Profile,
 						"provision_ACL": param.provision_ACL,
-						"oauth": param.oauth
+						"oauth": param.oauth,
+						"interConnect": param.interConnect
 					};
 					if (param.maintenance) {
 						newServiceObj.maintenance = param.maintenance;
@@ -931,6 +935,7 @@ let registryModule = {
 						requestOptions.body.requestTimeout = serviceSRV.requestTimeout;
 						requestOptions.body.requestTimeoutRenewal = serviceSRV.requestTimeoutRenewal;
 						requestOptions.body.mw = param.mw;
+						requestOptions.body.interConnect = param.interConnect;
 					}
 					
 					if (param.serviceHATask) {
