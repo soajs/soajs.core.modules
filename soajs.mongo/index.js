@@ -768,7 +768,7 @@ MongoDriver.prototype.findOneAndDelete = function () {
 /**
  * v 3.x verified
  *
- * Params: collectionName, query, options, <extra>, cb
+ * Params: collectionName, query, options, cb
  * extra is being ignore since the new mongo driver does nto support this
  */
 MongoDriver.prototype.findOne = MongoDriver.prototype.findOneFields = function () {

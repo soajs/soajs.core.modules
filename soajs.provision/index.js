@@ -249,20 +249,11 @@ let provision = {
 			log.error("unable to load daemon group config for daemon [" + name + "] and group [" + grp + "]");
 			return cb(false, null);
 		}
-	}, /*
-     "getTenantKeys": function (tId, cb) {
-     core.provision.getTenantKeys(tId, function (err, data) {
-     if (err) {
-     log.error(err);
-     return cb(core.error.generate(202));
-     }
-     return cb(null, data);
-     });
-     },*/
+	},
 	"generateInternalKey": function (cb) {
 		core.key.generateInternalKey(function (err, intKey) {
 			if (err) {
-				log.error(err);
+				log.error(err.message);
 				return cb(core.error.generate(204));
 			}
 			return cb(null, intKey);
@@ -271,17 +262,17 @@ let provision = {
 	"generateExtKey": function (key, keyConfig, cb) {
 		if (!key) {
 			let err = core.error.generate(203);
-			log.error(err);
+			log.error(err.message);
 			return cb(err);
 		}
 		core.provision.getKey(key, function (err, data) {
 			if (err || !data) {
-				log.error(err);
+				log.error(err.message);
 				return cb(core.error.generate(203));
 			}
 			core.key.generateExternalKey(key, data.tenant, data.application, keyConfig, function (err, extKey) {
 				if (err) {
-					log.error(err);
+					log.error(err.message);
 					return cb(core.error.generate(203));
 				}
 				return cb(null, extKey);
