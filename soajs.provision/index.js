@@ -267,7 +267,9 @@ let provision = {
 		}
 		core.provision.getKey(key, function (err, data) {
 			if (err || !data) {
-				log.error(err.message);
+				if (err) {
+					log.error(err.message);
+				}
 				return cb(core.error.generate(203));
 			}
 			core.key.generateExternalKey(key, data.tenant, data.application, keyConfig, function (err, extKey) {
