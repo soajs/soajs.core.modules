@@ -938,8 +938,8 @@ let registryModule = {
 					requestOptions.qs = {};
 					requestOptions.body = {
 						"name": param.name,
-						"group": serviceSRV.group,
-						"port": param.port || serviceSRV.port,
+						"group": param.group,
+						"port": param.port,
 						"ip": param.serviceIp,
 						"version": param.serviceVersion
 					};
@@ -956,9 +956,9 @@ let registryModule = {
 						requestOptions.body.urac_GroupConfig = param.urac_GroupConfig;
 						requestOptions.body.tenant_Profile = param.tenant_Profile;
 						requestOptions.body.provision_ACL = param.provision_ACL;
-						requestOptions.body.extKeyRequired = serviceSRV.extKeyRequired;
-						requestOptions.body.requestTimeout = serviceSRV.requestTimeout;
-						requestOptions.body.requestTimeoutRenewal = serviceSRV.requestTimeoutRenewal;
+						requestOptions.body.extKeyRequired = param.extKeyRequired;
+						requestOptions.body.requestTimeout = param.requestTimeout;
+						requestOptions.body.requestTimeoutRenewal = param.requestTimeoutRenewal;
 						requestOptions.body.mw = param.mw;
 						requestOptions.body.interConnect = param.interConnect;
 					}
