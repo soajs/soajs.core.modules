@@ -485,7 +485,6 @@ let build = {
 					'port': param.designatedPort,
 					'requestTimeout': param.requestTimeout,
 					'requestTimeoutRenewal': param.requestTimeoutRenewal,
-					
 					'version': param.serviceVersion,
 					'extKeyRequired': param.extKeyRequired || false
 				};
@@ -558,6 +557,28 @@ function loadRegistry(param, cb) {
 		model.fetchRegistry(param, function (err, registry) {
 			if (!err) {
 				registry.profileOnly = false;
+				
+				if (param.type && param.type === "daemon") {
+					if (!registry.daemons[param.serviceName]) {
+						registry.daemons[param.serviceName] = {
+							'group': param.serviceGroup,
+							'port': param.designatedPort,
+							'version': param.serviceVersion,
+						};
+					}
+				} else {
+					if (!registry.services[param.serviceName]) {
+						registry.services[param.serviceName] = {
+							'group': param.serviceGroup,
+							'port': param.designatedPort,
+							'requestTimeout': param.requestTimeout,
+							'requestTimeoutRenewal': param.requestTimeoutRenewal,
+							'version': param.serviceVersion,
+							'extKeyRequired': param.extKeyRequired || false
+						};
+					}
+				}
+				
 				registry_struct[registry.environment] = registry;
 			}
 			return cb(err);
@@ -961,6 +982,8 @@ let registryModule = {
 						requestOptions.body.requestTimeoutRenewal = param.requestTimeoutRenewal;
 						requestOptions.body.mw = param.mw;
 						requestOptions.body.interConnect = param.interConnect;
+						requestOptions.body.apiList = param.apiList;
+						requestOptions.body.maintenance = param.maintenance;
 					}
 					
 					if (param.serviceHATask) {
