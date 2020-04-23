@@ -1203,6 +1203,7 @@ function connect(obj, cb) {
 				obj.pending = false;
 				return cb(new Error("You must specify a db name."));
 			}
+			/*
 			client.on('timeout', function () {
 				displayLog("Connection To Mongo has timed out!", obj.config.name);
 				obj.flushDb();
@@ -1212,7 +1213,7 @@ function connect(obj, cb) {
 				displayLog("Connection To Mongo has been closed!", obj.config.name);
 				obj.flushDb();
 			});
-			
+			*/
 			if (obj.client) {
 				obj.client.close();
 			}
