@@ -801,7 +801,7 @@ let registryModule = {
 						registryModule.registerHost({
 							"serviceName": param.name,
 							"serviceVersion": param.version,
-							"servicePort": param.port,
+							"servicePort": param.portHost || param.port,
 							"serviceIp": param.ip
 						}, registry_struct[regEnvironment], () => {
 						});
@@ -961,6 +961,7 @@ let registryModule = {
 						"name": param.name,
 						"group": param.group,
 						"port": param.port,
+						"portHost": param.portHost,
 						"ip": param.serviceIp,
 						"version": param.serviceVersion
 					};
