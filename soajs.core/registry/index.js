@@ -796,7 +796,9 @@ let registryModule = {
 						param.version = "" + (param.version || 1);
 						newServiceObj.versions[param.version].apis = param.apiList;
 					}
-					
+					if (param.portHost) {
+						registry_struct[regEnvironment][what][param.name].port = param.portHost;
+					}
 					try {
 						registryModule.registerHost({
 							"serviceName": param.name,
