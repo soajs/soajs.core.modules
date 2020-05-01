@@ -15,7 +15,9 @@
     "node": "*"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "devDependencies": {
     "express-session": "1.14.2",
@@ -52,6 +54,8 @@
     "nodemailer-smtp-transport": "2.7.4",
     "object-hash": "2.0.3",
     "request": "2.88.2",
-    "soajs.core.libs": "1.2.0"
-  }
+    "soajs.core.libs": "1.2.0",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
