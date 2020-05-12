@@ -18,10 +18,11 @@ let mongo;
 let environmentCollectionName = 'environment';
 let hostCollectionName = 'hosts';
 let controllersCollectionName = 'controllers';
-let servicesCollectionName = 'services';
-let daemonsCollectionName = 'daemons';
+//let servicesCollectionName = 'services';
+//let daemonsCollectionName = 'daemons';
 let resourcesCollectionName = 'resources';
 let customCollectionName = 'custom_registry';
+let marketplaceCollectionName = 'marketplace';
 
 function initMongo(dbConfiguration) {
 	if (!mongo) {
@@ -33,10 +34,12 @@ function initMongo(dbConfiguration) {
 		});
 		mongo.createIndex(hostCollectionName, {name: 1, env: 1}, {}, () => {
 		});
+		/*
 		mongo.createIndex(servicesCollectionName, {name: 1}, {}, () => {
 		});
 		mongo.createIndex(servicesCollectionName, {port: 1, name: 1}, {unique: true}, () => {
 		});
+		*/
 	}
 }
 
@@ -113,14 +116,16 @@ module.exports = {
 					if (customRecords) {
 						buildCustomRegistry(obj.ENV_schema.custom, customRecords, envCode);
 					}
-					mongo.find(servicesCollectionName, {}, null, function (error, servicesRecords) {
+					//FIX
+					mongo.find(marketplaceCollectionName, {'type': 'service'}, null, function (error, servicesRecords) {
 						if (error) {
 							return callback(error);
 						}
 						if (servicesRecords && Array.isArray(servicesRecords) && servicesRecords.length > 0) {
 							obj.services_schema = servicesRecords;
 						}
-						mongo.find(daemonsCollectionName, {}, null, function (error, daemonsRecords) {
+						//FIX
+						mongo.find(marketplaceCollectionName, {'type': 'mdaemon'}, null, function (error, daemonsRecords) {
 							if (error) {
 								return callback(error);
 							}
@@ -149,43 +154,60 @@ module.exports = {
 	"registerNewService": function (dbConfiguration, serviceObj, collection, cb) {
 		initMongo(dbConfiguration);
 		mongo.findOne(collection, {
-			'port': serviceObj.port,
-			'name': {'$ne': serviceObj.name}
+			'type': serviceObj.type,
+			'configuration.port': serviceObj.configuration.port
 		}, function (error, record) {
 			if (error) {
 				return cb(error, null);
 			}
-			if (!record) {
-				let s = {
-					'$set': {}
-				};
-				for (let p in serviceObj) {
-					if (Object.hasOwnProperty.call(serviceObj, p)) {
-						if (p !== "versions") {
-							s.$set[p] = serviceObj[p];
+			if (record) {
+				if (record.name === serviceObj.name) {
+					// check for version and update
+					let options = {};
+					let s = {'$set': {}};
+					for (let p in serviceObj.configuration) {
+						if (serviceObj.configuration.hasOwnProperty(p)) {
+							s.$set["configuration." + p] = serviceObj.configuration[p];
 						}
 					}
-				}
-				if (serviceObj.versions) {
-					for (let pv in serviceObj.versions) {
-						if (Object.hasOwnProperty.call(serviceObj.versions, pv)) {
-							//TODO semVerX
-							let s_pv = soajsLib.version.sanitize(pv);
-							for (let pvp in serviceObj.versions[pv]) {
-								if (Object.hasOwnProperty.call(serviceObj.versions[pv], pvp)) {
-									s.$set['versions.' + s_pv + '.' + pvp] = serviceObj.versions[pv][pvp];
+					if (!record.versions || !Array.isArray(record.versions) || record.versions.length === 0) {
+						s.$set.versions = serviceObj.versions;
+					} else {
+						let found = false;
+						let ver_svc = serviceObj.versions[0];
+						for (let i = 0; i < record.versions.length; i++) {
+							let ver_rec = record.versions[i];
+							if (ver_rec.version === ver_svc.version) {
+								for (let p in ver_svc) {
+									if (ver_svc.hasOwnProperty(p)) {
+										s.$set['versions.$[elem].' + p] = ver_svc[p];
+									}
 								}
+								options.arrayFilters = [{"elem.version": ver_svc.version}];
+								found = true;
+								break;
 							}
 						}
+						if (!found) {
+							s.$push = {versions: ver_svc};
+						}
 					}
+					mongo.updateOne(collection, {'_id': record._id}, s, options, function (error) {
+						return cb(error);
+					});
+				} else {
+					return cb(new Error('Item of type [' + serviceObj.type + '] with port [' + serviceObj.configuration.port + '] is taken by [' + record.name + '].'));
 				}
-				mongo.updateOne(collection, {'name': serviceObj.name}, s, {'upsert': true}, function (error) {
+			} else {
+				let s = {
+					"type": serviceObj.type,
+					"name": serviceObj.name,
+					"configuration": serviceObj.configuration,
+					"versions": serviceObj.versions
+				};
+				mongo.insertOne(collection, s, {}, false, function (error) {
 					return cb(error);
 				});
-			}
-			else {
-				let error2 = new Error('Service port [' + serviceObj.port + '] is taken by another service [' + record.name + '].');
-				return cb(error2);
 			}
 		});
 	},

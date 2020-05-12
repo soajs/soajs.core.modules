@@ -30,8 +30,7 @@
     "grunt-mocha-test": "0.13.3",
     "mocha": "6.2.2",
     "shelljs": "0.8.3",
-    "sinon": "7.5.0",
-    "soajs.mongodb.data": "2.1.*"
+    "sinon": "7.5.0"
   },
   "dependencies": {
     "async": "3.2.0",

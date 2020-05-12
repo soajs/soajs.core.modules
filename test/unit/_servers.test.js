@@ -1,7 +1,7 @@
 "use strict";
 var assert = require('assert');
 var shell = require('shelljs');
-var sampleData = require("soajs.mongodb.data/modules/soajs.core.modules");
+var sampleData = require("../data/index.js");
 
 describe("importing sample data", function () {
     it("do import", function (done) {

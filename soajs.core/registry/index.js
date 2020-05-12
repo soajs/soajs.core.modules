@@ -164,19 +164,46 @@ let build = {
 					continue;
 				}
 				servicesObj[STRUCT[i].name] = {
-					"group": STRUCT[i].group || "service",
-					"port": STRUCT[i].port,
-					"requestTimeoutRenewal": STRUCT[i].requestTimeoutRenewal || 0,
-					"requestTimeout": STRUCT[i].requestTimeout || 30,
-					"maintenance": STRUCT[i].maintenance || null
+					"group": STRUCT[i].configuration.group || "service",
+					"port": STRUCT[i].configuration.port,
+					"requestTimeoutRenewal": STRUCT[i].configuration.requestTimeoutRenewal || 0,
+					"requestTimeout": STRUCT[i].configuration.requestTimeout || 30,
+					"maintenance": STRUCT[i].configuration.maintenance || null
 				};
-				if (STRUCT[i].src && STRUCT[i].src.provider && STRUCT[i].src.provider === "endpoint") {
-					servicesObj[STRUCT[i].name].srcType = STRUCT[i].src.provider;
+				if (STRUCT[i].src && STRUCT[i].src.provider && STRUCT[i].src.provider === "apibuilder") {
+					servicesObj[STRUCT[i].name].type = STRUCT[i].type;
+					servicesObj[STRUCT[i].name].subType = STRUCT[i].configuration.subType;
 					servicesObj[STRUCT[i].name].src = STRUCT[i].src;
 				}
-				//TODO semVerX
 				if (STRUCT[i].versions) {
 					servicesObj[STRUCT[i].name].versions = {};
+					
+					for (let j = 0; j < STRUCT[i].versions.length; j++) {
+						let ver = STRUCT[i].versions[i];
+						servicesObj[STRUCT[i].name].versions[ver.version] = {
+							"extKeyRequired": ver.extKeyRequired || false,
+							"urac": ver.urac || false,
+							"urac_Profile": ver.urac_Profile || false,
+							"urac_ACL": ver.urac_ACL || false,
+							"urac_Config": ver.urac_Config || false,
+							"urac_GroupConfig": ver.urac_GroupConfig || false,
+							"tenant_Profile": ver.tenant_Profile || false,
+							"provision_ACL": ver.provision_ACL || false,
+							"oauth": ver.oauth || false,
+							"interConnect": ver.interConnect || null
+						};
+						if (!servicesObj[STRUCT[i].name].version) {
+							servicesObj[STRUCT[i].name].version = ver.version;
+							servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[ver.version].extKeyRequired || false;
+							servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[ver.version].oauth || false;
+						} else if (soajsLib.version.isLatest(ver.version, servicesObj[STRUCT[i].name].version)) {
+							servicesObj[STRUCT[i].name].version = ver.version;
+							servicesObj[STRUCT[i].name].extKeyRequired = servicesObj[STRUCT[i].name].versions[ver.version].extKeyRequired || false;
+							servicesObj[STRUCT[i].name].oauth = servicesObj[STRUCT[i].name].versions[ver.version].oauth || false;
+						}
+					}
+					
+					/*
 					for (let ver in STRUCT[i].versions) {
 						if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
 							let unsanitizedVer = soajsLib.version.unsanitize(ver);
@@ -205,6 +232,7 @@ let build = {
 							}
 						}
 					}
+					*/
 				}
 			}
 		}
@@ -217,15 +245,31 @@ let build = {
 					continue;
 				}
 				servicesObj[STRUCT[i].name] = {
-					"group": STRUCT[i].group || "daemon",
-					"port": STRUCT[i].port,
-					//"versions": STRUCT[i].versions,
-					"maintenance": STRUCT[i].maintenance || null
+					"group": STRUCT[i].configuration.group || "daemon",
+					"port": STRUCT[i].configuration.port,
+					"maintenance": STRUCT[i].configuration.maintenance || null
 				};
 				
 				//TODO semVerX
 				if (STRUCT[i].versions) {
 					servicesObj[STRUCT[i].name].versions = {};
+					
+					for (let j = 0; j < STRUCT[i].versions.length; j++) {
+						let ver = STRUCT[i].versions[i];
+						servicesObj[STRUCT[i].name].versions[ver.version] = {
+							"extKeyRequired": ver.extKeyRequired || false,
+							"urac": ver.urac || false,
+							"urac_Profile": ver.urac_Profile || false,
+							"urac_ACL": ver.urac_ACL || false,
+							"urac_Config": ver.urac_Config || false,
+							"urac_GroupConfig": ver.urac_GroupConfig || false,
+							"tenant_Profile": ver.tenant_Profile || false,
+							"provision_ACL": ver.provision_ACL || false,
+							"oauth": ver.oauth || false,
+							"interConnect": ver.interConnect || null
+						};
+					}
+					/*
 					for (let ver in STRUCT[i].versions) {
 						if (Object.hasOwnProperty.call(STRUCT[i].versions, ver)) {
 							let unsanitizedVer = soajsLib.version.unsanitize(ver);
@@ -243,6 +287,7 @@ let build = {
 							};
 						}
 					}
+					*/
 				}
 			}
 		}
@@ -312,9 +357,9 @@ let build = {
 		if (process.env.SOAJS_DEPLOY_HA) {
 			return cb(null);
 		}
-		let port = parseInt(serviceObj.port);
+		let port = parseInt(serviceObj.configuration.port);
 		if (isNaN(port)) {
-			let error1 = new Error('Service port must be integer: [' + serviceObj.port + ']');
+			let error1 = new Error('Service port must be integer: [' + serviceObj.configuration.port + ']');
 			return cb(error1);
 		}
 		return model.registerNewService(dbConfiguration, serviceObj, collection, cb);
@@ -427,13 +472,17 @@ let build = {
 		if (param.serviceName === registry.services.controller.name) {
 			
 			let newServiceObj = {
+				'type': 'service',
 				'name': registry.services.controller.name,
-				'port': registry.services.controller.port,
+				'configuration': {
+					'port': registry.services.controller.port
+				},
+				'versions': []
 			};
 			if (param.maintenance) {
-				newServiceObj.maintenance = param.maintenance;
+				newServiceObj.configuration.maintenance = param.maintenance;
 			}
-			build.registerNewService(registry.coreDB.provision, newServiceObj, 'services', function (error) {
+			build.registerNewService(registry.coreDB.provision, newServiceObj, 'marketplace', function (error) {
 				if (error) {
 					let err = new Error('Unable to register new service ' + param.serviceName + ' : ' + error.message);
 					return callback(err);
@@ -442,8 +491,7 @@ let build = {
 				return resume("services", "controller");
 			});
 		} else {
-			if (param.type && param.type === "daemon") {
-				//var schemaPorts = registryDBInfo.ENV_schema.services.config.ports;
+			if (param.type && param.type === "mdaemon") {
 				registry.daemons[param.serviceName] = {
 					'group': param.serviceGroup,
 					'port': param.designatedPort,
@@ -457,20 +505,25 @@ let build = {
 				} else {
 					//adding daemon service for the first time to services collection
 					let newDaemonServiceObj = {
+						"type": "mdaemon",
 						'name': param.serviceName,
-						'group': param.serviceGroup,
-						'port': registry.daemons[param.serviceName].port,
-						'versions': {}
+						'configuration': {
+							'group': param.serviceGroup,
+							'port': registry.daemons[param.serviceName].port
+						},
+						'versions': []
 					};
-					newDaemonServiceObj.versions[param.serviceVersion] = {
-						'jobs': param.jobList
-					};
-					
 					if (param.maintenance) {
-						newDaemonServiceObj.maintenance = param.maintenance;
+						newDaemonServiceObj.configuration.maintenance = param.maintenance;
 					}
 					
-					build.registerNewService(registry.coreDB.provision, newDaemonServiceObj, 'daemons', function (error) {
+					let verObj = {
+						"version": param.serviceVersion,
+						"jobs": param.jobList
+					};
+					newDaemonServiceObj.versions.push(verObj);
+					
+					build.registerNewService(registry.coreDB.provision, newDaemonServiceObj, 'marketplace', function (error) {
 						if (error) {
 							let err = new Error('Unable to register new daemon service ' + param.serviceName + ' : ' + error.message);
 							return callback(err);
@@ -496,15 +549,22 @@ let build = {
 				} else {
 					//adding service for the first time to services collection
 					let newServiceObj = {
+						"type": "service",
 						'name': param.serviceName,
-						'group': param.serviceGroup,
-						'port': registry.services[param.serviceName].port,
-						'swagger': param.swagger,
-						'requestTimeout': registry.services[param.serviceName].requestTimeout,
-						'requestTimeoutRenewal': registry.services[param.serviceName].requestTimeoutRenewal,
-						'versions': {}
+						'configuration': {
+							'group': param.serviceGroup,
+							'port': registry.services[param.serviceName].port,
+							'requestTimeout': registry.services[param.serviceName].requestTimeout,
+							'requestTimeoutRenewal': registry.services[param.serviceName].requestTimeoutRenewal
+						},
+						'versions': []
 					};
-					newServiceObj.versions[param.serviceVersion] = {
+					if (param.maintenance) {
+						newServiceObj.configuration.maintenance = param.maintenance;
+					}
+					
+					let verObj = {
+						"version": param.serviceVersion,
 						"extKeyRequired": registry.services[param.serviceName].extKeyRequired,
 						"urac": param.urac,
 						"urac_Profile": param.urac_Profile,
@@ -517,12 +577,9 @@ let build = {
 						"apis": param.apiList,
 						"interConnect": param.interConnect
 					};
+					newServiceObj.versions.push(verObj);
 					
-					if (param.maintenance) {
-						newServiceObj.maintenance = param.maintenance;
-					}
-					
-					build.registerNewService(registry.coreDB.provision, newServiceObj, 'services', function (error) {
+					build.registerNewService(registry.coreDB.provision, newServiceObj, 'marketplace', function (error) {
 						if (error) {
 							let err = new Error('Unable to register new service ' + param.serviceName + ' : ' + error.message);
 							return callback(err);
@@ -658,11 +715,9 @@ let registryModule = {
 		models[modelName].init();
 		model = models[modelName];
 	},
-	
 	"setModel": function (_model) {
 		model = _model;
 	},
-	
 	"profile": function (cb) {
 		loadProfile(regEnvironment, function (err, registry) {
 			return cb(registry);
@@ -750,16 +805,19 @@ let registryModule = {
 				if ("daemon" === param.type) {
 					//adding daemon service for the first time to services collection
 					let newDaemonServiceObj = {
+						'type': 'mdaemon',
 						'name': param.name,
-						'group': param.group,
-						'port': param.port
+						'configuration': {
+							'group': param.group,
+							'port': param.port
+						}
 					};
 					let newServiceObj = {};
 					if (param.maintenance) {
-						newServiceObj.maintenance = param.maintenance;
+						newServiceObj.configuration.maintenance = param.maintenance;
 					}
 					
-					build.registerNewService(registry_struct[regEnvironment].coreDB.provision, newDaemonServiceObj, 'daemons', function (error) {
+					build.registerNewService(registry_struct[regEnvironment].coreDB.provision, newDaemonServiceObj, 'marketplace', function (error) {
 						if (error) {
 							let err = new Error('Unable to register new daemon service ' + param.serviceName + ' : ' + error.message);
 							return cb(err);
@@ -769,15 +827,21 @@ let registryModule = {
 				} else {
 					//adding service for the first time to services collection
 					let newServiceObj = {
+						'type': 'service',
 						'name': param.name,
-						'group': param.group,
-						'port': param.port,
-						'swagger': param.swagger,
-						'requestTimeout': param.requestTimeout,
-						'requestTimeoutRenewal': param.requestTimeoutRenewal,
-						'versions': {}
+						'configuration': {
+							'group': param.group,
+							'port': param.port,
+							'requestTimeout': param.requestTimeout,
+							'requestTimeoutRenewal': param.requestTimeoutRenewal,
+						},
+						'versions': []
 					};
-					newServiceObj.versions[param.version] = {
+					if (param.maintenance) {
+						newServiceObj.configuration.maintenance = param.maintenance;
+					}
+					let verObj = {
+						"version": param.version,
 						"extKeyRequired": param.extKeyRequired,
 						"urac": param.urac,
 						"urac_Profile": param.urac_Profile,
@@ -789,13 +853,11 @@ let registryModule = {
 						"oauth": param.oauth,
 						"interConnect": param.interConnect
 					};
-					if (param.maintenance) {
-						newServiceObj.maintenance = param.maintenance;
-					}
 					if (param.apiList) {
-						param.version = "" + (param.version || 1);
-						newServiceObj.versions[param.version].apis = param.apiList;
+						verObj.apis = param.apiList;
 					}
+					newServiceObj.versions.push(verObj);
+					
 					if (param.portHost) {
 						registry_struct[regEnvironment][what][param.name].port = param.portHost;
 					}
@@ -812,7 +874,7 @@ let registryModule = {
 					
 					}
 					
-					build.registerNewService(registry_struct[regEnvironment].coreDB.provision, newServiceObj, 'services', function (error) {
+					build.registerNewService(registry_struct[regEnvironment].coreDB.provision, newServiceObj, 'marketplace', function (error) {
 						if (error) {
 							let err = new Error('Unable to register new service ' + param.serviceName + ' : ' + error.message);
 							return cb(err);
@@ -827,6 +889,41 @@ let registryModule = {
 			return cb(new Error("unable to register service. missing ip or name param"));
 		}
 	},
+	"loadOtherEnvControllerHosts": function (gatewayServiceName, cb) {
+		let dbConfig = null;
+		if (!cb && typeof gatewayServiceName === "function") {
+			cb = gatewayServiceName;
+			gatewayServiceName = "controller";
+		}
+		let getHosts = function () {
+			if (dbConfig) {
+				return model.loadOtherEnvHosts({
+					"gatewayName": gatewayServiceName,
+					"envCode": regEnvironment,
+					"dbConfig": dbConfig
+				}, cb);
+			} else {
+				return cb(new Error("unable to find provision config information to connect to!"));
+			}
+		};
+		if (registry_struct[regEnvironment]) {
+			dbConfig = registry_struct[regEnvironment].coreDB.provision;
+			getHosts();
+		} else {
+			loadProfile(regEnvironment, function (err, registry) {
+				dbConfig = registry.coreDB.provision;
+				getHosts();
+			});
+		}
+	},
+	"getAllRegistriesInfo": function (cb) {
+		model.getAllEnvironments(cb);
+	},
+	"addUpdateEnvControllers": function (param, cb) {
+		model.addUpdateEnvControllers(param, cb);
+	},
+	
+	
 	"getCustom": function (envCode) {
 		let env = envCode || regEnvironment;
 		return registry_struct[env].custom;
@@ -890,33 +987,6 @@ let registryModule = {
 			}
 			return cb(null, reg);
 		});
-	},
-	"loadOtherEnvControllerHosts": function (gatewayServiceName, cb) {
-		let dbConfig = null;
-		if (!cb && typeof gatewayServiceName === "function") {
-			cb = gatewayServiceName;
-			gatewayServiceName = "controller";
-		}
-		let getHosts = function () {
-			if (dbConfig) {
-				return model.loadOtherEnvHosts({
-					"gatewayName": gatewayServiceName,
-					"envCode": regEnvironment,
-					"dbConfig": dbConfig
-				}, cb);
-			} else {
-				return cb(new Error("unable to find provision config information to connect to!"));
-			}
-		};
-		if (registry_struct[regEnvironment]) {
-			dbConfig = registry_struct[regEnvironment].coreDB.provision;
-			getHosts();
-		} else {
-			loadProfile(regEnvironment, function (err, registry) {
-				dbConfig = registry.coreDB.provision;
-				getHosts();
-			});
-		}
 	},
 	"registerHost": function (param, registry, cb) {
 		if (param.serviceIp) {
@@ -1002,12 +1072,6 @@ let registryModule = {
 		} else {
 			return cb(new Error("Unable to find any controller host"), false);
 		}
-	},
-	"getAllRegistriesInfo": function (cb) {
-		model.getAllEnvironments(cb);
-	},
-	"addUpdateEnvControllers": function (param, cb) {
-		model.addUpdateEnvControllers(param, cb);
 	}
 };
 
