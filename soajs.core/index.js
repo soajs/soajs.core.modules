@@ -10,10 +10,6 @@
 
 const os = require('os');
 
-let registry = require('./registry/index');
-registry.init();
-exports.registry = registry;
-
 let soajsLogger = require('./logger/index');
 exports.getLogger = soajsLogger.getLogger;
 exports.getLog = soajsLogger.getLog;

@@ -20,7 +20,6 @@ describe("importing sample data", function () {
         setTimeout(function () {
             console.log('test data imported.');
             require("./core.index.test.js");
-            require("./core.registry.test.js");
             require("./core.email.test.js");
             require("./core.error.test.js");
             require("./core.key.test.js");
