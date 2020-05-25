@@ -192,7 +192,9 @@ let provision = {
 								return callback();
 							} else {
 								log.error("unable to load all packages from provision: cannot find package - " + code);
-								return callback(core.error.generate(209));
+								return callback();
+								// If the package is not there log an error and continue to allow partial execution in case other packages are there
+								//return callback(core.error.generate(209));
 							}
 						}
 					});
