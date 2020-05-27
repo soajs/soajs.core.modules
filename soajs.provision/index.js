@@ -310,8 +310,7 @@ let provision = {
 					return cb(error);
 				}
 				
-				let registry = core.registry.get();
-				let oauthConfiguration = registry.serviceConfig.oauth;
+				let oauthConfiguration = req.soajs.registry.serviceConfig.oauth;
 				
 				let now = new Date();
 				let aExpires = new Date(now);

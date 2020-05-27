@@ -1,7 +1,7 @@
 "use strict";
 var assert = require('assert');
 var shell = require('shelljs');
-var sampleData = require("soajs.mongodb.data/modules/soajs.core.modules");
+var sampleData = require("../data/index.js");
 
 describe("importing sample data", function () {
     it("do import", function (done) {
@@ -20,7 +20,6 @@ describe("importing sample data", function () {
         setTimeout(function () {
             console.log('test data imported.');
             require("./core.index.test.js");
-            require("./core.registry.test.js");
             require("./core.email.test.js");
             require("./core.error.test.js");
             require("./core.key.test.js");

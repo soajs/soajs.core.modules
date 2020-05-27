@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "4.0.14",
+  "version": "5.0.1",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -30,8 +30,7 @@
     "grunt-mocha-test": "0.13.3",
     "mocha": "6.2.2",
     "shelljs": "0.8.3",
-    "sinon": "7.5.0",
-    "soajs.mongodb.data": "2.1.*"
+    "sinon": "7.5.0"
   },
   "dependencies": {
     "async": "3.2.0",
