@@ -5,36 +5,36 @@ var helper = require("../helper.js");
 var coreMail = helper.requireModule('./soajs.core/mail/index.js');
 var soajsMail = helper.requireModule('./index.js').mail;
 
-var recipient = "mike.hajj@gmail.com"; //valid email address
+var recipient = "antoine@soajs.org"; //valid email address
 
-describe("testing mail functionality", function() {
-
-	describe("testing core mail", function() {
+describe("testing mail functionality", function () {
+	
+	describe("testing core mail", function () {
 		var mailer;
-
-		it("fail - invalid declaration", function(done) {
+		
+		it("fail - invalid declaration", function (done) {
 			try {
 				mailer = new coreMail({});
-			} catch(e) {
+			} catch (e) {
 				assert.ok(e);
-				assert.equal(e.message, "transport error: 'type' is required - 'options' is required");
+				assert.equal(e.message, "transport error: 'instance' requires property \"type\" - 'instance' requires property \"options\"");
 			}
 			done();
 		});
-
-		it("success - should initialize mail default", function(done) {
+		
+		it("success - should initialize mail default", function (done) {
 			mailer = new coreMail();
 			assert.ok(mailer);
 			done();
 		});
-
-		it("success - should initialize mail direct", function(done) {
+		
+		it("success - should initialize mail direct", function (done) {
 			mailer = new coreMail({'type': 'direct', 'options': {}});
 			assert.ok(mailer);
 			done();
 		});
-
-		it("success - should initialize mail smtp", function(done) {
+		
+		it("success - should initialize mail smtp", function (done) {
 			mailer = new coreMail({
 				'type': 'smtp',
 				'options': {
@@ -51,38 +51,38 @@ describe("testing mail functionality", function() {
 			assert.ok(mailer);
 			done();
 		});
-
-		it("success - should initialize mail sendmail", function(done) {
+		
+		it("success - should initialize mail sendmail", function (done) {
 			mailer = new coreMail({'type': 'sendmail', 'options': {}});
 			assert.ok(mailer);
 			done();
 		});
-
-		it("fail - should not send mail, missing arguments", function(done) {
+		
+		it("fail - should not send mail, missing arguments", function (done) {
 			var mailOptions = {
 				'from': 'me@myself.com',
 				'to': 'me@myself.com'
 			};
-			mailer.send(mailOptions, function(error, info) {
+			mailer.send(mailOptions, function (error, info) {
 				assert.ok(error);
 				assert.ok(!info);
-				assert.equal(error.message, "mailOptions error: 'subject' is required - 'text' is required");
+				assert.equal(error.message, "mailOptions error: 'instance' requires property \"subject\" - 'instance' requires property \"text\"");
 				done();
 			});
 		});
-
-		it("fail - should not send mail", function(done) {
-
-			mailer.send({'mailOptions': {}}, function(error, info) {
+		
+		it("fail - should not send mail", function (done) {
+			
+			mailer.send({'mailOptions': {}}, function (error, info) {
 				assert.ok(error);
 				assert.ok(!info);
-				assert.equal(error.message, "mailOptions error: 'from' is required - 'to' is required - 'subject' is required - 'text' is required");
+				assert.equal(error.message, "mailOptions error: 'instance' requires property \"from\" - 'instance' requires property \"to\" - 'instance' requires property \"subject\" - 'instance' requires property \"text\"");
 				done();
 			});
 		});
-
-		it("success - should send mail", function(done) {
-
+		
+		it("success - should send mail", function (done) {
+			
 			var mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
@@ -90,43 +90,42 @@ describe("testing mail functionality", function() {
 				'html': "<p>Dear <b>{{ username }}</b>,<br /><br />Regards,<br/>SOAJS Team.</p>",
 				'text': "Dear {{ username }},\n\rRegards,\nSOAJS Team."
 			};
-			mailer.send(mailOptions, function(error, info) {
+			mailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
 				done();
 			});
 		});
 	});
-
-	describe("testing soajs.mail library", function() {
+	
+	describe("testing soajs.mail library", function () {
 		var soajsMailer;
-		it("initialise soajsMail", function(done) {
+		it("initialise soajsMail", function (done) {
 			soajsMailer = new soajsMail({
 				'type': 'sendmail',
-				'options': {
-				}
+				'options': {}
 			});
 			assert.ok(soajsMailer);
 			done();
 		});
-
-		it("fail - should not send mail missing fields", function(done) {
-
+		
+		it("fail - should not send mail missing fields", function (done) {
+			
 			var mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient
 			};
-
-			soajsMailer.send(mailOptions, function(error, info) {
+			
+			soajsMailer.send(mailOptions, function (error, info) {
 				assert.ok(error);
 				assert.ok(!info);
 				assert.equal(error.message, "soajs.mail error: 'subject' is required");
 				done();
 			});
 		});
-
-		it("success - should send mail with html no template", function(done) {
-
+		
+		it("success - should send mail with html no template", function (done) {
+			
 			var mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
@@ -134,16 +133,16 @@ describe("testing mail functionality", function() {
 				'html': '<p>foo!!</p>',
 				'text': 'foo!!'
 			};
-
-			soajsMailer.send(mailOptions, function(error, info) {
+			
+			soajsMailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
 				done();
 			});
 		});
-
-		it("success - should send mail with template as string", function(done) {
-
+		
+		it("success - should send mail with template as string", function (done) {
+			
 			var mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
@@ -154,14 +153,14 @@ describe("testing mail functionality", function() {
 				}
 			};
 			soajsMailer.renderTemplate(mailOptions);
-			soajsMailer.send(mailOptions, function(error, info) {
+			soajsMailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
 				done();
 			});
 		});
-
-		it("success - should send mail with template from file", function(done) {
+		
+		it("success - should send mail with template from file", function (done) {
 			fs.writeFileSync(__dirname + "/mytmpl.txt", "<p>Dear <b>{{ username }}</b>,<br /><br />Regards,<br/>SOAJS Team.</p>");
 			var mailOptions = {
 				'from': 'me@localhost.com',
@@ -173,16 +172,16 @@ describe("testing mail functionality", function() {
 				}
 			};
 			soajsMailer.renderTemplate(mailOptions);
-			soajsMailer.send(mailOptions, function(error, info) {
+			soajsMailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
 				done();
 			});
 		});
-
-		it("success - should send mail with more options", function(done) {
+		
+		it("success - should send mail with more options", function (done) {
 			fs.writeFileSync(__dirname + '/att2.txt', "Hello world.");
-
+			
 			var mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
@@ -203,9 +202,9 @@ describe("testing mail functionality", function() {
 					}
 				]
 			};
-
+			
 			soajsMailer.renderTemplate(mailOptions);
-			soajsMailer.send(mailOptions, function(error, info) {
+			soajsMailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
 				fs.unlinkSync(__dirname + "/att2.txt");
@@ -213,6 +212,6 @@ describe("testing mail functionality", function() {
 				done();
 			});
 		});
-
+		
 	});
 });

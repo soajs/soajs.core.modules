@@ -23,22 +23,22 @@ module.exports = {
 	schema: {
 		transport: {
 			"type": "object",
-			"required": false,
 			"properties": {
-				"type": {"type": "string", required: true},
-				"options": {"type": "object", required: true}
-			}
+				"type": {"type": "string"},
+				"options": {"type": "object"}
+			},
+			required: ["type", "options"]
 		},
 		mailOptions: {
 			"type": "object",
-			"required": false,
 			"properties": {
-				from: {'type': 'string', required: true},
-				to: {'type': 'string', required: true},
-				subject: {'type': 'string', required: true},
-				html: {'type': 'string', required: false},
-				text: {'type': 'string', required: true}
-			}
+				from: {'type': 'string'},
+				to: {'type': 'string'},
+				subject: {'type': 'string'},
+				html: {'type': 'string'},
+				text: {'type': 'string'}
+			},
+			required: ["from", "to", "subject", "text"]
 		}
 	}
 };
