@@ -186,7 +186,9 @@ let provision = {
 							log.error("unable to load all packages from provision: ", err);
 							return callback(err);
 						} else {
-							struct_packages = packs;
+							if (packs) {
+								struct_packages = packs;
+							}
 							if (struct_packages[code]) {
 								packagesData.push(struct_packages[code]);
 								return callback();
@@ -214,9 +216,10 @@ let provision = {
 			if (err) {
 				log.error("unable to load all packages from provision: ", err);
 				return cb(false);
-			}
-			else {
-				struct_packages = packs;
+			} else {
+				if (packs) {
+					struct_packages = packs;
+				}
 				core.provision.getKeysOauths(function (err, keysOauths) {
 					if (err) {
 						log.error("unable to load all keys from provision: ", err);
