@@ -23,7 +23,19 @@ let oauthUracCollectionName = "oauth_urac";
 let regEnvironment = (process.env.SOAJS_ENV || "dev");
 regEnvironment = regEnvironment.toLowerCase();
 
-const sensitiveEnvCodes = ["dashboard", "portal"];
+let sensitiveEnvCodes = ["dashboard"];
+if (process.env.SOAJS_SENSITIVE_ENVS) {
+	let temp_sensitiveEnvCodes = null;
+	try {
+		temp_sensitiveEnvCodes = JSON.parse(process.env.SOAJS_SENSITIVE_ENVS);
+	} catch (e) {
+		temp_sensitiveEnvCodes = null;
+	}
+	if (Array.isArray(temp_sensitiveEnvCodes) && temp_sensitiveEnvCodes > 0) {
+		sensitiveEnvCodes = temp_sensitiveEnvCodes;
+	}
+}
+
 const localLib = require('./lib.js');
 
 module.exports = {

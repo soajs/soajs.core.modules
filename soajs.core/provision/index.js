@@ -11,6 +11,19 @@
 const crypto = require('crypto');
 let models = {};
 
+let sensitiveEnvCodes = ["dashboard"];
+if (process.env.SOAJS_SENSITIVE_ENVS) {
+	let temp_sensitiveEnvCodes = null;
+	try {
+		temp_sensitiveEnvCodes = JSON.parse(process.env.SOAJS_SENSITIVE_ENVS);
+	} catch (e) {
+		temp_sensitiveEnvCodes = null;
+	}
+	if (Array.isArray(temp_sensitiveEnvCodes) && temp_sensitiveEnvCodes > 0) {
+		sensitiveEnvCodes = temp_sensitiveEnvCodes;
+	}
+}
+
 let provision = {
 	"model": null,
 	"init": function (dbConfig) {
@@ -204,7 +217,8 @@ let provision = {
 			});
 		});
 		
-		if (process.env.SOAJS_ENV.toLowerCase() !== 'dashboard') {
+		//if (process.env.SOAJS_ENV.toLowerCase() !== "dashboard") {
+		if (!sensitiveEnvCodes.includes(process.env.SOAJS_ENV.toLowerCase())) {
 			let environments = Object.keys(ACL);
 			let tmpEnv = [];
 			envRecords.forEach(function (oneEnv) {
