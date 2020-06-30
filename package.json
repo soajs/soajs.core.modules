@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -44,7 +44,7 @@
     "handlebars": "4.7.6",
     "jsonschema": "1.2.6",
     "merge": "1.2.1",
-    "mongodb": "3.5.5",
+    "mongodb": "3.5.9",
     "nodemailer": "6.4.6",
     "nodemailer-direct-transport": "3.3.2",
     "nodemailer-sendmail-transport": "1.0.2",
