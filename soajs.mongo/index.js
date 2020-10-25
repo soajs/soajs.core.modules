@@ -1119,6 +1119,20 @@ MongoDriver.prototype.getMongoDB = function (cb) {
 };
 
 /**
+ * Expose Mongo connect
+ */
+MongoDriver.prototype.connect = function (cb) {
+	let self = this;
+	connect(self, (error) => {
+		if (error) {
+			return cb(error);
+		} else {
+			return cb(null, self.db);
+		}
+	});
+};
+
+/**
  * Ensure a connection to mongo without any race condition problem
  *
  */
