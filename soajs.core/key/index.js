@@ -15,10 +15,56 @@ const crypto = require('crypto');
 let algorithm = 'aes256';
 let password = 'soajs key default';
 
-let verify = function (extKey, cb) {
-	let decipher = crypto.createDecipher(algorithm, password);
+function sizes(cipher) {
+	for (let nkey = 1, niv = 0; ;) {
+		try {
+			crypto.createCipheriv(cipher, '.'.repeat(nkey), '.'.repeat(niv));
+			return [nkey, niv];
+		} catch (e) {
+			if (/invalid iv length/i.test(e.message)) {
+				niv += 1;
+			} else if (/invalid key length/i.test(e.message)) {
+				nkey += 1;
+			} else {
+				throw e;
+			}
+		}
+	}
+}
+
+function compute(cipher, passphrase) {
+	let [nkey, niv] = sizes(cipher);
+	for (let key = '', iv = '', p = ''; ;) {
+		const h = crypto.createHash('md5');
+		h.update(p, 'hex');
+		h.update(passphrase);
+		p = h.digest('hex');
+		let n, i = 0;
+		n = Math.min(p.length - i, 2 * nkey);
+		nkey -= n / 2;
+		key += p.slice(i, i + n);
+		i += n;
+		n = Math.min(p.length - i, 2 * niv);
+		niv -= n / 2;
+		iv += p.slice(i, i + n);
+		i += n;
+		if (nkey + niv === 0) {
+			key = Buffer.from(key, 'hex');
+			iv = Buffer.from(iv, 'hex');
+			return {key, iv};
+		}
+	}
+}
+
+let verify = function (extKey, config, cb) {
 	try {
-		let decrypted = decipher.update(extKey, 'hex', 'utf8') + decipher.final('utf8');
+		let key_iv = compute(config.algorithm, config.password);
+		let decipher = crypto.createDecipheriv(config.algorithm, key_iv.key, key_iv.iv);
+		let decrypted = decipher.update(extKey, 'hex', 'utf8');
+		if (!decrypted) {
+			return cb(error.generate(100));
+		}
+		decrypted += decipher.final('utf8');
 		//85 = (24)tenant._id.length + (24)uId + (32)key.length + (2 at least)[9]*_ + (3)the minimum number of character required for package code
 		if (decrypted.length < 85) {
 			return cb(error.generate(100));
@@ -45,21 +91,23 @@ let verify = function (extKey, cb) {
 		obj.packageCode = packageTxt.substr(n + 1);
 		cb(null, obj);
 	} catch (err) {
-		cb(err);
+		return cb(err);
 	}
 };
 
 let key = {
 	"getInfo": function (extKey, config, cb) {
-		if (config && typeof config === "object") {
-			algorithm = config.algorithm || algorithm;
-			password = config.password || password;
+		if (!config) {
+			config = {};
 		}
-		verify(extKey, function (err, keyObj) {
+		config.algorithm = config.algorithm || algorithm;
+		config.password = config.password || password;
+		
+		verify(extKey, config, function (err, keyObj) {
 			if (err) {
 				return cb(err);
 			}
-			cb(null, keyObj);
+			return cb(null, keyObj);
 		});
 	},
 	"generateInternalKey": function (cb) {
@@ -67,26 +115,36 @@ let key = {
 			if (err) {
 				return cb(err);
 			}
-			cb(null, uId);
+			return cb(null, uId);
 		});
 	},
 	"generateExternalKey": function (key, tenant, application, config, cb) {
-		if (config && typeof config === "object") {
-			algorithm = config.algorithm || algorithm;
-			password = config.password || password;
+		if (!config) {
+			config = {};
 		}
+		config.algorithm = config.algorithm || algorithm;
+		config.password = config.password || password;
+		
 		generateUniqueId(12, function (err, uId) {
 			if (err) {
 				return cb(err);
 			}
 			let text = tenant.id + uId + key + application.package.length + "_" + application.package;
-			let cipher = crypto.createCipher(algorithm, password);
-			let extKey = cipher.update(text, 'utf8', 'hex') + cipher.final('hex');
-			
-			if (extKey.length === 192) {
-				return cb(null, extKey);
+			try {
+				let key_iv = compute(config.algorithm, config.password);
+				let cipher = crypto.createCipheriv(config.algorithm, key_iv.key, key_iv.iv);
+				let extKey = cipher.update(text, 'utf8', 'hex');
+				if (!extKey) {
+					return cb(error.generate(103));
+				}
+				extKey += cipher.final('hex');
+				if (extKey && extKey.length === 192) {
+					return cb(null, extKey);
+				}
+				cb(error.generate(103), null);
+			} catch (err) {
+				return cb(err);
 			}
-			cb(error.generate(103), null);
 		});
 	}
 };
@@ -95,9 +153,9 @@ function generateUniqueId(len, cb) {
 	let id = "";
 	try {
 		id = crypto.randomBytes(len).toString('hex');
-		cb(null, id);
+		return cb(null, id);
 	} catch (err) {
-		cb(err);
+		return cb(err);
 	}
 }
 
