@@ -45,7 +45,7 @@
     "jsonschema": "1.2.6",
     "merge": "1.2.1",
     "mongodb": "3.5.9",
-    "nodemailer": "6.4.10",
+    "nodemailer": "6.4.16",
     "nodemailer-direct-transport": "3.3.2",
     "nodemailer-sendmail-transport": "1.0.2",
     "nodemailer-smtp-transport": "2.7.4",
