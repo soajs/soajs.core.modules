@@ -43,7 +43,7 @@
     "elasticsearch-deletebyquery": "1.6.0",
     "handlebars": "4.7.6",
     "jsonschema": "1.2.6",
-    "merge": "1.2.1",
+    "merge": "2.1.0",
     "mongodb": "3.5.9",
     "nodemailer": "6.4.10",
     "nodemailer-direct-transport": "3.3.2",
