@@ -9,7 +9,7 @@
 
 module.exports = {
     "core": require("./soajs.core"),
-    "es": require("./soajs.es"),
+    //"es": require("./soajs.es"),
     "mail": require("./soajs.mail"),
     "mongo": require("./soajs.mongo"),
     "mongoStore": require("./soajs.mongoStore"),

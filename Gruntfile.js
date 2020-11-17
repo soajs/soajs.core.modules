@@ -113,7 +113,7 @@ module.exports = function (grunt) {
 				}
 			},
 			files: {
-				src: ['index.js', 'config.js', 'Gruntfile.js', 'soajs.core/**/*.js', 'soajs.es/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js']
+				src: ['index.js', 'config.js', 'Gruntfile.js', 'soajs.core/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js']
 			},
 			gruntfile: {
 				src: 'Gruntfile.js'
@@ -159,7 +159,7 @@ module.exports = function (grunt) {
 		},
 		
 		instrument: {
-			files: ['index.js', 'soajs.contentBuilder/**/*.js', 'soajs.core/**/*.js', 'soajs.es/**/*.js', 'soajs.mail/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js'],
+			files: ['index.js', 'soajs.contentBuilder/**/*.js', 'soajs.core/**/*.js', 'soajs.mail/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js'],
 			//files: ['**/*.js'],
 			options: {
 				lazy: false,

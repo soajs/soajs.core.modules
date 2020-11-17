@@ -11,7 +11,6 @@
 
 const core = require("../soajs.core");
 const mongodb = require('mongodb');
-//const merge = require('merge');
 const objectHash = require("object-hash");
 
 let cacheDB = {};
@@ -1178,13 +1177,6 @@ function connect(obj, cb) {
 		if (obj.config.registryLocation && obj.config.registryLocation.timeLoaded === timeLoaded) {
 			return cb();
 		}
-		//let currentConfObj = merge(true, obj.config);
-		//delete currentConfObj.registryLocation;
-		//delete currentConfObj.extraParam;
-		//delete currentConfObj.cluster;
-		//if (obj.config.registryLocation && obj.config.registryLocation.cluster) {
-		//	delete currentConfObj.name;
-		//}
 		let currentConfObj = {
 			"servers": obj.config.servers,
 			"credentials": obj.config.credentials || null,
