@@ -41,6 +41,7 @@
     "bunyan-format": "0.2.1",
     "handlebars": "4.7.6",
     "jsonschema": "1.4.0",
+    "lodash": "4.17.20",
     "mongodb": "3.6.3",
     "nodemailer": "6.4.16",
     "nodemailer-direct-transport": "3.3.2",
