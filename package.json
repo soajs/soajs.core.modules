@@ -39,7 +39,7 @@
     "bcryptjs": "2.4.3",
     "bunyan": "1.8.14",
     "bunyan-format": "0.2.1",
-    "handlebars": "4.7.6",
+    "handlebars": "4.7.7",
     "jsonschema": "1.4.0",
     "lodash": "4.17.20",
     "mongodb": "3.6.3",
