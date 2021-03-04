@@ -138,10 +138,10 @@ let key = {
 					return cb(error.generate(103));
 				}
 				extKey += cipher.final('hex');
-				if (extKey && extKey.length === 192) {
+				//if (extKey && extKey.length === 192) {
 					return cb(null, extKey);
-				}
-				cb(error.generate(103), null);
+				//}
+				//cb(error.generate(103), null);
 			} catch (err) {
 				return cb(err);
 			}
