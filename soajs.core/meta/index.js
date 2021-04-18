@@ -20,7 +20,9 @@ module.exports = {
 				"streaming": metaDB[systemName].streaming,
 				"URLParam": metaDB[systemName].URLParam
 			};
-			
+			if (metaDB[systemName].protocol) {
+				dbConfig.protocol = metaDB[systemName].protocol;
+			}
 			if (metaDB[systemName].extraParam) {
 				dbConfig.extraParam = metaDB[systemName].extraParam;
 			}
