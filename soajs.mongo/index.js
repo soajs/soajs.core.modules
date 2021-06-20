@@ -474,7 +474,7 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 					"nModified": response.result.nModified,
 					"upsertedId": response.upsertedId,
 					"upsertedCount": response.upsertedCount
-				}
+				};
 				return cb(null, res);
 			});
 		}
