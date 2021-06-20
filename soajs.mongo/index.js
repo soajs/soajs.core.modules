@@ -468,7 +468,14 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 				if (error) {
 					return cb(error);
 				}
-				return cb(null, response.result);
+				let res = {
+					"ok": response.result.ok,
+					"n": response.result.n,
+					"nModified": response.result.nModified,
+					"upsertedId": response.upsertedId,
+					"upsertedCount": response.upsertedCount
+				}
+				return cb(null, res);
 			});
 		}
 	});
@@ -1309,7 +1316,7 @@ function constructMongoLink(params) {
 			for (let i in params) {
 				if (Object.hasOwnProperty.call(params, i)) {
 					if (!Object.hasOwnProperty.call(options, i)) {
-						if (typeof(params[i]) === 'object') {
+						if (typeof (params[i]) === 'object') {
 							flatternObject(options, params[i]);
 						} else {
 							options[i] = params[i];
