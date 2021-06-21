@@ -1203,7 +1203,6 @@ function connect(obj, cb) {
 			connect(obj, cb);
 		});
 	}
-	console.log(obj.config);
 	cachePending = true;
 	// obj.pending = true;
 	mongodb.connect(url, obj.config.URLParam, function (err, client) {
@@ -1214,7 +1213,7 @@ function connect(obj, cb) {
 		} else {
 			if (!obj.config.name || obj.config.name === '') {
 				cachePending = false;
-				obj.pending = false;
+				// obj.pending = false;
 				return cb(new Error("You must specify a db name."));
 			}
 			/*
