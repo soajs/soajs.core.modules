@@ -15,7 +15,7 @@ const objectHash = require("object-hash");
 
 let cacheDB = {};
 let cacheCluster = {};
-
+let cachePending = false;
 let cacheDBLib = {
 	"init": function (registryLocation) {
 		if (registryLocation && registryLocation.env) {
@@ -1080,8 +1080,6 @@ MongoDriver.prototype.deleteMany = function (collectionName, criteria, options, 
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
-	console.log("**** deleteMany")
-	console.log(self.config)
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -1098,7 +1096,6 @@ MongoDriver.prototype.closeDb = function () {
 	let self = this;
 	if (self.client) {
 		if (!process.env.SOAJS_MONGO_CON_KEEPALIVE) {
-			console.log("**** core.modules: closeDB ", process.env.SOAJS_MONGO_CON_KEEPALIVE);
 			self.client.close();
 			self.flushDb();
 		}
@@ -1132,7 +1129,6 @@ MongoDriver.prototype.getMongoDB = function (cb) {
 MongoDriver.prototype.connect = function (cb) {
 	let self = this;
 	connect(self, (error) => {
-		console.log(self.config)
 		if (error) {
 			return cb(error);
 		} else {
@@ -1201,21 +1197,23 @@ function connect(obj, cb) {
 	if (!url) {
 		return cb(core.error.generate(190));
 	}
-	
-	if (obj.pending) {
+	if (cachePending) {
+		// if (obj.pending) {
 		return setImmediate(function () {
 			connect(obj, cb);
 		});
 	}
-	
-	console.log(obj.config)
-	obj.pending = true;
+	console.log(obj.config);
+	cachePending = true;
+	// obj.pending = true;
 	mongodb.connect(url, obj.config.URLParam, function (err, client) {
 		if (err) {
-			obj.pending = false;
+			cachePending = false;
+			// obj.pending = false;
 			return cb(err);
 		} else {
 			if (!obj.config.name || obj.config.name === '') {
+				cachePending = false;
 				obj.pending = false;
 				return cb(new Error("You must specify a db name."));
 			}
@@ -1231,8 +1229,6 @@ function connect(obj, cb) {
 			});
 			*/
 			if (obj.client) {
-				console.log("*** core.modules client.close");
-				console.log(url)
 				// obj.client.close();
 			}
 			obj.client = client;
@@ -1245,7 +1241,8 @@ function connect(obj, cb) {
 			obj.db = obj.client.db(dbName);
 			
 			cacheDBLib.setCache(obj);
-			obj.pending = false;
+			cachePending = false;
+			// obj.pending = false;
 			return cb();
 		}
 	});
