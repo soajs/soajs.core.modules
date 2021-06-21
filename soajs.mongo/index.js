@@ -1230,7 +1230,8 @@ function connect(obj, cb) {
 			*/
 			if (obj.client) {
 				console.log("*** core.modules client.close");
-				obj.client.close();
+				console.log(url)
+				// obj.client.close();
 			}
 			obj.client = client;
 			
