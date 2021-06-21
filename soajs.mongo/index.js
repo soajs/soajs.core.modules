@@ -1080,7 +1080,8 @@ MongoDriver.prototype.deleteMany = function (collectionName, criteria, options, 
 	if (!collectionName) {
 		return cb(core.error.generate(191));
 	}
-	
+	console.log("**** deleteMany")
+	console.log(self.config)
 	connect(self, function (err) {
 		if (err) {
 			return cb(err);
@@ -1131,6 +1132,7 @@ MongoDriver.prototype.getMongoDB = function (cb) {
 MongoDriver.prototype.connect = function (cb) {
 	let self = this;
 	connect(self, (error) => {
+		console.log(self.config)
 		if (error) {
 			return cb(error);
 		} else {
