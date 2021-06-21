@@ -1097,6 +1097,7 @@ MongoDriver.prototype.closeDb = function () {
 	let self = this;
 	if (self.client) {
 		if (!process.env.SOAJS_MONGO_CON_KEEPALIVE) {
+			console.log("**** core.modules: closeDB ", process.env.SOAJS_MONGO_CON_KEEPALIVE);
 			self.client.close();
 			self.flushDb();
 		}
