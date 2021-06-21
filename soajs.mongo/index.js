@@ -1149,7 +1149,7 @@ function connect(obj, cb) {
 	if (!obj.config) {
 		return cb(core.error.generate(195));
 	}
-	
+	console.log(obj.config)
 	if (obj.config.registryLocation && obj.config.registryLocation.env && ((obj.config.registryLocation.l1 && obj.config.registryLocation.l2) || obj.config.registryLocation.cluster)) {
 		let cache = cacheDBLib.getCache(obj.config.registryLocation);
 		if (cache && (cache.db || cache.client)) {
