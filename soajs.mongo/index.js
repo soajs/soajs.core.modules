@@ -1228,7 +1228,7 @@ function connect(obj, cb) {
 			});
 			*/
 			if (obj.client) {
-				// obj.client.close();
+				obj.client.close();
 			}
 			obj.client = client;
 			
