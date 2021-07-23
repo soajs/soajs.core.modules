@@ -296,6 +296,7 @@ module.exports = {
 										keyStruct[tenants[i].applications[j].keys[k].key] = {
 											"key": tenants[i].applications[j].keys[k].key,
 											"tenant": {
+												"name": tenants[i].name,
 												"id": tenants[i]._id.toString(),
 												"code": tenants[i].code,
 												"locked": !!tenants[i].locked,
