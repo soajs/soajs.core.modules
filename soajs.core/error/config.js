@@ -22,7 +22,7 @@ module.exports = {
 		'133': "The service you are trying to reach is not reachable at this moment.", //504
 		'134': "All requests to the service you are trying to reach are timing out.", //504
 		'135': "Error occurred while redirecting your request to the service", //503
-		// '136': "Controller catched an error while redirecting to service.",
+		'136': "Hello I am here! what do you want me to do!",
 		'137': "Access Forbidden to requested environment", //401
 		'138': "Access Forbidden to requested environment", //401
 		'139': "Invalid or no Remote service requested.", //501
@@ -88,6 +88,7 @@ module.exports = {
 		'133': '504',
 		'134': '504',
 		'135': '503',
+		'136': '200',
 		'137': '401',
 		'138': '401',
 		'139': '501',
