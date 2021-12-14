@@ -1,17 +1,17 @@
 "use strict";
-var assert = require('assert');
-var helper = require("../helper.js");
-var core = helper.requireModule('./soajs.core');
-var soajsProvision = helper.requireModule('./soajs.provision');
-var ObjectId = require("mongodb").ObjectID;
+let assert = require('assert');
+let helper = require("../helper.js");
+let core = helper.requireModule('./soajs.core');
+let soajsProvision = helper.requireModule('./soajs.provision');
+let ObjectId = require("mongodb").ObjectID;
 
-var keyConfig = {
+let keyConfig = {
 	"algorithm": 'aes256',
 	"password": 'soajs key lal massa'
 };
-var key = "d1eaaf5fdc35c11119330a8a0273fee9";
-var extKey = "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac";
-var metaData = {
+let key = "d1eaaf5fdc35c11119330a8a0273fee9";
+let extKey = "aa39b5490c4a4ed0e56d7ec1232a428f771e8bb83cfcee16de14f735d0f5da587d5968ec4f785e38570902fd24e0b522b46cb171872d1ea038e88328e7d973ff47d9392f72b2d49566209eb88eb60aed8534a965cf30072c39565bd8d72f68ac";
+let metaData = {
 	"name": "core_provision",
 	"prefix": '',
 	"servers": [
@@ -25,12 +25,12 @@ var metaData = {
 		"useUnifiedTopology": true
 	}
 };
-var soajsMongo = helper.requireModule('./index.js').mongo;
-var mongo = new soajsMongo(metaData);
+let soajsMongo = helper.requireModule('./index.js').mongo;
+let mongo = new soajsMongo(metaData);
 
 describe('testing soajs provisioning', function () {
-	var internalKey, externalKey;
-	var log = core.getLogger("standalone", {src: true, level: 'debug'});
+	let internalKey, externalKey;
+	let log = core.getLogger("standalone", {src: true, level: 'debug'});
 	soajsProvision.init(metaData, log);
 	
 	describe("testing generateInternalKey", function () {
@@ -263,7 +263,7 @@ describe('testing soajs provisioning', function () {
 		});
 		
 		it("success - will return daemon conf", function (done) {
-			var document = {
+			let document = {
 				"daemonConfigGroup": "testGroup",
 				"daemon": "test",
 				"interval": 200000,
@@ -426,7 +426,7 @@ describe("oauthModel tests", function () {
 describe("testing generate tokens", function () {
 	
 	it("success - should generate tokens", function (done) {
-		var req = {
+		let req = {
 			headers: {},
 			soajs: {
 				tenant: {
@@ -448,7 +448,7 @@ describe("testing generate tokens", function () {
 			}
 		};
 		
-		var user = {
+		let user = {
 			"_id": '58cff717423cbb6425df4e3f',
 			"locked": true,
 			"username": "owner",

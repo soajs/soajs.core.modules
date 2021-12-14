@@ -1,15 +1,15 @@
 "use strict";
-var assert = require('assert');
-var session = require('express-session');
+let assert = require('assert');
+let session = require('express-session');
 
-var helper = require("../helper.js");
-var core = helper.requireModule("./soajs.core");
-var soajsmongoStore = helper.requireModule('./soajs.mongoStore');
+let helper = require("../helper.js");
+let core = helper.requireModule("./soajs.core");
+let soajsmongoStore = helper.requireModule('./soajs.mongoStore');
 
 describe("mongoStore tests", function () {
-	var MongoStore = soajsmongoStore(session);
-	//var registry = core.getRegistry();
-	var store = new MongoStore({
+	let MongoStore = soajsmongoStore(session);
+	//let registry = core.getRegistry();
+	let store = new MongoStore({
 		"name": "core_session",
 		"prefix": "",
 		"servers": [
@@ -73,7 +73,7 @@ describe("mongoStore tests", function () {
 	
 	describe("testing set", function () {
 		it("success test case", function (done) {
-			var session = {
+			let session = {
 				cookie: {}
 			};
 			store.set('abcdef1234', session, function (error, response) {
@@ -82,10 +82,10 @@ describe("mongoStore tests", function () {
 		});
 		
 		it.skip("success test case", function (done) {
-			var tomorrow = new Date();
+			let tomorrow = new Date();
 			tomorrow.setDate(new Date().getDate() + 1);
 			
-			var session = {
+			let session = {
 				persistSession: {
 					state: {
 						DONE: false
@@ -103,10 +103,10 @@ describe("mongoStore tests", function () {
 		});
 		
 		it("success test case", function (done) {
-			var tomorrow = new Date();
+			let tomorrow = new Date();
 			tomorrow.setDate(new Date().getDate() + 1);
 			
-			var session = {
+			let session = {
 				persistSession: {
 					state: {
 						DONE: false,
@@ -161,10 +161,10 @@ describe("mongoStore tests", function () {
 		});
 		
 		it("success test case", function (done) {
-			var tomorrow = new Date();
+			let tomorrow = new Date();
 			tomorrow.setDate(new Date().getDate() + 1);
 			
-			var session = {
+			let session = {
 				persistSession: {
 					state: {
 						DONE: false,
@@ -221,7 +221,7 @@ describe("mongoStore tests", function () {
 		
 		it("success test case", function (done) {
 			
-			var session = {
+			let session = {
 				persistSession: {
 					state: {
 						DONE: false,
