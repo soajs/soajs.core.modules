@@ -25,6 +25,8 @@ function sizes(cipher) {
 				niv += 1;
 			} else if (/invalid key length/i.test(e.message)) {
 				nkey += 1;
+			} else if (/Invalid initialization vector/i.test(e.message)) {
+				niv += 1;
 			} else {
 				throw e;
 			}
