@@ -1260,7 +1260,7 @@ function connect(obj, cb) {
 			*/
 			if (obj.client) {
 				obj.client.close().catch((e) => {
-					displayLog(e.message)
+					displayLog(e.message);
 				});
 			}
 			obj.client = client;
