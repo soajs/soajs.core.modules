@@ -1,21 +1,21 @@
 "use strict";
 
-var assert = require('assert');
-var helper = require("../helper.js");
-var coreSecurity = helper.requireModule('./soajs.core').security;
-var authSecurity = coreSecurity.authorization;
-var hashSecurity = coreSecurity.hasher;
+let assert = require('assert');
+let helper = require("../helper.js");
+let coreSecurity = helper.requireModule('./soajs.core').security;
+let authSecurity = coreSecurity.authorization;
+let hashSecurity = coreSecurity.hasher;
 
 function replaceAt(string, index, character) {
 	return string.substr(0, index) + character + string.substr(index + character.length);
 }
 
 describe("core security tests", function() {
-	var inputSize32 = "abcdefghijklmnopqrstuvwxyz123456";
-	var output, x;
+	let inputSize32 = "abcdefghijklmnopqrstuvwxyz123456";
+	let output, x;
 
 	before(function(done) {
-		var Driver = function() { this.cookie = null; };
+		let Driver = function() { this.cookie = null; };
 		Driver.prototype.set = function(name, value) {
 			this.cookie = name + "___" + value;
 		};
@@ -55,8 +55,8 @@ describe("core security tests", function() {
 
 	describe("umask tests", function() {
 		it('should unmask', function(done) {
-			var o = replaceAt(output, 0, 'a');
-			var t = authSecurity.umask(o);
+			let o = replaceAt(output, 0, 'a');
+			let t = authSecurity.umask(o);
 			assert.ok(t);
 			assert.equal(t.length, 32);
 			assert.equal(t, output.slice(3));
@@ -64,7 +64,7 @@ describe("core security tests", function() {
 		});
 
 		it('should unmask data C01', function(done) {
-			var t = authSecurity.umask("C01abclefgpijkdmnohqrstuvwxyz123456");
+			let t = authSecurity.umask("C01abclefgpijkdmnohqrstuvwxyz123456");
 			assert.ok(t);
 			assert.equal(t.length, 32);
 			assert.equal(t, inputSize32);
@@ -72,7 +72,7 @@ describe("core security tests", function() {
 		});
 
 		it('should unmask data C02', function(done) {
-			var t = authSecurity.umask("C02abcdmfghipklenojqrstuvwxyz123456");
+			let t = authSecurity.umask("C02abcdmfghipklenojqrstuvwxyz123456");
 			assert.ok(t);
 			assert.equal(t.length, 32);
 			assert.equal(t, inputSize32);
@@ -80,7 +80,7 @@ describe("core security tests", function() {
 		});
 
 		it('should unmask data C03', function(done) {
-			var t = authSecurity.umask("C03abcdenghijkpmfolqrstuvwxyz123456");
+			let t = authSecurity.umask("C03abcdenghijkpmfolqrstuvwxyz123456");
 			assert.ok(t);
 			assert.equal(t.length, 32);
 			assert.equal(t, inputSize32);
@@ -99,7 +99,7 @@ describe("core security tests", function() {
 
 	describe("get tests", function() {
 		it('should get', function(done) {
-			var s = authSecurity.get(x.cookie);
+			let s = authSecurity.get(x.cookie);
 			assert.ok(s);
 			assert.equal(s.length, 35);
 			s = authSecurity.umask(s);
@@ -110,7 +110,7 @@ describe("core security tests", function() {
 		});
 
 		it('should return null', function(done) {
-			var s = authSecurity.get("wrong value");
+			let s = authSecurity.get("wrong value");
 			assert.equal(s, null);
 			done();
 		});
@@ -119,13 +119,13 @@ describe("core security tests", function() {
 	describe("setCookies tests", function() {
 
 		it('null - no authorization', function(done) {
-			var s = authSecurity.setCookie("wrong value", 'some secret', 'myCookie');
+			let s = authSecurity.setCookie("wrong value", 'some secret', 'myCookie');
 			assert.equal(s, null);
 			done();
 		});
 
 		it('null - no securityId', function(done) {
-			var s = authSecurity.setCookie("soajsauth___Basic c29hanM6czAzYWJjZGVuZ2hpamtwbWZvbHFyc3R1dnd4eXoxMjM0NTY=", 'some secret', 'myCookie');
+			let s = authSecurity.setCookie("soajsauth___Basic c29hanM6czAzYWJjZGVuZ2hpamtwbWZvbHFyc3R1dnd4eXoxMjM0NTY=", 'some secret', 'myCookie');
 			assert.ok(s);
 			assert.ok(s.indexOf('myCookie=') !== -1);
 			done();
@@ -133,7 +133,7 @@ describe("core security tests", function() {
 
 		it('fail - secret required', function(done) {
 			try {
-				var s = authSecurity.setCookie("soajsauth___Basic c29hanM6czAzYWJjZGVuZ2hpamtwbWZvbHFyc3R1dnd4eXoxMjM0NTY=", null, 'myCookie');
+				let s = authSecurity.setCookie("soajsauth___Basic c29hanM6czAzYWJjZGVuZ2hpamtwbWZvbHFyc3R1dnd4eXoxMjM0NTY=", null, 'myCookie');
 			}
 			catch(e) {
 				assert.ok(e);
@@ -146,9 +146,9 @@ describe("core security tests", function() {
 	describe("generate authorization tests", function(){
 
 		it("will generate authorization", function(done){
-			var id = "10d2cb5fc04ce51e06000001";
-			var secret = "i am a secret";
-			var authorization = authSecurity.generate(id, secret);
+			let id = "10d2cb5fc04ce51e06000001";
+			let secret = "i am a secret";
+			let authorization = authSecurity.generate(id, secret);
 			assert.ok(authorization);
 			assert.ok(authorization !== "");
 			assert.ok(authorization.indexOf("Basic ") !== -1);
@@ -159,8 +159,8 @@ describe("core security tests", function() {
 	});
 
 	describe("hasher tests", function() {
-		var plain = "i am a plain sentence";
-		var cypher1, cypher2;
+		let plain = "i am a plain sentence";
+		let cypher1, cypher2;
 
 		before(function(done){
 			hashSecurity.init({

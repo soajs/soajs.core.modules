@@ -1,6 +1,6 @@
 'use strict';
 
-var test = {
+let test = {
 	"_id": new ObjectId("10d2cb5fc04ce51e06000001"),
 	"oauth": {
 		"secret": "shhh this is a secret",
@@ -18,7 +18,7 @@ var test = {
 			"description": "this is a description for app for test tenant for test product and basic package",
 			"acl": {
 				"urac": {},
-                "oauth": {},
+				"oauth": {},
 				"dashboard": {}
 			},
 			"_TTL": 7 * 24 * 3600 * 1000, // 7 days hours
@@ -118,7 +118,7 @@ var test = {
 							"example06": {
 								"SOAJS": {
 									"IMFV": {
-										"schema":{
+										"schema": {
 											"commonFields": {
 												"type": {
 													"required": false,
@@ -202,13 +202,13 @@ var test = {
 			"appId": new ObjectId("570697570548600601bfeed7"),
 			"description": "this is a description for app for test tenant for test product and example03 package",
 			"_TTL": 86400000, // 24 hours
-			"acl":{
+			"acl": {
 				"urac": {},
-				"example03":{
+				"example03": {
 					"access": true,
-					"apis":{
-						"/info2":{
-							"access":["owner"]
+					"apis": {
+						"/info2": {
+							"access": ["owner"]
 						}
 					}
 				}

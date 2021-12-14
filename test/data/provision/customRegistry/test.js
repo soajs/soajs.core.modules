@@ -1,4 +1,4 @@
-var customRegistry = [
+let customRegistry = [
 	 {
 		name: "CustomREGEntry",
 		created: "DEV",

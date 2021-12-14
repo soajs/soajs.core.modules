@@ -1,8 +1,8 @@
 "use strict";
 
-var assert = require('assert');
-var helper = require("../helper.js");
-var core = helper.requireModule('./soajs.core/index');
+let assert = require('assert');
+let helper = require("../helper.js");
+let core = helper.requireModule('./soajs.core/index');
 
 describe("testing get Host Ip", function() {
 	

@@ -1,5 +1,5 @@
 'use strict';
-var test = {
+let test = {
 	"code": "TEST",
 	"locked": true,
 	"description": "this is the DEV environment",

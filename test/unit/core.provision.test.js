@@ -1,12 +1,12 @@
 "use strict";
 
-var assert = require('assert');
-var helper = require("../helper.js");
-var coreProvision = helper.requireModule('./soajs.core/provision/index');
+let assert = require('assert');
+let helper = require("../helper.js");
+let coreProvision = helper.requireModule('./soajs.core/provision/index');
 
 describe("core provision tests", function () {
 	
-	var metaData = {
+	let metaData = {
 		"name": "core_provision",
 		"prefix": '',
 		"servers": [
@@ -17,8 +17,7 @@ describe("core provision tests", function () {
 		],
 		"credentials": null,
 		"URLParam": {
-			"poolSize": 5,
-			"autoReconnect": true
+			"useUnifiedTopology": true
 		}
 	};
 	/*
@@ -57,7 +56,7 @@ describe("core provision tests", function () {
 			coreProvision.getPackages(function (error, packages) {
 				assert.ifError(error);
 				assert.ok(packages);
-				var packageCodes = Object.keys(packages);
+				let packageCodes = Object.keys(packages);
 				assert.ok(packageCodes.length > 0);
 				done();
 			});

@@ -1,16 +1,16 @@
 "use strict";
-var fs = require('fs');
-var assert = require('assert');
-var helper = require("../helper.js");
-var coreMail = helper.requireModule('./soajs.core/mail/index.js');
-var soajsMail = helper.requireModule('./index.js').mail;
+let fs = require('fs');
+let assert = require('assert');
+let helper = require("../helper.js");
+let coreMail = helper.requireModule('./soajs.core/mail/index.js');
+let soajsMail = helper.requireModule('./index.js').mail;
 
-var recipient = "antoine@soajs.org"; //valid email address
+let recipient = "antoine@soajs.org"; //valid email address
 
 describe("testing mail functionality", function () {
 	
 	describe("testing core mail", function () {
-		var mailer;
+		let mailer;
 		
 		it("fail - invalid declaration", function (done) {
 			try {
@@ -59,7 +59,7 @@ describe("testing mail functionality", function () {
 		});
 		
 		it("fail - should not send mail, missing arguments", function (done) {
-			var mailOptions = {
+			let mailOptions = {
 				'from': 'me@myself.com',
 				'to': 'me@myself.com'
 			};
@@ -83,7 +83,7 @@ describe("testing mail functionality", function () {
 		
 		it("success - should send mail", function (done) {
 			
-			var mailOptions = {
+			let mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
 				'subject': 'Register Notification',
@@ -99,7 +99,7 @@ describe("testing mail functionality", function () {
 	});
 	
 	describe("testing soajs.mail library", function () {
-		var soajsMailer;
+		let soajsMailer;
 		it("initialise soajsMail", function (done) {
 			soajsMailer = new soajsMail({
 				'type': 'sendmail',
@@ -111,7 +111,7 @@ describe("testing mail functionality", function () {
 		
 		it("fail - should not send mail missing fields", function (done) {
 			
-			var mailOptions = {
+			let mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient
 			};
@@ -126,7 +126,7 @@ describe("testing mail functionality", function () {
 		
 		it("success - should send mail with html no template", function (done) {
 			
-			var mailOptions = {
+			let mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
 				'subject': 'Hello World',
@@ -143,7 +143,7 @@ describe("testing mail functionality", function () {
 		
 		it("success - should send mail with template as string", function (done) {
 			
-			var mailOptions = {
+			let mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
 				'subject': 'Register Notification',
@@ -162,7 +162,7 @@ describe("testing mail functionality", function () {
 		
 		it("success - should send mail with template from file", function (done) {
 			fs.writeFileSync(__dirname + "/mytmpl.txt", "<p>Dear <b>{{ username }}</b>,<br /><br />Regards,<br/>SOAJS Team.</p>");
-			var mailOptions = {
+			let mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
 				'subject': 'Register Notification',
@@ -182,7 +182,7 @@ describe("testing mail functionality", function () {
 		it("success - should send mail with more options", function (done) {
 			fs.writeFileSync(__dirname + '/att2.txt', "Hello world.");
 			
-			var mailOptions = {
+			let mailOptions = {
 				'from': 'me@localhost.com',
 				'to': recipient,
 				'service': 'urac',

@@ -1,6 +1,6 @@
 'use strict';
 
-var testProduct = {
+let testProduct = {
 	"_id": ObjectId("50d2cb5fc04ce51e06000001"),
 	"code": "TPROD",
 	"name": "Test Product",

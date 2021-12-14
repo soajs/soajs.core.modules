@@ -1,5 +1,5 @@
 'use strict';
-var dev = {
+let dev = {
 	"_id": ObjectId('55128442e603d7e01ab1688c'),
 	"code": "DEV",
 	"locked": true,

@@ -1,11 +1,11 @@
 "use strict";
 
-var assert = require('assert');
-var helper = require("../helper.js");
-var coreKey = helper.requireModule('./soajs.core/key/index');
+let assert = require('assert');
+let helper = require("../helper.js");
+let coreKey = helper.requireModule('./soajs.core/key/index');
 
 describe("core key tests", function() {
-	var internalKey, externalKey;
+	let internalKey, externalKey;
 	describe("generateInternalKey Tests", function() {
 		it("success - calling generateInternalKey", function(done) {
 			coreKey.generateInternalKey(function(error, uId) {

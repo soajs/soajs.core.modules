@@ -1,10 +1,10 @@
 "use strict";
-var assert = require('assert');
-var fs = require("fs");
-var helper = require("../helper.js");
+let assert = require('assert');
+let fs = require("fs");
+let helper = require("../helper.js");
 
-var coreValidator = helper.requireModule('./soajs.core/index');
-var validator = coreValidator.validator;
+let coreValidator = helper.requireModule('./soajs.core/index');
+let validator = coreValidator.validator;
 
 describe("testing validator", function() {
 

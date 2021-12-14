@@ -11,6 +11,7 @@
 
 const core = require("../soajs.core");
 const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient;
 const objectHash = require("object-hash");
 
 let cacheDB = {};
@@ -129,7 +130,7 @@ function MongoDriver(dbConfig) {
 	self.db = null;
 	self.client = null;
 	self.pending = false;
-	self.ObjectId = mongodb.ObjectID;
+	self.ObjectId = mongodb.ObjectId;
 	self.mongodb = mongodb;
 	if (self.config) {
 		cacheDBLib.init(self.config.registryLocation);
@@ -178,7 +179,7 @@ MongoDriver.prototype.insertOne = function (collectionName, doc, options, versio
 		versioning = false;
 	}
 	
-	if (!collectionName) {
+	if (!collectionName || !doc) {
 		return cb(core.error.generate(191));
 	}
 	
@@ -193,14 +194,22 @@ MongoDriver.prototype.insertOne = function (collectionName, doc, options, versio
 				if (error) {
 					return cb(error);
 				}
-				return cb(null, response.ops);
+				if (response.acknowledged) {
+					response = {"_id": response.insertedId};
+					response = Object.assign(response, doc);
+				}
+				return cb(null, response);
 			});
 		} else {
 			self.db.collection(collectionName).insertOne(doc, options, function (error, response) {
 				if (error) {
 					return cb(error);
 				}
-				return cb(null, response.ops);
+				if (response.acknowledged) {
+					response = {"_id": response.insertedId};
+					response = Object.assign(response, doc);
+				}
+				return cb(null, response);
 			});
 		}
 	});
@@ -221,7 +230,7 @@ MongoDriver.prototype.insertMany = function (collectionName, docs, options, vers
 		versioning = false;
 	}
 	
-	if (!collectionName) {
+	if (!collectionName || !docs) {
 		return cb(core.error.generate(191));
 	}
 	
@@ -238,14 +247,14 @@ MongoDriver.prototype.insertMany = function (collectionName, docs, options, vers
 				if (error) {
 					return cb(error);
 				}
-				return cb(null, response.ops);
+				return cb(null, response);
 			});
 		} else {
 			self.db.collection(collectionName).insertMany(docs, options, function (error, response) {
 				if (error) {
 					return cb(error);
 				}
-				return cb(null, response.ops);
+				return cb(null, response);
 			});
 		}
 	});
@@ -283,13 +292,12 @@ MongoDriver.prototype.save = function (collectionName, docs, versioning, options
 				if (error) {
 					return cb(error);
 				}
-				
-				docs.v = versionedDocument[0].v + 1;
+				docs.v = versionedDocument.v + 1;
 				docs.ts = new Date().getTime();
-				self.db.collection(collectionName).save(docs, cb);
+				self.db.collection(collectionName).updateOne({"_id": docs._id}, {$set: docs}, options, cb);
 			});
 		} else {
-			self.db.collection(collectionName).save(docs, cb);
+			self.db.collection(collectionName).updateOne({"_id": docs._id}, {$set: docs}, options, cb);
 		}
 	});
 };
@@ -324,17 +332,11 @@ MongoDriver.prototype.update = function () {
 	displayLog("***** update is deprecated use updateOne, updateMany or bulkWrite");
 	
 	function handleResponse(response, cb) {
-		let result = null;
-		if (response && response.result) {
-			result = response.result;
-		} else if (response) {
-			result = response;
-		}
-		if (result && result.nModified) {
-			return cb(null, result.nModified);
+		if (response && response.modifiedCount) {
+			return cb(null, response.modifiedCount);
 		} else {
-			if (result && result.ok && result.upserted && Array.isArray(result.upserted)) {
-				return cb(null, result.upserted.length);
+			if (response && response.upsertedCount) {
+				return cb(null, response.upsertedCount);
 			}
 			return cb(null, 0);
 		}
@@ -342,7 +344,7 @@ MongoDriver.prototype.update = function () {
 	
 	if (options && options.multi) {
 		if (versioning) {
-			displayLog("update with versioning does not work for multi document. do not set multi to true");
+			displayLog("Not supported: update with versioning does not work for multi document. do not set multi to true");
 		}
 		self.updateMany(collectionName, criteria, record, options, (error, response) => {
 			if (error) {
@@ -469,9 +471,9 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 					return cb(error);
 				}
 				let res = {
-					"ok": response.result.ok,
-					"n": response.result.n,
-					"nModified": response.result.nModified,
+					"ok": response.acknowledged,
+					"n": response.matchedCount,
+					"nModified": response.modifiedCount,
 					"upsertedId": response.upsertedId,
 					"upsertedCount": response.upsertedCount
 				};
@@ -504,7 +506,7 @@ MongoDriver.prototype.updateMany = function (collectionName, filter, updateOptio
 			if (error) {
 				return cb(error);
 			}
-			return cb(null, response.result);
+			return cb(null, response);
 		});
 	});
 };
@@ -531,8 +533,7 @@ MongoDriver.addVersionToRecords = function (collection, oneRecord, cb) {
 		originalRecord.ts = new Date().getTime();
 		originalRecord.refId = originalRecord._id;
 		delete originalRecord._id;
-		
-		self.insert(collection + '_versioning', originalRecord, cb);
+		self.insertOne(collection + '_versioning', originalRecord, {}, false, cb);
 	});
 };
 
@@ -614,7 +615,10 @@ MongoDriver.prototype.getCollection = function (collectionName, options, cb) {
 				return cb(err);
 			}
 		} else {
-			self.db.collection(collectionName, options, cb);
+			const col = self.db.collection(collectionName, options);
+			if (cb && typeof cb === "function") {
+				return cb(null, col);
+			}
 		}
 	});
 };
@@ -684,46 +688,46 @@ MongoDriver.prototype.findStream = MongoDriver.prototype.findFieldsStream = func
  *
  * Params: collectionName, query, sort, doc, options, cb
  */
-MongoDriver.prototype.findAndModify = function () {
-	let args = Array.prototype.slice.call(arguments);
-	let collectionName = args.shift();
-	let cb = args[args.length - 1];
-	let self = this;
-	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
-	displayLog("***** findAndModify is deprecated use findOneAndUpdate, findOneAndReplace or findOneAndDelete instead");
-	connect(self, function (err) {
-		if (err) {
-			return cb(err);
-		}
-		self.db.collection(collectionName).findAndModify.apply(self.db.collection(collectionName), args);
-	});
-};
+// MongoDriver.prototype.findAndModify = function () {
+// 	let args = Array.prototype.slice.call(arguments);
+// 	let collectionName = args.shift();
+// 	let cb = args[args.length - 1];
+// 	let self = this;
+//
+// 	if (!collectionName) {
+// 		return cb(core.error.generate(191));
+// 	}
+// 	displayLog("***** findAndModify is deprecated use findOneAndUpdate, findOneAndReplace or findOneAndDelete instead");
+// 	connect(self, function (err) {
+// 		if (err) {
+// 			return cb(err);
+// 		}
+// 		self.db.collection(collectionName).findAndModify.apply(self.db.collection(collectionName), args);
+// 	});
+// };
 
 /**
  * v 3.x verified
  *
  * Params: collectionName, query, sort, options, cb
  */
-MongoDriver.prototype.findAndRemove = function () {
-	let args = Array.prototype.slice.call(arguments);
-	let collectionName = args.shift();
-	let cb = args[args.length - 1];
-	let self = this;
-	
-	if (!collectionName) {
-		return cb(core.error.generate(191));
-	}
-	displayLog("***** findAndRemove is deprecated use findOneAndDelete instead");
-	connect(self, function (err) {
-		if (err) {
-			return cb(err);
-		}
-		self.db.collection(collectionName).findAndRemove.apply(self.db.collection(collectionName), args);
-	});
-};
+// MongoDriver.prototype.findAndRemove = function () {
+// 	let args = Array.prototype.slice.call(arguments);
+// 	let collectionName = args.shift();
+// 	let cb = args[args.length - 1];
+// 	let self = this;
+//
+// 	if (!collectionName) {
+// 		return cb(core.error.generate(191));
+// 	}
+// 	displayLog("***** findAndRemove is deprecated use findOneAndDelete instead");
+// 	connect(self, function (err) {
+// 		if (err) {
+// 			return cb(err);
+// 		}
+// 		self.db.collection(collectionName).findAndRemove.apply(self.db.collection(collectionName), args);
+// 	});
+// };
 
 /**
  * v 3.x verified
@@ -918,7 +922,7 @@ MongoDriver.prototype.distinctStream = function (collectionName, fieldName, crit
 		if (err) {
 			return cb(err);
 		}
-		let args = [
+		let pipeline = [
 			{
 				$group: {
 					"_id": "$" + fieldName
@@ -927,7 +931,7 @@ MongoDriver.prototype.distinctStream = function (collectionName, fieldName, crit
 		];
 		
 		if (criteria) {
-			args.unshift(criteria);
+			pipeline.unshift({$match: criteria});
 		}
 		
 		if (options) {
@@ -935,10 +939,11 @@ MongoDriver.prototype.distinctStream = function (collectionName, fieldName, crit
 				if (Object.hasOwnProperty.call(options, i)) {
 					let oneOption = {};
 					oneOption[i] = options[i];
-					args.push(oneOption);
+					pipeline.push(oneOption);
 				}
 			}
 		}
+		const cursor = self.db.collection(collectionName).aggregate(pipeline, {});
 		
 		let batchSize = 0;
 		if (self.config && self.config.streaming) {
@@ -948,17 +953,16 @@ MongoDriver.prototype.distinctStream = function (collectionName, fieldName, crit
 				batchSize = self.config.streaming.batchSize;
 			}
 		}
-		args.push((error, cursor) => {
-			if (error) {
-				return cb(error);
-			}
-			if (batchSize) {
-				return cb(null, cursor.batchSize(batchSize).stream());
-			} else {
-				return cb(null, cursor.stream());
-			}
-		});
-		self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args);
+		// const callback = ((error, cursor) => {
+		// 	if (error) {
+		// 		return cb(error);
+		// 	}
+		if (batchSize) {
+			return cb(null, cursor.batchSize(batchSize).stream());
+		} else {
+			return cb(null, cursor.stream());
+		}
+		// });
 	});
 };
 
@@ -967,10 +971,10 @@ MongoDriver.prototype.distinctStream = function (collectionName, fieldName, crit
  *
  * Params: collectionName, pipeline, options, cb
  */
-MongoDriver.prototype.aggregate = function () {
-	let args = Array.prototype.slice.call(arguments);
-	let collectionName = args.shift();
-	let cb = args[args.length - 1];
+MongoDriver.prototype.aggregate = function (collectionName, pipeline, options, cb) {
+	// let args = Array.prototype.slice.call(arguments);
+	// let collectionName = args.shift();
+	// let cb = args[args.length - 1];
 	let self = this;
 	
 	if (!collectionName) {
@@ -981,7 +985,8 @@ MongoDriver.prototype.aggregate = function () {
 		if (err) {
 			return cb(err);
 		}
-		self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args);
+		// self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args);
+		return cb(null, self.db.collection(collectionName).aggregate(pipeline, options));
 	});
 };
 /**
@@ -990,12 +995,12 @@ MongoDriver.prototype.aggregate = function () {
  * Params: collectionName, pipeline, options, cb
  * exactly like aggregate but it returns the cursor as stream
  */
-MongoDriver.prototype.aggregateStream = function () {
-	let args = Array.prototype.slice.call(arguments);
-	let collectionName = args.shift();
-	let cb = args[args.length - 1];
+MongoDriver.prototype.aggregateStream = function (collectionName, pipeline, options, cb) {
+	// let args = Array.prototype.slice.call(arguments);
+	// let collectionName = args.shift();
+	// let cb = args[args.length - 1];
 	let self = this;
-	args.pop();
+	// args.pop();
 	
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -1013,17 +1018,19 @@ MongoDriver.prototype.aggregateStream = function () {
 				batchSize = self.config.streaming.batchSize;
 			}
 		}
-		args.push((error, cursor) => {
-			if (error) {
-				return cb(error);
-			}
-			if (batchSize) {
-				return cb(null, cursor.batchSize(batchSize).stream());
-			} else {
-				return cb(null, cursor.stream());
-			}
-		});
-		self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args);
+		
+		const cursor = self.db.collection(collectionName).aggregate(pipeline, options);
+		// args.push((error, cursor) => {
+		// 	if (error) {
+		// 		return cb(error);
+		// 	}
+		if (batchSize) {
+			return cb(null, cursor.batchSize(batchSize).stream());
+		} else {
+			return cb(null, cursor.stream());
+		}
+		// });
+		// self.db.collection(collectionName).aggregate.apply(self.db.collection(collectionName), args);
 	});
 };
 
@@ -1069,7 +1076,19 @@ MongoDriver.prototype.deleteOne = function (collectionName, criteria, options, c
 		if (err) {
 			return cb(err);
 		}
-		self.db.collection(collectionName).deleteOne(criteria, options, cb);
+		self.db.collection(collectionName).deleteOne(criteria, options, function (error, response) {
+			if (error) {
+				return cb(error);
+			}
+			if (response) {
+				response.result = {
+					"ok": response.acknowledged,
+					"n": response.matchedCount,
+					"deletedCount": response.deletedCount
+				};
+			}
+			return cb(null, response);
+		});
 	});
 };
 MongoDriver.prototype.deleteMany = function (collectionName, criteria, options, cb) {
@@ -1084,7 +1103,19 @@ MongoDriver.prototype.deleteMany = function (collectionName, criteria, options, 
 		if (err) {
 			return cb(err);
 		}
-		self.db.collection(collectionName).deleteMany(criteria, options, cb);
+		self.db.collection(collectionName).deleteMany(criteria, options, function (error, response) {
+			if (error) {
+				return cb(error);
+			}
+			if (response) {
+				response.result = {
+					"ok": response.acknowledged,
+					"n": response.deletedCount,
+					"deletedCount": response.deletedCount
+				};
+			}
+			return cb(null, response);
+		});
 	});
 };
 
@@ -1205,7 +1236,7 @@ function connect(obj, cb) {
 	}
 	cachePending = true;
 	// obj.pending = true;
-	mongodb.connect(url, obj.config.URLParam, function (err, client) {
+	MongoClient.connect(url, obj.config.URLParam, function (err, client) {
 		if (err) {
 			cachePending = false;
 			// obj.pending = false;
@@ -1228,7 +1259,9 @@ function connect(obj, cb) {
 			});
 			*/
 			if (obj.client) {
-				obj.client.close();
+				obj.client.close().catch((e) => {
+					displayLog(e.message)
+				});
 			}
 			obj.client = client;
 			

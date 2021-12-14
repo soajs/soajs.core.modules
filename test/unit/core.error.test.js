@@ -1,13 +1,13 @@
 "use strict";
 
-var assert = require('assert');
-var helper = require("../helper.js");
-var coreError = helper.requireModule('./soajs.core/error/index');
+let assert = require('assert');
+let helper = require("../helper.js");
+let coreError = helper.requireModule('./soajs.core/error/index');
 
 describe("core error tests", function() {
 
 	it("success - generate error ", function(done) {
-		var error = coreError.generate(100);
+		let error = coreError.generate(100);
 		assert.ok(error);
 		assert.ok(error.code);
 		assert.equal(error.code, 100);
@@ -17,7 +17,7 @@ describe("core error tests", function() {
 	});
 
 	it("success - generate error 2", function(done) {
-		var error = coreError.generate(900);
+		let error = coreError.generate(900);
 		assert.ok(error);
 		assert.ok(error.code);
 		assert.equal(error.code, 900);
@@ -26,7 +26,7 @@ describe("core error tests", function() {
 	});
 
 	it("success - get error ", function(done) {
-		var errObj = coreError.getError(100);
+		let errObj = coreError.getError(100);
 		assert.ok(errObj);
 		assert.ok(errObj.code);
 		assert.equal(errObj.code,100);

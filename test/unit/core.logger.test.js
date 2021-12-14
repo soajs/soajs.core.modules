@@ -1,19 +1,19 @@
 "use strict";
-var assert = require('assert');
-var fs = require("fs");
-var helper = require("../helper.js");
-var core = helper.requireModule('./soajs.core/index');
-//var registry = core.getRegistry();
-var coreLogger = core.getLogger('testing', {
+let assert = require('assert');
+let fs = require("fs");
+let helper = require("../helper.js");
+let core = helper.requireModule('./soajs.core/index');
+//let registry = core.getRegistry();
+let coreLogger = core.getLogger('testing', {
     "src": true,
     "level": "debug",
 	"formatter": {
 		outputMode: 'long'
 	}
 });
-var methods = ['trace', 'warn', 'fatal', 'error','debug', 'info'];
+let methods = ['trace', 'warn', 'fatal', 'error','debug', 'info'];
 
-var dataObj = {
+let dataObj = {
 	"code" : "TPROD",
 	"name" : "Test Product",
 	"description" : "this is a description for test product",

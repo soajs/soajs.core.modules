@@ -1,7 +1,7 @@
 "use strict";
-var assert = require('assert');
-var helper = require("../helper.js");
-var coreProvisionLib = helper.requireModule('./soajs.core/provision/lib');
+let assert = require('assert');
+let helper = require("../helper.js");
+let coreProvisionLib = helper.requireModule('./soajs.core/provision/lib');
 
 describe("core provision lib tests", function () {
 	

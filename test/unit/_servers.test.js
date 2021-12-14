@@ -1,7 +1,7 @@
 "use strict";
-var assert = require('assert');
-var shell = require('shelljs');
-var sampleData = require("../data/index.js");
+let assert = require('assert');
+let shell = require('shelljs');
+let sampleData = require("../data/index.js");
 
 describe("importing sample data", function () {
     it("do import", function (done) {

@@ -1,12 +1,12 @@
 "use strict";
 
-var assert = require('assert');
-var helper = require("../helper.js");
-var coreMeta = helper.requireModule('./soajs.core/meta/index');
+let assert = require('assert');
+let helper = require("../helper.js");
+let coreMeta = helper.requireModule('./soajs.core/meta/index');
 
 describe("core meta tests", function() {
 
-	var metaData = {
+	let metaData = {
 		"testService": {
 			"name": "#TENANT_NAME#_urac",
 			"prefix": 'testdb_',
@@ -19,17 +19,16 @@ describe("core meta tests", function() {
 			"credentials": "",
 			"streaming": {},
 			"URLParam": {
-				"poolSize": 5,
-				"autoReconnect": true
+				"useUnifiedTopology": true
 			}
 		}
 	};
 
-	var systemName = "testService";
-	var tenantCode = "TEST";
+	let systemName = "testService";
+	let tenantCode = "TEST";
 
 	it("success - should return meta object", function(done) {
-		var metaDataResult = coreMeta.tenantDB(metaData, systemName, tenantCode);
+		let metaDataResult = coreMeta.tenantDB(metaData, systemName, tenantCode);
 		assert.ok(metaDataResult);
 		
 		assert.deepEqual(metaDataResult, {
@@ -38,9 +37,8 @@ describe("core meta tests", function() {
 			servers: [{host: '127.0.0.1', port: 27017}],
 			credentials: '',
 			streaming: {},
-			URLParam: {
-				"poolSize": 5,
-				"autoReconnect": true
+			"URLParam": {
+				"useUnifiedTopology": true
 			}
 		});
 		done();

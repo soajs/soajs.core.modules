@@ -1,10 +1,10 @@
 "use strict";
-var assert = require('assert');
-var helper = require("../helper.js");
-var soajsES = helper.requireModule('./index.js').es;
+let assert = require('assert');
+let helper = require("../helper.js");
+let soajsES = helper.requireModule('./index.js').es;
 
 describe("testing connection", function () {
-    var es;
+    let es;
 
     it("invalid credentials all requests should fail", function (done) {
         es = new soajsES();
@@ -23,7 +23,7 @@ describe("testing connection", function () {
                     assert.ok(!response);
                     assert.ok(error.message);
 
-                    var data = [
+                    let data = [
                         {
                             "firstname": "john",
                             "lastname": "doe"
@@ -49,8 +49,8 @@ describe("testing connection", function () {
 });
 
 describe("TESTING soajs.es", function () {
-    var es = null;
-    var dbConfig = {
+    let es = null;
+    let dbConfig = {
         "name": 'es',
         "prefix": "",
         "servers": [
@@ -131,7 +131,7 @@ describe("TESTING soajs.es", function () {
         });
 
         it('success - will create index with mapping', function (done) {
-            var mapping = {
+            let mapping = {
                 "users": {
                     "properties": {
                         "firstName": {
@@ -151,7 +151,7 @@ describe("TESTING soajs.es", function () {
         });
 
         it('success - will create index with mapping and settings', function (done) {
-            var mapping = {
+            let mapping = {
                 "users": {
                     "properties": {
                         "firstName": {
@@ -164,7 +164,7 @@ describe("TESTING soajs.es", function () {
                 }
             };
 
-            var settings = {
+            let settings = {
                 "number_of_shards": 2,
                 "number_of_replicas": 1
             };
@@ -195,7 +195,7 @@ describe("TESTING soajs.es", function () {
         });
 
         it('success - all working', function (done) {
-            var data = [
+            let data = [
                 {index: {_index: "demo3", _type: "users"}},
                 {"username": "john", "lastname": "doe"}
             ];
@@ -207,11 +207,11 @@ describe("TESTING soajs.es", function () {
         });
 
         it('success - all working again', function (done) {
-            var data = [
+            let data = [
                 {index: {_index: "demo3", _type: "users"}},
                 {"username": "jane", "lastname": "doe"}
             ];
-            var es2 = new soajsES(dbConfig);
+            let es2 = new soajsES(dbConfig);
             es2.bulk(data, function (error, response) {
                 assert.ifError(error);
                 assert.ok(response);

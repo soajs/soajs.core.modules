@@ -22,8 +22,7 @@ var metaData = {
 	],
 	"credentials": null,
 	"URLParam": {
-		"poolSize": 5,
-		"autoReconnect": true
+		"useUnifiedTopology": true
 	}
 };
 var soajsMongo = helper.requireModule('./index.js').mongo;
