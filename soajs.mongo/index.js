@@ -506,6 +506,9 @@ MongoDriver.prototype.updateMany = function (collectionName, filter, updateOptio
 			if (error) {
 				return cb(error);
 			}
+			if (response) {
+				response.nModified = response.modifiedCount;
+			}
 			return cb(null, response);
 		});
 	});
