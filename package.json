@@ -33,7 +33,7 @@
     "sinon": "7.5.0"
   },
   "dependencies": {
-    "async": "3.2.0",
+    "async": "3.2.2",
     "basic-auth": "2.0.1",
     "bcrypt": "5.0.1",
     "bcryptjs": "2.4.3",

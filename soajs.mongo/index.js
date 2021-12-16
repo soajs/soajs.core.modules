@@ -439,7 +439,14 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 						if (error) {
 							return cb(error);
 						}
-						return cb(null, response.result);
+						let res = {
+							"ok": response.acknowledged,
+							"n": response.matchedCount || response.upsertedCount,
+							"nModified": response.modifiedCount,
+							"upsertedId": response.upsertedId,
+							"upsertedCount": response.upsertedCount
+						};
+						return cb(null, res);
 					});
 				} else {
 					MongoDriver.addVersionToRecords.call(self, collectionName, originalRecord, function (error) {
@@ -460,7 +467,14 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 							if (error) {
 								return cb(error);
 							}
-							return cb(null, response.result);
+							let res = {
+								"ok": response.acknowledged,
+								"n": response.matchedCount || response.upsertedCount,
+								"nModified": response.modifiedCount,
+								"upsertedId": response.upsertedId,
+								"upsertedCount": response.upsertedCount
+							};
+							return cb(null, res);
 						});
 					});
 				}
@@ -472,7 +486,7 @@ MongoDriver.prototype.updateOne = function (collectionName, filter, updateOption
 				}
 				let res = {
 					"ok": response.acknowledged,
-					"n": response.matchedCount,
+					"n": response.matchedCount || response.upsertedCount,
 					"nModified": response.modifiedCount,
 					"upsertedId": response.upsertedId,
 					"upsertedCount": response.upsertedCount
@@ -1086,7 +1100,7 @@ MongoDriver.prototype.deleteOne = function (collectionName, criteria, options, c
 			if (response) {
 				response.result = {
 					"ok": response.acknowledged,
-					"n": response.matchedCount,
+					"n": response.deletedCount,
 					"deletedCount": response.deletedCount
 				};
 			}
