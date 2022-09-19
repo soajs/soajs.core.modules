@@ -93,8 +93,8 @@ describe("testing mail functionality", function () {
 			mailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				done();
 			});
+			setTimeout(done, 5000);
 		});
 	});
 	
@@ -137,8 +137,8 @@ describe("testing mail functionality", function () {
 			soajsMailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				done();
 			});
+			setTimeout(done, 5000);
 		});
 		
 		it("success - should send mail with template as string", function (done) {
@@ -156,8 +156,8 @@ describe("testing mail functionality", function () {
 			soajsMailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				done();
 			});
+			setTimeout(done, 5000);
 		});
 		
 		it("success - should send mail with template from file", function (done) {
@@ -175,8 +175,8 @@ describe("testing mail functionality", function () {
 			soajsMailer.send(mailOptions, function (error, info) {
 				assert.ifError(error);
 				assert.ok(info);
-				done();
 			});
+			setTimeout(done, 5000);
 		});
 		
 		it("success - should send mail with more options", function (done) {
@@ -209,8 +209,8 @@ describe("testing mail functionality", function () {
 				assert.ok(info);
 				fs.unlinkSync(__dirname + "/att2.txt");
 				fs.unlinkSync(__dirname + "/mytmpl.txt");
-				done();
 			});
+			setTimeout(done, 5000);
 		});
 		
 	});
