@@ -10,7 +10,6 @@ jobs:
     services:
     - mongodb
     before_install:
-    - curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.0/elasticsearch-2.3.0.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.0.deb && sudo service elasticsearch start
     - sudo apt-get update && sudo apt-get install sendmail python make g++
     addons:
       hosts:
