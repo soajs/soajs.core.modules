@@ -10,7 +10,7 @@ jobs:
     services:
     - mongodb
     before_install:
-    - sudo apt-get update && sudo apt-get install sendmail python make g++
+    - sudo apt-get update && sudo apt-get install sendmail
     addons:
       hosts:
       - localhost
