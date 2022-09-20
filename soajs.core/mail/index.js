@@ -10,15 +10,16 @@
 
 let validator = new (require("../validator/").Validator)();
 let config = require('./config');
+let nodemailer = require("nodemailer");
+// let nodemailerSmtpTransport = require('nodemailer-smtp-transport');
+// let nodemailerSendmailTransport = require('nodemailer-sendmail-transport');
 
 let mailer = function (configuration) {
 	let transport;
-	let nodeMailerDirectTransport = null;
 	
 	//if no conf, switch to direct transport driver with default options
 	if (!configuration) {
-		nodeMailerDirectTransport = require('nodemailer-direct-transport');
-		transport = nodeMailerDirectTransport(config.transport.default);
+		transport = config.transport.default.options;
 	} else {
 		//if no type nor options, throw error
 		let x = validator.validate(configuration, config.schema.transport);
@@ -35,22 +36,21 @@ let mailer = function (configuration) {
 		//check type and use corresponding transport driver
 		switch (configuration.type.toLowerCase()) {
 			case 'smtp':
-				let nodemailerSmtpTransport = require('nodemailer-smtp-transport');
-				transport = nodemailerSmtpTransport(configuration.options);
-				break;
-			case 'sendmail':
-				let nodemailerSendmailTransport = require('nodemailer-sendmail-transport');
-				transport = nodemailerSendmailTransport(configuration.options);
+				transport = configuration.options;
 				break;
 			default:
-				nodeMailerDirectTransport = require('nodemailer-direct-transport');
-				transport = nodeMailerDirectTransport(configuration.options);
+			// case 'sendmail':
+				transport = configuration.options;
+				transport.sendmail = true;
 				break;
+			// default:
+			// 	nodeMailerDirectTransport = require('nodemailer-direct-transport');
+			// 	transport = nodeMailerDirectTransport(configuration.options);
+			// 	break;
 		}
 	}
 	
 	//initialize the transporter with driver from above
-	let nodemailer = require("nodemailer");
 	this.transporter = nodemailer.createTransport(transport);
 };
 

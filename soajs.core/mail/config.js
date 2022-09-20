@@ -13,10 +13,9 @@ const os = require('os');
 module.exports = {
 	transport: { //default mail mtp configuration
 		default: {
-			"type": "direct",
+			"type": "sendmail",
 			"options": {
-				"name": os.hostname(),
-				"debug": true
+				"sendmail": true
 			}
 		}
 	},
