@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "5.0.23",
+  "version": "5.0.24",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -33,7 +33,7 @@
     "sinon": "7.5.0"
   },
   "dependencies": {
-    "async": "3.2.2",
+    "async": "3.2.4",
     "basic-auth": "2.0.1",
     "bcrypt": "5.0.1",
     "bcryptjs": "2.4.3",
