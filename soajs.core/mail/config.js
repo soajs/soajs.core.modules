@@ -8,8 +8,6 @@
  * found in the LICENSE file at the root of this repository
  */
 
-const os = require('os');
-
 module.exports = {
 	transport: { //default mail mtp configuration
 		default: {
