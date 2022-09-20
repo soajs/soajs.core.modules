@@ -11,8 +11,6 @@
 let validator = new (require("../validator/").Validator)();
 let config = require('./config');
 let nodemailer = require("nodemailer");
-// let nodemailerSmtpTransport = require('nodemailer-smtp-transport');
-// let nodemailerSendmailTransport = require('nodemailer-sendmail-transport');
 
 let mailer = function (configuration) {
 	let transport;
@@ -39,14 +37,9 @@ let mailer = function (configuration) {
 				transport = configuration.options;
 				break;
 			default:
-			// case 'sendmail':
 				transport = configuration.options;
 				transport.sendmail = true;
 				break;
-			// default:
-			// 	nodeMailerDirectTransport = require('nodemailer-direct-transport');
-			// 	transport = nodeMailerDirectTransport(configuration.options);
-			// 	break;
 		}
 	}
 	
