@@ -171,7 +171,6 @@ describe("TESTING soajs.mongo", function () {
 	});
 
 	after(function (done) {
-		done();
 		mongo.dropDatabase(function (error) {
 			assert.ifError(error);
 			done();
