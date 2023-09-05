@@ -108,7 +108,7 @@ describe('testing soajs provisioning', function () {
 				response.applications.push({
 					"product": "TPROD",
 					"package": "TPROD_EXAMPLE03",
-					"appId": new ObjectId("30d2cb5fc04ce51e06000003"),
+					"appId": "30d2cb5fc04ce51e06000003", //new ObjectId("30d2cb5fc04ce51e06000003"),
 					"description": "this is a description for app testing...",
 					"_TTL": 2000, // 4 seconds
 					"keys": [

@@ -58,25 +58,7 @@ module.exports = function (grunt) {
 	let pluginsRootPath = lib.findRoot();
 	lib.loadTasks(grunt, pluginsRootPath, ['grunt-contrib-jshint', 'grunt-jsdoc', 'grunt-contrib-clean', 'grunt-mocha-test', 'grunt-env', 'grunt-istanbul', 'grunt-coveralls', 'grunt-babel', 'grunt-contrib-copy']);
 	grunt.initConfig({
-		babel: {
-			options: {
-				sourceMap: true,
-				presets: ['@babel/preset-env'],
-				plugins: ["@babel/plugin-transform-runtime"],
-			},
-			dist: {
-				files: [{
-					"expand": true,
-					"src": [
-						'test/**/*.js', 'test/*.js', 'test/unit/*.js', 'test/unit/**/*.js', 'test/unit/***/**/*.js',
-						'*.js', 'container/**/*.js', 'infra/*.js', 'infra/**/*.js',
-						'infra/***/**/*.js', 'lib/*.js', 'lib/**/*.js', 'lib/***/**/*.js', 'lib/****/***/**/*.js'
-					],
-					"dest": "dist/"
-				}]
-			}
-		},
-		
+
 		//Defining jshint tasks
 		jshint: {
 			options: {
@@ -84,7 +66,7 @@ module.exports = function (grunt) {
 				"curly": true,
 				"eqeqeq": true,
 				"eqnull": true,
-				"esversion": 6,
+				"esversion": 8,
 				"forin": true,
 				"latedef": "nofunc",
 				"leanswitch": true,
@@ -95,14 +77,14 @@ module.exports = function (grunt) {
 				"undef": true,
 				"unused": true,
 				"varstmt": true,
-				
+
 				//"validthis": true,
 				//"loopfunc": true,
 				//"sub": true,
 				//"supernew": true,
-				
+
 				"node": true,
-				
+
 				"globals": {
 					"describe": false,
 					"it": false,
@@ -128,7 +110,7 @@ module.exports = function (grunt) {
 		//     }
 		//   }
 		// },
-		
+
 		env: {
 			mochaTest: {
 				SOAJS_ENV: "dev",
@@ -145,34 +127,96 @@ module.exports = function (grunt) {
 				SOAJS_GATEWAY_PORT: 4000,
 				SOAJS_BCRYPT: "true",
 				SOAJS_PROFILE: __dirname + "/profiles/single.js",
-				APP_DIR_FOR_CODE_COVERAGE: '../test/coverage/instrument/'
+				APP_DIR_FOR_CODE_COVERAGE: '../test/coverage/instrument/test/dist/'
 			}
 		},
-		
+
 		clean: {
 			doc: {
 				src: ['doc/']
 			},
 			coverage: {
 				src: ['test/coverage/']
+			},
+			dist: {
+				src: ['test/dist/']
 			}
 		},
-		
+
+		babel: {
+			options: {
+				sourceMap: true,
+				presets: ['@babel/preset-env'],
+				plugins: ["@babel/plugin-transform-runtime"],
+			},
+			dist: {
+				files: [
+					// 	{
+					// 	"expand": true,
+					// 	"src": [
+					// 		'test/**/*.js', 'test/*.js', 'test/unit/*.js', 'test/unit/**/*.js', 'test/unit/***/**/*.js',
+					// 		'*.js', 'container/**/*.js', 'infra/*.js', 'infra/**/*.js',
+					// 		'infra/***/**/*.js', 'lib/*.js', 'lib/**/*.js', 'lib/***/**/*.js', 'lib/****/***/**/*.js'
+					// 	],
+					// 	"dest": "dist/"
+					// },
+
+					{
+						expand: true,
+						cwd: 'profiles/',
+						src: ['*.js'],
+						dest: 'test/dist/profiles/'
+					},
+					{
+						expand: true,
+						cwd: 'soajs.core/',
+						src: ['**/*.js'],
+						dest: 'test/dist/soajs.core/'
+					},
+					{
+						expand: true,
+						cwd: 'soajs.mail/',
+						src: ['*.js'],
+						dest: 'test/dist/soajs.mail/'
+					},
+					{
+						expand: true,
+						cwd: 'soajs.mongo/',
+						src: ['*.js'],
+						dest: 'test/dist/soajs.mongo/'
+					},
+					{
+						expand: true,
+						cwd: 'soajs.mongoStore/',
+						src: ['*.js'],
+						dest: 'test/dist/soajs.mongoStore/'
+					},
+					{
+						expand: true,
+						cwd: 'soajs.provision/',
+						src: ['*.js'],
+						dest: 'test/dist/soajs.provision/'
+					},
+					{ 'test/dist/index.js': 'index.js' },
+				]
+			}
+		},
+
 		instrument: {
-			files: ['index.js', 'soajs.contentBuilder/**/*.js', 'soajs.core/**/*.js', 'soajs.mail/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js'],
-			//files: ['**/*.js'],
+			// files: ['index.js', 'soajs.contentBuilder/**/*.js', 'soajs.core/**/*.js', 'soajs.mail/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js'],
+			files: ['test/dist/index.js', 'test/dist/soajs.provision/*.js', 'test/dist/soajs.mongoStore/*.js', 'test/dist/soajs.mongo/*.js', 'test/dist/soajs.mail/*.js', 'test/dist/soajs.core/**/*.js', 'test/dist/profiles/*.js'],
 			options: {
 				lazy: false,
 				basePath: 'test/coverage/instrument/'
 			}
 		},
-		
+
 		storeCoverage: {
 			options: {
 				dir: 'test/coverage/reports'
 			}
 		},
-		
+
 		makeReport: {
 			src: 'test/coverage/reports/**/*.json',
 			options: {
@@ -181,7 +225,7 @@ module.exports = function (grunt) {
 				print: 'detail'
 			}
 		},
-		
+
 		mochaTest: {
 			unit: {
 				options: {
@@ -198,12 +242,12 @@ module.exports = function (grunt) {
 				src: ['test/integration/*.js']
 			}
 		},
-		
+
 		coveralls: {
 			options: {
 				// LCOV coverage file relevant to every target
 				src: 'test/coverage/reports/lcov.info',
-				
+
 				// When true, grunt-coveralls will only print a warning rather than
 				// an error, to prevent CI builds from failing unnecessarily (e.g. if
 				// coveralls.io is down). Optional, defaults to false.
@@ -215,14 +259,14 @@ module.exports = function (grunt) {
 			}
 		}
 	});
-	
+
 	process.env.SHOW_LOGS = grunt.option('showLogs');
 	grunt.registerTask("default", ['jshint']);
-	grunt.registerTask("integration", ['env:mochaTest', 'mochaTest:integration']);
-	grunt.registerTask("unit", ['env:mochaTest', 'mochaTest:unit']);
+	grunt.registerTask("integration", ['clean', 'env:mochaTest', 'mochaTest:integration']);
+	grunt.registerTask("unit", ['clean', 'env:mochaTest', 'mochaTest:unit']);
 	grunt.registerTask("test-src", ['clean', 'env:mochaTest', 'instrument', 'mochaTest:unit', 'mochaTest:integration']);
-	grunt.registerTask("test", ['clean', 'env:coverage', 'instrument', 'mochaTest:unit', 'mochaTest:integration', 'storeCoverage', 'makeReport']);
-	grunt.registerTask("coverage", ['clean', 'env:coverage', 'instrument', 'mochaTest:unit', 'mochaTest:integration', 'storeCoverage', 'makeReport', 'coveralls']);
-	
+	grunt.registerTask("test", ['clean', 'babel', 'env:coverage', 'instrument', 'mochaTest:unit', 'mochaTest:integration', 'storeCoverage', 'makeReport']);
+	grunt.registerTask("coverage", ['clean', 'babel', 'env:coverage', 'instrument', 'mochaTest:unit', 'mochaTest:integration', 'storeCoverage', 'makeReport', 'coveralls']);
+
 };
 

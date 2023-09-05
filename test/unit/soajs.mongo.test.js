@@ -5,7 +5,7 @@ let soajsMongo = helper.requireModule('./index.js').mongo;
 
 describe("testing connection", function () {
 	let mongo;
-	
+
 	it("invalid credentials all requests should fail", function (done) {
 		let dbConfig = {
 			"name": 'soajs_test_db',
@@ -24,13 +24,14 @@ describe("testing connection", function () {
 				"useUnifiedTopology": true
 			}
 		};
-		
+
 		mongo = new soajsMongo(dbConfig);
+		mongo.ObjectId("30d2cb5fc04ce51e06000003");
 		mongo.find('myCollection', {}, function (error, response) {
 			assert.ok(error);
 			assert.ok(!response);
 			assert.ok(error.message);
-			
+
 			mongo.findOne('myCollection', {}, function (error, response) {
 				assert.ok(error);
 				assert.ok(!response);
@@ -43,15 +44,15 @@ describe("testing connection", function () {
 					// 	assert.ok(error);
 					// 	assert.ok(!response);
 					// 	assert.ok(error.message);
-					mongo.update('myCollection', {'a': 'b'}, {$set: {'a': 'c'}}, function (error, response) {
+					mongo.update('myCollection', { 'a': 'b' }, { $set: { 'a': 'c' } }, function (error, response) {
 						assert.ok(error);
 						assert.ok(!response);
 						assert.ok(error.message);
-						mongo.count('myCollection', {'a': 'b'}, function (error, response) {
+						mongo.count('myCollection', { 'a': 'b' }, function (error, response) {
 							assert.ok(error);
 							assert.ok(!response);
 							assert.ok(error.message);
-							mongo.createIndex('myCollection', {'a': 1}, null, function (error, response) {
+							mongo.createIndex('myCollection', { 'a': 1 }, null, function (error, response) {
 								assert.ok(error);
 								assert.ok(!response);
 								assert.ok(error.message);
@@ -63,11 +64,11 @@ describe("testing connection", function () {
 										assert.ok(error);
 										assert.ok(!response);
 										assert.ok(error.message);
-										mongo.findOneAndUpdate('myCollection', {'a': 'b'}, {a: 1}, {'a': 'c'}, function (error, response) {
+										mongo.findOneAndUpdate('myCollection', { 'a': 'b' }, { a: 1 }, { 'a': 'c' }, function (error, response) {
 											assert.ok(error);
 											assert.ok(!response);
 											assert.ok(error.message);
-											mongo.findOneAndDelete('myCollection', {'a': 'b'}, {a: 1}, function (error, response) {
+											mongo.findOneAndDelete('myCollection', { 'a': 'b' }, { a: 1 }, function (error, response) {
 												assert.ok(error);
 												assert.ok(!response);
 												assert.ok(error.message);
@@ -94,7 +95,7 @@ describe("testing connection", function () {
 			});
 		});
 	});
-	
+
 	it("testing with no db name", function (done) {
 		let dbConfig = {
 			"name": '',
@@ -110,7 +111,7 @@ describe("testing connection", function () {
 				"useUnifiedTopology": true
 			}
 		};
-		
+
 		mongo = new soajsMongo(dbConfig);
 		mongo.find('myCollection', {}, function (error) {
 			assert.ok(error);
@@ -118,7 +119,7 @@ describe("testing connection", function () {
 			done();
 		});
 	});
-	
+
 	it("testing get Mongo Skin DB", function (done) {
 		let dbConfig = {
 			"name": 'core_provision',
@@ -134,7 +135,7 @@ describe("testing connection", function () {
 				"useUnifiedTopology": true
 			}
 		};
-		
+
 		mongo = new soajsMongo(dbConfig);
 		mongo.getMongoDB(function (error, db) {
 			assert.ifError(error);
@@ -162,22 +163,22 @@ describe("TESTING soajs.mongo", function () {
 			}
 		};
 		mongo = new soajsMongo(dbConfig);
-		
+
 		mongo.dropDatabase(function (error) {
 			assert.ifError(error);
 			done();
 		});
 	});
-	
+
 	after(function (done) {
 		mongo.dropDatabase(function (error) {
 			assert.ifError(error);
 			done();
 		});
 	});
-	
+
 	describe("testing ensure index", function () {
-		
+
 		it("fail - no collectionName", function (done) {
 			mongo.createIndex(null, null, null, function (error) {
 				assert.ok(error);
@@ -186,18 +187,18 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.createIndex("myCollection", {'username': 1}, null, function (error, response) {
+			mongo.createIndex("myCollection", { 'username': 1 }, null, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
 			});
 		});
 	});
-	
+
 	describe("testing create index", function () {
-		
+
 		it("fail - no collectionName", function (done) {
 			mongo.createIndex(null, null, null, function (error) {
 				assert.ok(error);
@@ -206,18 +207,18 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.createIndex("myCollection", {'password': 1}, null, function (error, response) {
+			mongo.createIndex("myCollection", { 'password': 1 }, null, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
 			});
 		});
 	});
-	
+
 	describe("testing get collection", function () {
-		
+
 		it("fail - no collectionName", function (done) {
 			mongo.getCollection(null, function (error) {
 				assert.ok(error);
@@ -226,7 +227,7 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.getCollection("myCollection", function (error, response) {
 				assert.ifError(error);
@@ -235,9 +236,9 @@ describe("TESTING soajs.mongo", function () {
 			});
 		});
 	});
-	
+
 	describe("testing insertOne", function () {
-		
+
 		it("fail - no collectionName", function (done) {
 			mongo.insertOne(null, null, null, function (error) {
 				assert.ok(error);
@@ -246,7 +247,7 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it("fail - no document", function (done) {
 			mongo.insertOne("myCollection", null, null, function (error) {
 				assert.ok(error);
@@ -255,16 +256,16 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.insertOne("myCollection", {'a': 'b'}, null, function (error, response) {
+			mongo.insertOne("myCollection", { 'a': 'b' }, null, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
 			});
 		});
 	});
-	
+
 	// describe("testing save", function () {
 	//
 	// 	it("fail - no collectionName", function (done) {
@@ -297,7 +298,7 @@ describe("TESTING soajs.mongo", function () {
 	// 		});
 	// 	});
 	// });
-	
+
 	describe("testing update", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.update(null, function (error) {
@@ -307,16 +308,16 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.update("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, function (error, response) {
+			mongo.update("myCollection", { 'a': 'b' }, { $set: { 'a': 'c' } }, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
 			});
 		});
 	});
-	
+
 	describe("testing find", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.find(null, function (error) {
@@ -326,7 +327,7 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.find("myCollection", function (error, response) {
 				assert.ifError(error);
@@ -334,7 +335,7 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.find("myCollection", {}, function (error, response) {
 				assert.ifError(error);
@@ -342,7 +343,7 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.find("myCollection", {}, {}, function (error, response) {
 				assert.ifError(error);
@@ -351,7 +352,7 @@ describe("TESTING soajs.mongo", function () {
 			});
 		});
 	});
-	
+
 	describe("testing findStream", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.findStream(null, function (error) {
@@ -361,53 +362,53 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.findStream("myCollection", function (error, Stream) {
 				assert.ifError(error);
 				assert.ok(Stream);
-				
+
 				Stream.on('data', function (data) {
 					console.log(data);
 				});
-				
+
 				Stream.on('end', function () {
 					done();
 				});
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.findStream("myCollection", {}, function (error, Stream) {
 				assert.ifError(error);
 				assert.ok(Stream);
-				
+
 				Stream.on('data', function (data) {
 					console.log(data);
 				});
-				
+
 				Stream.on('end', function () {
 					done();
 				});
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.findStream("myCollection", {}, {}, function (error, Stream) {
 				assert.ifError(error);
 				assert.ok(Stream);
-				
+
 				Stream.on('data', function (data) {
 					console.log(data);
 				});
-				
+
 				Stream.on('end', function () {
 					done();
 				});
 			});
 		});
 	});
-	
+
 	// describe("testing find and modify", function () {
 	// 	it("fail - no collectionName", function (done) {
 	// 		mongo.findAndModify(null, function (error) {
@@ -427,7 +428,7 @@ describe("TESTING soajs.mongo", function () {
 	// 	});
 	//
 	// });
-	
+
 	describe("testing find one and update", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.findOneAndUpdate(null, function (error) {
@@ -437,17 +438,17 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.findOneAndUpdate("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, function (error, response) {
+			mongo.findOneAndUpdate("myCollection", { 'a': 'c' }, { $set: { 'a': 'c', 'b': 'tony' } }, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
 				done();
 			});
 		});
-		
+
 	});
-	
+
 	// describe("testing find and remove", function () {
 	// 	it("fail - no collectionName", function (done) {
 	// 		mongo.findAndRemove(null, function (error) {
@@ -465,7 +466,7 @@ describe("TESTING soajs.mongo", function () {
 	// 		});
 	// 	});
 	// });
-	
+
 	describe("testing find one and delete", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.findOneAndDelete(null, function (error) {
@@ -475,19 +476,19 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.insert("myCollection", {"f": "e"}, function (error) {
+			mongo.insert("myCollection", { "f": "e" }, function (error) {
 				assert.ifError(error);
-				
-				mongo.findOneAndDelete("myCollection", {'f': 'e'}, function (error, response) {
+
+				mongo.findOneAndDelete("myCollection", { 'f': 'e' }, function (error, response) {
 					assert.ifError(error);
 					done();
 				});
 			});
 		});
 	});
-	
+
 	describe("testing find one", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.findOne(null, function (error) {
@@ -497,15 +498,15 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.findOne("myCollection", {'a': 'c'}, function (error, response) {
+			mongo.findOne("myCollection", { 'a': 'c' }, function (error, response) {
 				assert.ifError(error);
 				done();
 			});
 		});
 	});
-	
+
 	describe("testing count", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.count(null, null, function (error) {
@@ -515,24 +516,24 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.count("myCollection", {'a': 'c'}, function (error, response) {
+			mongo.count("myCollection", { 'a': 'c' }, function (error, response) {
 				assert.ifError(error);
 				assert.equal(response, 1);
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.count("myCollection", {'a': 'b'}, function (error, response) {
+			mongo.count("myCollection", { 'a': 'b' }, function (error, response) {
 				assert.ifError(error);
 				assert.equal(response, 0);
 				done();
 			});
 		});
 	});
-	
+
 	describe("testing distinct", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.distinct(null, null, function (error) {
@@ -542,7 +543,7 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.distinct("myCollection", 'a', function (error, response) {
 				assert.ifError(error);
@@ -550,9 +551,9 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 	});
-	
+
 	describe("testing distinctStream", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.distinctStream(null, null, null, null, function (error) {
@@ -562,42 +563,42 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.distinctStream("myCollection", 'a', null, null, function (error, streamer) {
 				assert.ifError(error);
 				assert.ok(streamer);
-				
+
 				streamer.on('data', function (data) {
 					assert.ok(data);
 				});
-				
+
 				streamer.on('end', function () {
 					done();
 				});
 			});
 		});
-		
+
 		it('success - all working with options', function (done) {
 			mongo.distinctStream("myCollection", 'a', null, {
 				"$skip": 0,
 				"$limit": 10000,
-				"$sort": {"a": 1}
+				"$sort": { "a": 1 }
 			}, function (error, streamer) {
 				assert.ifError(error);
 				assert.ok(streamer);
-				
+
 				streamer.on('data', function (data) {
 					assert.ok(data);
 				});
-				
+
 				streamer.on('end', function () {
 					done();
 				});
 			});
 		});
 	});
-	
+
 	describe("testing aggregate", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.aggregate(null, null, null, function (error) {
@@ -607,9 +608,9 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.aggregate("myCollection", [{$match: {a: "c"}}], null, function (error, cursor) {
+			mongo.aggregate("myCollection", [{ $match: { a: "c" } }], null, function (error, cursor) {
 				assert.ifError(error);
 				cursor.toArray((error, docs) => {
 					assert.equal(docs.length, 1);
@@ -618,7 +619,7 @@ describe("TESTING soajs.mongo", function () {
 			});
 		});
 	});
-	
+
 	describe("testing aggregateStream", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.aggregateStream(null, null, null, function (error) {
@@ -627,23 +628,23 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.aggregateStream("myCollection", [{$match: {a: "c"}}], null, function (error, streamer) {
+			mongo.aggregateStream("myCollection", [{ $match: { a: "c" } }], null, function (error, streamer) {
 				assert.ifError(error);
 				assert.ok(streamer);
-				
+
 				streamer.on('data', function (data) {
 					assert.ok(data);
 				});
-				
+
 				streamer.on('end', function () {
 					done();
 				});
 			});
 		});
 	});
-	
+
 	describe("testing remove", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.remove(null, null, function (error) {
@@ -653,15 +654,15 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
-			mongo.remove("myCollection", {'a': 'c'}, function (error, response) {
+			mongo.remove("myCollection", { 'a': 'c' }, function (error, response) {
 				assert.ifError(error);
 				done();
 			});
 		});
 	});
-	
+
 	describe("testing drop collection", function () {
 		it("fail - no collectionName", function (done) {
 			mongo.dropCollection(null, function (error) {
@@ -671,7 +672,7 @@ describe("TESTING soajs.mongo", function () {
 				done();
 			});
 		});
-		
+
 		it('success - all working', function (done) {
 			mongo.dropCollection("myCollection", function (error, response) {
 				assert.ifError(error);
@@ -679,7 +680,7 @@ describe("TESTING soajs.mongo", function () {
 			});
 		});
 	});
-	
+
 });
 
 describe("TESTING soajs.mongo versioning", function () {
@@ -700,25 +701,25 @@ describe("TESTING soajs.mongo versioning", function () {
 			}
 		};
 		mongo = new soajsMongo(dbConfig);
-		
+
 		mongo.dropDatabase(function (error) {
 			assert.ifError(error);
 			done();
 		});
 	});
-	
+
 	after(function (done) {
 		mongo.dropDatabase(function (error) {
 			assert.ifError(error);
 			done();
 		});
 	});
-	
+
 	it("insert one record", function (done) {
-		mongo.insert("myCollection", {'a': 'b'}, true, function (error, response) {
+		mongo.insert("myCollection", { 'a': 'b' }, true, function (error, response) {
 			assert.ifError(error);
 			assert.ok(response);
-			mongo.findOne('myCollection', {'a': "b"}, function (error, record) {
+			mongo.findOne('myCollection', { 'a': "b" }, function (error, record) {
 				assert.ifError(error);
 				assert.ok(record);
 				assert.equal(record.v, 1);
@@ -727,17 +728,17 @@ describe("TESTING soajs.mongo versioning", function () {
 			});
 		});
 	});
-	
+
 	it("save one record", function (done) {
-		mongo.findOne("myCollection", {'a': 'b'}, function (error, oneRecord) {
+		mongo.findOne("myCollection", { 'a': 'b' }, function (error, oneRecord) {
 			assert.ifError(error);
 			assert.ok(oneRecord);
-			
+
 			mongo.save("myCollection", oneRecord, true, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
-				
-				mongo.findOne('myCollection', {'a': "b"}, function (error, record) {
+
+				mongo.findOne('myCollection', { 'a': "b" }, function (error, record) {
 					assert.ifError(error);
 					assert.ok(record);
 					assert.equal(record.v, 2);
@@ -747,12 +748,12 @@ describe("TESTING soajs.mongo versioning", function () {
 			});
 		});
 	});
-	
+
 	it("update one record", function (done) {
-		mongo.update("myCollection", {'a': 'b'}, {$set: {'a': 'c'}}, true, function (error, response) {
+		mongo.update("myCollection", { 'a': 'b' }, { $set: { 'a': 'c' } }, true, function (error, response) {
 			assert.ifError(error);
 			assert.ok(response);
-			mongo.findOne('myCollection', {'a': "c"}, function (error, record) {
+			mongo.findOne('myCollection', { 'a': "c" }, function (error, record) {
 				assert.ifError(error);
 				assert.ok(record);
 				assert.equal(record.v, 3);
@@ -761,12 +762,12 @@ describe("TESTING soajs.mongo versioning", function () {
 			});
 		});
 	});
-	
+
 	it("get one record version", function (done) {
-		mongo.findOne('myCollection', {'a': 'c'}, function (error, oneRecord) {
+		mongo.findOne('myCollection', { 'a': 'c' }, function (error, oneRecord) {
 			assert.ifError(error);
 			assert.ok(oneRecord);
-			
+
 			mongo.getVersions("myCollection", oneRecord._id, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
@@ -775,12 +776,12 @@ describe("TESTING soajs.mongo versioning", function () {
 			});
 		});
 	});
-	
+
 	it("clear record versions", function (done) {
-		mongo.findOne('myCollection', {'a': 'c'}, function (error, oneRecord) {
+		mongo.findOne('myCollection', { 'a': 'c' }, function (error, oneRecord) {
 			assert.ifError(error);
 			assert.ok(oneRecord);
-			
+
 			mongo.clearVersions("myCollection", oneRecord._id, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
@@ -788,20 +789,20 @@ describe("TESTING soajs.mongo versioning", function () {
 			});
 		});
 	});
-	
+
 	it("insert multi records", function (done) {
 		let multiRecords = [
-			{'var1': 'val1'},
-			{'var3': 'val2'},
-			{'var2': 'val3'}
+			{ 'var1': 'val1' },
+			{ 'var3': 'val2' },
+			{ 'var2': 'val3' }
 		];
-		
+
 		mongo.remove('myCollection', {}, function (error) {
 			assert.ifError(error);
 			mongo.insert("myCollection", multiRecords, true, function (error, response) {
 				assert.ifError(error);
 				assert.ok(response);
-				
+
 				mongo.find('myCollection', {}, function (error, records) {
 					assert.ifError(error);
 					assert.ok(records);
