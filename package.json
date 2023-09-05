@@ -33,7 +33,7 @@
     "grunt-jsdoc": "2.4.0",
     "grunt-mocha-test": "0.13.3",
     "mocha": "10.2.0",
-    "shelljs": "0.8.4",
+    "shelljs": "0.8.5",
     "sinon": "7.5.0"
   },
   "dependencies": {
