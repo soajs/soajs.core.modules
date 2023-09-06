@@ -711,7 +711,7 @@ MongoDriver.prototype.getCollection = function (collectionName, options, cb) {
  */
 MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
 	let self = this;
-	
+
 	let args = Array.prototype.slice.call(arguments);
 	let collectionName = args.shift();
 	let cb = args[args.length - 1];
@@ -1214,7 +1214,7 @@ MongoDriver.prototype.remove = function (collectionName, criteria, options, cb) 
 };
 MongoDriver.prototype.deleteOne = function (collectionName, criteria, options, cb) {
 	let self = this;
-	
+
 	if (!criteria) {
 		criteria = {};
 	}
@@ -1299,8 +1299,14 @@ MongoDriver.prototype.closeDb = function () {
 	let self = this;
 	if (self.client) {
 		if (!process.env.SOAJS_MONGO_CON_KEEPALIVE) {
-			self.client.close();
-			self.flushDb();
+			(async () => {
+				try {
+					await self.client.close();
+					self.flushDb();
+				} catch (e) {
+					displayLog(e.message);
+				}
+			})();
 		}
 	}
 };
@@ -1444,9 +1450,11 @@ function connect(obj, cb) {
 		});
 		*/
 		if (obj.client) {
-			obj.client.close().catch((e) => {
+			try {
+				await obj.client.close();;
+			} catch (e) {
 				displayLog(e.message);
-			});
+			}
 		}
 		obj.client = client;
 
