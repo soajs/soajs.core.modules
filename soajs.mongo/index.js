@@ -162,18 +162,6 @@ function MongoDriver(dbConfig) {
 MongoDriver.prototype.insert = function (collectionName, docs, versioning, options, cb) {
 	let self = this;
 
-	if (!cb && typeof versioning === "function") {
-		cb = versioning;
-		versioning = false;
-	}
-	if (!cb && typeof options === "function") {
-		cb = options;
-		options = null;
-	}
-	if (!collectionName || !docs) {
-		return cb(core.error.generate(191));
-	}
-
 	displayLog("***** insert is deprecated please use insertOne, insertMany or bulkWrite");
 	if (Array.isArray(docs)) {
 		self.insertMany(collectionName, docs, options, versioning, cb);
@@ -296,7 +284,7 @@ MongoDriver.prototype.save = function (collectionName, docs, versioning, options
 	}
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 	if (!collectionName || !docs) {
 		return cb(core.error.generate(191));
@@ -356,7 +344,7 @@ MongoDriver.prototype.update = function () {
 		versioning = false;
 	}
 	if (typeof options !== "object") {
-		options = null;
+		options = {};
 	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -557,7 +545,7 @@ MongoDriver.prototype.updateMany = function (collectionName, filter, updateOptio
 
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -642,7 +630,7 @@ MongoDriver.prototype.createIndex = function (collectionName, keys, options, cb)
 	let self = this;
 
 	if (typeof options !== "object") {
-		options = null;
+		options = {};
 	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -683,7 +671,7 @@ MongoDriver.prototype.getCollection = function (collectionName, options, cb) {
 
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -717,7 +705,7 @@ MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
 	let cb = args[args.length - 1];
 	args.pop();
 
-	let filter = args[0];
+	let filter = args[0] || {};
 	let options = args[1] || {};
 
 	if (!collectionName) {
@@ -835,8 +823,8 @@ MongoDriver.prototype.findOneAndUpdate = function () {
 	let cb = args[args.length - 1];
 	args.pop();
 
-	let filter = args[0];
-	let updateFilter = args[1];
+	let filter = args[0] || {};
+	let updateFilter = args[1] || {};
 	let options = args[2] || {};
 
 	if (!collectionName) {
@@ -871,7 +859,7 @@ MongoDriver.prototype.findOneAndDelete = function () {
 	let cb = args[args.length - 1];
 	args.pop();
 
-	let filter = args[0];
+	let filter = args[0] || {};
 	let options = args[1] || {};
 
 	if (!collectionName) {
@@ -907,7 +895,7 @@ MongoDriver.prototype.findOne = MongoDriver.prototype.findOneFields = function (
 	let cb = args[args.length - 1];
 	args.pop();
 
-	let filter = args[0];
+	let filter = args[0] || {};
 	let options = args[1] || {};
 
 	if (!collectionName) {
@@ -939,7 +927,7 @@ MongoDriver.prototype.dropCollection = function (collectionName, options, cb) {
 
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -969,7 +957,7 @@ MongoDriver.prototype.dropDatabase = function (options, cb) {
 
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 
 	connect(self, function (err) {
@@ -1005,7 +993,7 @@ MongoDriver.prototype.countDocuments = function (collectionName, criteria, optio
 
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -1039,7 +1027,7 @@ MongoDriver.prototype.distinct = function () {
 	let cb = args[args.length - 1];
 	args.pop();
 
-	let key = args[0];
+	let key = args[0] || {};
 	let filter = args[1] || {};
 	let options = args[2] || {};
 
@@ -1072,7 +1060,7 @@ MongoDriver.prototype.distinctStream = function (collectionName, fieldName, crit
 
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 
 	if (!collectionName) {
@@ -1140,7 +1128,7 @@ MongoDriver.prototype.aggregate = function (collectionName, pipeline, options, c
 
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 
 	if (!collectionName) {
@@ -1166,7 +1154,7 @@ MongoDriver.prototype.aggregateStream = function (collectionName, pipeline, opti
 
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 
 	if (!collectionName) {
@@ -1224,7 +1212,7 @@ MongoDriver.prototype.deleteOne = function (collectionName, criteria, options, c
 	}
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
@@ -1263,7 +1251,7 @@ MongoDriver.prototype.deleteMany = function (collectionName, criteria, options, 
 	}
 	if (!cb && typeof options === "function") {
 		cb = options;
-		options = null;
+		options = {};
 	}
 	if (!collectionName) {
 		return cb(core.error.generate(191));
