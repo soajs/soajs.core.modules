@@ -1451,7 +1451,7 @@ function connect(obj, cb) {
 		*/
 		if (obj.client) {
 			try {
-				await obj.client.close();;
+				await obj.client.close();
 			} catch (e) {
 				displayLog(e.message);
 			}
