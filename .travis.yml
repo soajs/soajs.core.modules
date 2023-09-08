@@ -1,7 +1,7 @@
 language: node_js
 node_js: 18
 cache: false
-dist: bionic
+dist: focal
 
 jobs:
   include:
