@@ -159,6 +159,9 @@ module.exports = {
 			criteria['packages.code'] = code;
 		}
 		mongo.find(productsCollectionName, criteria, null, function (err, products) {
+			console.log("*************** core.modules")
+			console.log(err);
+			console.log(products);
 			if (err) {
 				return cb(err);
 			}
