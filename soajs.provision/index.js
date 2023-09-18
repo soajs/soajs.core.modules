@@ -176,7 +176,7 @@ let provision = {
 			});
 		}
 		else {
-			async.each(arrCodes, (code, callback) => {
+			async.eachSeries(arrCodes, (code, callback) => {
 				if (struct_packages[code] &&
 					(!struct_packages[code]._TTL ||
 						(struct_packages[code]._TTL &&
