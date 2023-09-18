@@ -750,8 +750,6 @@ MongoDriver.prototype.find = MongoDriver.prototype.findFields = function () {
 				let arr = await cursor.toArray();
 				return cb(null, arr);
 			} catch (e) {
-				console.log("********* MONGO");
-				console.log(e);
 				return cb(e, null);
 			}
 		})();
