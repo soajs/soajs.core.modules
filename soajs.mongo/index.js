@@ -1567,7 +1567,11 @@ async function connect(obj) {
 			connectQueue.push({ resolve, reject });
 		})
 			.then(() => {
-				return;
+				if (obj.db) {
+					return;
+				} else {
+					return connect(obj);
+				}
 			})
 			.catch(error => {
 				throw error;
