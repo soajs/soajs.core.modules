@@ -3,7 +3,6 @@ let assert = require('assert');
 let session = require('express-session');
 
 let helper = require("../helper.js");
-let core = helper.requireModule("./soajs.core");
 let soajsmongoStore = helper.requireModule('./soajs.mongoStore');
 
 describe("mongoStore tests", function () {
