@@ -329,11 +329,16 @@ describe("TESTING soajs.mongo", function () {
 		});
 
 		it('success - all working', function (done) {
-			mongo.find("myCollection", function (error, response) {
-				assert.ifError(error);
-				assert.ok(response);
-				done();
-			});
+			(async () => {
+				try {
+					let response = await mongo.find("myCollection");
+					assert.ok(response);
+				} catch (error) {
+					assert.ifError(error);
+				} finally {
+					done();
+				}
+			})();
 		});
 
 		it('success - all working', function (done) {
@@ -617,6 +622,20 @@ describe("TESTING soajs.mongo", function () {
 					done();
 				});
 			});
+		});
+
+		it('success - all working with ptomise', function (done) {
+			(async () => {
+				try {
+					let cursor = await mongo.aggregate("myCollection", [{ $match: { a: "c" } }], null);
+					let docs = await cursor.toArray();
+					assert.equal(docs.length, 1);
+				} catch (error) {
+					assert.ifError(error);
+				} finally {
+					done();
+				}
+			})();
 		});
 	});
 
