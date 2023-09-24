@@ -54,9 +54,8 @@ describe("mongoStore tests", function () {
 	});
 	
 	describe("testing clear & length", function () {
-		it.skip('success test case', function (done) {
+		it('success test case', function (done) {
 			store.clear(function (error) {
-				console.log("********", error);
 				assert.ifError(error);
 				done();
 			});

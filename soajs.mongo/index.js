@@ -600,7 +600,7 @@ MongoDriver.prototype.addVersionToRecords = async function (collection, oneRecor
 		}
 		throw (core.error.generate(192));
 	}
-	
+
 	try {
 		let originalRecord = await self.findOne(collection, { '_id': oneRecord._id });
 
@@ -1577,32 +1577,48 @@ async function connect(obj) {
 				throw error;
 			});
 	}
+
 	cachePending = true;
+
 	let client = null;
-	try {
-		if (obj.config.URLParam) {
-			delete obj.config.URLParam.useUnifiedTopology;
-		}
-		client = await MongoClient.connect(url, obj.config.URLParam);
-	} catch (error) {
-		cachePending = false;
-		processQueue(error);
-		throw (error);
-	}
-	if (!obj.config.name || obj.config.name === '') {
-		cachePending = false;
-		let error = new Error("You must specify a db name.");
-		processQueue(error);
-		throw (error);
-	}
 	if (obj.client) {
-		try {
-			await obj.client.close();
-		} catch (e) {
-			displayLog(e.message);
+		let currentConfObj = {
+			"servers": obj.config.servers,
+			"credentials": obj.config.credentials || null,
+		};
+		currentConfObj = objectHash(currentConfObj);
+		if (currentConfObj === configCloneHash) {
+			cacheDBLib.setTimeLoaded(obj.config.registryLocation, obj.config.registryLocation.timeLoaded);
+			client = obj.client;
 		}
 	}
-	obj.client = client;
+
+	if (!client) {
+		try {
+			if (obj.config.URLParam) {
+				delete obj.config.URLParam.useUnifiedTopology;
+			}
+			client = await MongoClient.connect(url, obj.config.URLParam);
+		} catch (error) {
+			cachePending = false;
+			processQueue(error);
+			throw (error);
+		}
+		if (!obj.config.name || obj.config.name === '') {
+			cachePending = false;
+			let error = new Error("You must specify a db name.");
+			processQueue(error);
+			throw (error);
+		}
+		if (obj.client) {
+			try {
+				await obj.client.close();
+			} catch (e) {
+				displayLog(e.message);
+			}
+		}
+		obj.client = client;
+	}
 
 	let prefix = obj.config.prefix;
 	let dbName = obj.config.name;
@@ -1614,6 +1630,7 @@ async function connect(obj) {
 	cacheDBLib.setCache(obj);
 	cachePending = false;
 	processQueue(null);
+
 	return;
 }
 
