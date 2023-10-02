@@ -1560,6 +1560,7 @@ async function connect(obj) {
 	}
 
 	let url = constructMongoLink(obj.config);
+	console.log(url)
 	if (!url) {
 		throw (core.error.generate(190));
 	}
