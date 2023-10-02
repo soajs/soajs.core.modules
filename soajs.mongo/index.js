@@ -1508,6 +1508,7 @@ MongoDriver.prototype.connect = async function () {
  *
  */
 async function connect(obj) {
+	console.log("--------connect");
 	let configCloneHash = null;
 	let timeLoaded = null;
 	if (!obj.config) {
