@@ -1436,7 +1436,7 @@ MongoDriver.prototype.closeDb = async function () {
 	if (self.client) {
 		if (!process.env.SOAJS_MONGO_CON_KEEPALIVE) {
 			try {
-				displayLog("----- Closing client");
+				displayLog("----- Closing client @ closeDd");
 				await self.client.close();
 				await self.flushDb();
 			} catch (e) {
@@ -1615,6 +1615,7 @@ async function connect(obj) {
 		}
 		if (obj.client) {
 			try {
+				displayLog("----- Closing client @ connect");
 				await obj.client.close();
 			} catch (e) {
 				displayLog(e.message);
