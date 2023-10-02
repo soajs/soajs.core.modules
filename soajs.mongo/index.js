@@ -29,8 +29,9 @@ AggregationCursor.prototype.toArray = function (cb) {
 				return cb(e, null);
 			}
 		})();
+	} else {
+		return self._toArray();
 	}
-	return self._toArray();
 };
 
 let connectQueue = [];
