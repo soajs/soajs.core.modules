@@ -138,6 +138,7 @@ describe("testing connection", function () {
 
 		mongo = new soajsMongo(dbConfig);
 		mongo.getMongoDB(function (error, db) {
+			console.log(error);
 			assert.ifError(error);
 			assert.ok(db);
 			done();
