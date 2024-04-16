@@ -10,8 +10,34 @@
 
 
 const bunyan = require('bunyan');
+const bformat = require('bunyan-format');
+const { createStream } = require('bunyan-gke-stackdriver');
+
 let _log = null;
 const lib = require("soajs.core.libs");
+
+const _streams = [
+	{
+		"stream": process.stderr,
+		"level": "fatal"
+	},
+	{
+		"stream": process.stderr,
+		"level": "error"
+	},
+	{
+		"stream": process.stdout,
+		"level": "warn"
+	},
+	{
+		"stream": process.stdout,
+		"level": "debug"
+	},
+	{
+		"stream": process.stdout,
+		"level": "info"
+	}
+];
 
 /* Logger Component
  *
@@ -36,19 +62,22 @@ module.exports = {
 		if (!_log) {
 			let configClone = lib.utils.cloneObj(config);
 			configClone.name = name;
-			
+
 			if (config.formatter && Object.keys(config.formatter).length > 0) {
-				const bformat = require('bunyan-format');
 				let formatOut = bformat(config.formatter);
 				configClone.stream = formatOut;
 				delete configClone.formatter;
+			} else if (config.gke) {
+				configClone.streams = [createStream()];
+			} else {
+				configClone.streams = _streams;
 			}
-			
+
 			_log = new bunyan.createLogger(configClone);
 		}
 		return _log;
 	},
-	
+
 	"getLog": function () {
 		if (_log) {
 			return _log;

@@ -43,6 +43,7 @@
     "bcryptjs": "2.4.3",
     "bunyan": "1.8.15",
     "bunyan-format": "0.2.1",
+    "bunyan-gke-stackdriver": "0.1.2",
     "handlebars": "4.7.8",
     "install": "0.13.0",
     "jsonschema": "1.4.1",
