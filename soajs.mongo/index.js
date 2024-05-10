@@ -683,7 +683,8 @@ MongoDriver.prototype.createIndex = async function (collectionName, keys, option
 
 	try {
 		await connect(self);
-		let response = await self.db.createIndex(collectionName, keys, options);
+		// let response = await self.db.createIndex(collectionName, keys, options);
+		let response = await self.db.collection(collectionName).createIndex(keys, options);
 		if (typeof cb === "function") {
 			return cb(null, response);
 		}
