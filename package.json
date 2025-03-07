@@ -18,10 +18,10 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "@babel/core": "7.25.2",
-    "@babel/plugin-transform-runtime": "7.24.7",
-    "@babel/preset-env": "7.25.3",
-    "express-session": "1.18.0",
+    "@babel/core": "7.26.9",
+    "@babel/plugin-transform-runtime": "7.26.9",
+    "@babel/preset-env": "7.26.9",
+    "express-session": "1.18.1",
     "grunt": "1.6.1",
     "grunt-babel": "8.0.0",
     "grunt-contrib-clean": "2.0.1",
@@ -32,10 +32,9 @@
     "grunt-istanbul": "0.8.0",
     "grunt-jsdoc": "2.4.1",
     "grunt-mocha-test": "0.13.3",
-    "mocha": "10.7.3",
-    "request": "2.88.2",
+    "mocha": "11.1.0",
     "shelljs": "0.8.5",
-    "sinon": "18.0.0"
+    "sinon": "19.0.2"
   },
   "dependencies": {
     "async": "3.2.6",
