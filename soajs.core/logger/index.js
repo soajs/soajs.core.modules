@@ -12,6 +12,7 @@
 const bunyan = require('bunyan');
 const bformat = require('bunyan-format');
 const { createStream } = require('bunyan-gke-stackdriver');
+const { LoggingBunyan } = require('@google-cloud/logging-bunyan');
 
 let _log = null;
 const lib = require("soajs.core.libs");
@@ -59,7 +60,7 @@ const _streams = [
  */
 module.exports = {
 	"getLogger": function (name, config) {
-		if (!_log) {
+		if (!_log || config.force) {
 			let configClone = lib.utils.cloneObj(config);
 			configClone.name = name;
 
@@ -69,6 +70,9 @@ module.exports = {
 				delete configClone.formatter;
 			} else if (config.gke) {
 				configClone.streams = [createStream()];
+			} else if (config.gke_explorer) {
+				const loggingBunyan = new LoggingBunyan();
+				configClone.streams = [loggingBunyan.stream()];
 			} else {
 				configClone.streams = _streams;
 			}

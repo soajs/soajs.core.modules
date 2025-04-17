@@ -24,6 +24,7 @@ describe("importing sample data", function () {
             require("./core.error.test.js");
             require("./core.key.test.js");
             require("./core.logger.test.js");
+            require("./core.logger.gke.test.js");
             require("./core.meta.test.js");
             require("./core.provision.lib.test.js");
             require("./core.provision.test.js");
