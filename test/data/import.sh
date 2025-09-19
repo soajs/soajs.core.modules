@@ -1,10 +1,10 @@
 #!/bin/bash
 
 pushd ./provision
-mongo ./environment.js
-mongo ./oauth.js
-mongo ./product.js
-mongo ./tenant.js
-mongo ./resources.js
-mongo ./customRegistry.js
+mongosh ./environment.js
+mongosh ./oauth.js
+mongosh ./product.js
+mongosh ./tenant.js
+mongosh ./resources.js
+mongosh ./customRegistry.js
 popd
