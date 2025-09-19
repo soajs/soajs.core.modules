@@ -19,6 +19,3 @@ if (typeof resources !== 'undefined' && resources.length > 0) {
 if (records.length > 0) {
     provDb.resources.insertMany(records);
 }
-
-/* Indexes for products */
-provDb.resources.createIndex({ code: 1 }, { unique: true });
