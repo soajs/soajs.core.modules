@@ -1,13 +1,15 @@
 let provDb = db.getSiblingDB('core_provision');
 
-/* oAuth URAC */
-let files = listFiles('./oauth');
-for (let i = 0; i < files.length; i++) {
-    load(files[i].name);
-}
+load('./oauth/oauthuser.js'); 
 
 provDb.oauth_urac.drop();
 
 let records = [];
-records.push(oauthuser);
-provDb.oauth_urac.insert(records);
+if (typeof oauthuser !== 'undefined') {
+    records.push(oauthuser);
+}
+
+// use insertMany() for inserting an array of records
+if (records.length > 0) {
+    provDb.oauth_urac.insertMany(records);
+}
