@@ -1,18 +1,18 @@
 let provDb = db.getSiblingDB('core_provision');
-//provDb.dropDatabase();
 
-/* Tenants */
-let files = listFiles('./products');
-for (let i = 0; i < files.length; i++) {
-    load(files[i].name);
-}
+load('./products/testProduct.js'); 
 
 provDb.products.drop();
 
 let records = [];
-records.push(testProduct);
-provDb.products.insert(records);
+if (typeof testProduct !== 'undefined') {
+    records.push(testProduct);
+}
 
+// Use insertMany() for inserting an array of records
+if (records.length > 0) {
+    provDb.products.insertMany(records);
+}
 
 /* Indexes for products */
 provDb.products.createIndex({ code: 1 }, { unique: true });
