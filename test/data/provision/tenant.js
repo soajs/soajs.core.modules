@@ -1,20 +1,24 @@
 let provDb = db.getSiblingDB('core_provision');
-//provDb.dropDatabase();
 
 /* Tenants */
-let files = listFiles('./tenants');
-for (let i = 0; i < files.length; i++) {
-    load(files[i].name);
-}
+// Explicitly load the tenant file(s) as listFiles is not available
+load('./tenants/test.js'); 
 
 provDb.tenants.drop();
 
 let records = [];
-records.push(test);
-provDb.tenants.insert(records);
+// Check if the loaded variable 'test' is defined before pushing it
+if (typeof test !== 'undefined') {
+    records.push(test);
+}
+
+// Use insertMany() for inserting an array of records
+if (records.length > 0) {
+    provDb.tenants.insertMany(records);
+}
 
 
 /* Indexes for tenants */
 provDb.tenants.createIndex({ code: 1 }, { unique: true });
-provDb.tenants.createIndex({ 'applications.appId': 1 } );
-provDb.tenants.createIndex({ 'applications.keys.key': 1 } );
+provDb.tenants.createIndex({ 'applications.appId': 1 });
+provDb.tenants.createIndex({ 'applications.keys.key': 1 });

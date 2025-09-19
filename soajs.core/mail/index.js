@@ -14,7 +14,7 @@ let nodemailer = require("nodemailer");
 
 let mailer = function (configuration) {
 	let transport;
-	
+
 	//if no conf, switch to direct transport driver with default options
 	if (!configuration) {
 		transport = config.transport.default.options;
@@ -30,7 +30,7 @@ let mailer = function (configuration) {
 			}
 			throw new Error("transport error: " + err.join(" - "));
 		}
-		
+
 		//check type and use corresponding transport driver
 		switch (configuration.type.toLowerCase()) {
 			case 'smtp':
@@ -42,7 +42,7 @@ let mailer = function (configuration) {
 				break;
 		}
 	}
-	
+
 	//initialize the transporter with driver from above
 	this.transporter = nodemailer.createTransport(transport);
 };
@@ -58,9 +58,12 @@ mailer.prototype.send = function (mailOptions, callback) {
 		}
 		return callback(new Error("mailOptions error: " + err.join(" - ")));
 	}
-	
+
 	//tell the driver to send the mail
-	this.transporter.sendMail(mailOptions, callback);
+	this.transporter
+		.sendMail(mailOptions)
+		.then((info) => { callback(null, info); })
+		.catch((error) => { callback(error, null); });
 };
 
 module.exports = mailer;

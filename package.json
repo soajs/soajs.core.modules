@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "5.2.15",
+  "version": "5.2.16",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -50,8 +50,8 @@
     "install": "0.13.0",
     "jsonschema": "1.5.0",
     "lodash": "4.17.21",
-    "mongodb": "6.16.0",
-    "nodemailer": "6.10.1",
+    "mongodb": "6.20.0",
+    "nodemailer": "7.0.6",
     "object-hash": "3.0.0",
     "soajs.core.libs": "1.2.1"
   }
