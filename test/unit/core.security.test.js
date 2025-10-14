@@ -152,7 +152,7 @@ describe("core security tests", function() {
 			assert.ok(authorization);
 			assert.ok(authorization !== "");
 			assert.ok(authorization.indexOf("Basic ") !== -1);
-			assert.equal("Basic " + new Buffer(id.toString() + ":" + secret.toString()).toString('base64'), authorization);
+			assert.equal("Basic " + Buffer.from(id.toString() + ":" + secret.toString(), 'utf8').toString('base64'), authorization);
 			done();
 		});
 
