@@ -12,7 +12,6 @@ const core = require("../soajs.core");
 const auth = require('basic-auth');
 let log = null;
 
-let _ = require("lodash");
 const async = require("async");
 
 let struct_oauths = {};
@@ -144,7 +143,7 @@ let provision = {
 			return cb(core.error.generate(201));
 		}
 		if (struct_packages[code] && (!struct_packages[code]._TTL || (struct_packages[code]._TTL && struct_packages[code]._TIME && (struct_packages[code]._TIME > (new Date().getTime() - struct_packages[code]._TTL))))) {
-			let packData = _.merge ({}, struct_packages[code]);
+			let packData = {...struct_packages[code]};
 			return cb(null, packData);
 		}
 		core.provision.getPackage(code, function (err, pack) {
@@ -153,7 +152,7 @@ let provision = {
 			}
 			if (pack) {
 				struct_packages[code] = pack;
-				let packData = _.merge ({}, struct_packages[code]);
+				let packData = {...struct_packages[code]};
 				return cb(null, packData);
 			} else {
 				return cb(core.error.generate(201));
@@ -182,7 +181,7 @@ let provision = {
 						(struct_packages[code]._TTL &&
 							struct_packages[code]._TIME &&
 							(struct_packages[code]._TIME > (new Date().getTime() - struct_packages[code]._TTL))))) {
-					let packData = _.merge ({}, struct_packages[code]);
+					let packData = {...struct_packages[code]};
 					packagesData.push(packData);
 					return callback();
 				} else {
@@ -195,7 +194,7 @@ let provision = {
 								struct_packages = packs;
 							}
 							if (struct_packages[code]) {
-								let packData = _.merge ({}, struct_packages[code]);
+								let packData = {...struct_packages[code]};
 								packagesData.push(packData);
 								return callback();
 							} else {
