@@ -149,10 +149,10 @@ module.exports = function (connect) {
 			};
 		}
 		if (session.persistSession.state.DONE) {
-			this.mongo.update(self._options.collection, filter, s, {
+			this.mongo.updateOne(self._options.collection, filter, s, {
 				'upsert': true,
 				'safe': true
-			}, function (err, data) {
+			}, false, function (err, data) {
 				if (err) {
 					self.mongo.closeDb();
 					return cb(err, null);
