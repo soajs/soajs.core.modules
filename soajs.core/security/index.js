@@ -96,16 +96,16 @@ let authorization = {
 	"set": function (src, sid) {
 		let securityIdMask = authorization.mask(sid);
 		if (src) {
-			src.set('soajsauth', "Basic " + (new Buffer("soajs:" + securityIdMask).toString('base64')));
+			src.set('soajsauth', "Basic " + (Buffer.from("soajs:" + securityIdMask, 'utf8').toString('base64')));
 		} else {
-			return ({'soajsauth': "Basic " + (new Buffer("soajs:" + securityIdMask).toString('base64'))});
+			return ({'soajsauth': "Basic " + (Buffer.from("soajs:" + securityIdMask, 'utf8').toString('base64'))});
 		}
 	},
 	"get": function (auth) {
 		let base64 = decodeURIComponent(auth);
 		base64 = base64.split('Basic ')[1];
 		if (base64) {
-			let ascii = new Buffer(base64, 'base64').toString('ascii');
+			let ascii = Buffer.from(base64, 'base64').toString('ascii');
 			if (ascii.indexOf('soajs:') === 0) {
 				return ascii.split('soajs:')[1];
 			}
@@ -128,7 +128,7 @@ let authorization = {
 		return styleId;
 	},
 	"generate": function (id, secret) {
-		return "Basic " + new Buffer(id.toString() + ":" + secret.toString()).toString('base64');
+		return "Basic " + Buffer.from(id.toString() + ":" + secret.toString(), 'utf8').toString('base64');
 	}
 };
 

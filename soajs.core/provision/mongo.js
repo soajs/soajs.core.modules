@@ -31,7 +31,7 @@ if (process.env.SOAJS_SENSITIVE_ENVS) {
 	} catch (e) {
 		temp_sensitiveEnvCodes = null;
 	}
-	if (Array.isArray(temp_sensitiveEnvCodes) && temp_sensitiveEnvCodes > 0) {
+	if (Array.isArray(temp_sensitiveEnvCodes) && temp_sensitiveEnvCodes.length > 0) {
 		sensitiveEnvCodes = temp_sensitiveEnvCodes;
 	}
 }
@@ -138,20 +138,28 @@ module.exports = {
 	},
 	
 	"getDaemonGrpConf": function (grp, name, cb) {
-		if (grp && name) {
-			let criteria = {
-				"daemonConfigGroup": grp,
-				"daemon": name
-			};
-			mongo.find(daemonGrpConfCollectionName, criteria, null, function (err, grpCong) {
-				if (err) {
-					return cb(err);
-				}
-				cb(null, grpCong[0]);
-			});
-		} else {
-			return cb();
+		// Validate required parameters
+		if (!grp || !name) {
+			return cb(new Error("getDaemonGrpConf requires both 'grp' and 'name' parameters"));
 		}
+
+		let criteria = {
+			"daemonConfigGroup": grp,
+			"daemon": name
+		};
+
+		mongo.find(daemonGrpConfCollectionName, criteria, null, function (err, grpCong) {
+			if (err) {
+				return cb(err);
+			}
+
+			// Validate that result exists
+			if (!grpCong || grpCong.length === 0) {
+				return cb(new Error(`Daemon group config not found for daemon '${name}' in group '${grp}'`));
+			}
+
+			cb(null, grpCong[0]);
+		});
 	},
 	"getPackagesFromDb": function (code, cb) {
 		let criteria = {};
