@@ -34,32 +34,15 @@ AggregationCursor.prototype.toArray = function (cb) {
 	}
 };
 
-let connectQueue = [];
-const processQueue = (error) => {
-	connectQueue.forEach(prom => {
-		if (error) {
-			prom.reject(error);
-		} else {
-			prom.resolve();
-		}
-	});
-	connectQueue = [];
-};
+let connectPromise = null;
 
 let cacheDB = {};
 let cacheCluster = {};
-let cachePending = false;
 let cacheDBLib = {
 	"init": function (registryLocation) {
 		if (registryLocation && registryLocation.env) {
-			if (!cacheDB) {
-				cacheDB = {};
-			}
 			if (!cacheDB[registryLocation.env]) {
 				cacheDB[registryLocation.env] = {};
-			}
-			if (!cacheCluster) {
-				cacheCluster = {};
 			}
 			if (!cacheCluster[registryLocation.env]) {
 				cacheCluster[registryLocation.env] = {};
@@ -282,9 +265,10 @@ MongoDriver.prototype.insertMany = async function (collectionName, docs, options
 	try {
 		await connect(self);
 		if (versioning) {
+			const timestamp = new Date().getTime();
 			docs.forEach(function (oneDoc) {
 				oneDoc.v = 1;
-				oneDoc.ts = new Date().getTime();
+				oneDoc.ts = timestamp;
 			});
 			let response = await self.db.collection(collectionName).insertMany(docs, options);
 			if (typeof cb === "function") {
@@ -1567,77 +1551,81 @@ async function connect(obj) {
 	if (!url) {
 		throw (core.error.generate(190));
 	}
-	if (cachePending) {
-		return new Promise(function (resolve, reject) {
-			connectQueue.push({ resolve, reject });
-		})
-			.then(() => {
-				if (obj.db) {
-					return;
-				} else {
-					return connect(obj);
-				}
-			})
-			.catch(error => {
-				throw error;
-			});
-	}
 
-	cachePending = true;
-
-	let client = null;
-	if (obj.client) {
-		let currentConfObj = {
-			"servers": obj.config.servers,
-			"credentials": obj.config.credentials || null,
-		};
-		currentConfObj = objectHash(currentConfObj);
-		if (currentConfObj === configCloneHash) {
-			cacheDBLib.setTimeLoaded(obj.config.registryLocation, obj.config.registryLocation.timeLoaded);
-			client = obj.client;
+	// If a connection is already in progress, wait for it to complete
+	if (connectPromise) {
+		await connectPromise;
+		// After waiting, check if we have a connection now
+		if (obj.db) {
+			return;
 		}
+		// If still no connection, retry connect (recursive call will handle the mutex)
+		return connect(obj);
 	}
 
-	if (!client) {
-		try {
+	// Create a new connection promise to act as a mutex
+	let resolveConnect;
+	let rejectConnect;
+	connectPromise = new Promise((resolve, reject) => {
+		resolveConnect = resolve;
+		rejectConnect = reject;
+	});
+
+	try {
+		let client = null;
+		if (obj.client) {
+			let currentConfObj = {
+				"servers": obj.config.servers,
+				"credentials": obj.config.credentials || null,
+			};
+			currentConfObj = objectHash(currentConfObj);
+			if (currentConfObj === configCloneHash) {
+				cacheDBLib.setTimeLoaded(obj.config.registryLocation, obj.config.registryLocation.timeLoaded);
+				client = obj.client;
+			}
+		}
+
+		if (!client) {
 			if (obj.config.URLParam) {
 				delete obj.config.URLParam.useUnifiedTopology;
 			}
 			client = await MongoClient.connect(url, obj.config.URLParam);
-		} catch (error) {
-			cachePending = false;
-			processQueue(error);
-			throw (error);
-		}
-		if (!obj.config.name || obj.config.name === '') {
-			cachePending = false;
-			let error = new Error("You must specify a db name.");
-			processQueue(error);
-			throw (error);
-		}
-		if (obj.client) {
-			try {
-				displayLog("----- Closing client @ connect");
-				await obj.client.close();
-			} catch (e) {
-				displayLog(e.message);
+
+			if (!obj.config.name || obj.config.name === '') {
+				let error = new Error("You must specify a db name.");
+				throw (error);
 			}
+			if (obj.client) {
+				try {
+					displayLog("----- Closing client @ connect");
+					await obj.client.close();
+				} catch (e) {
+					displayLog(e.message);
+				}
+			}
+			obj.client = client;
 		}
-		obj.client = client;
+
+		let prefix = obj.config.prefix;
+		let dbName = obj.config.name;
+		if (prefix && prefix !== "") {
+			dbName = prefix + dbName;
+		}
+		obj.db = obj.client.db(dbName);
+
+		cacheDBLib.setCache(obj);
+
+		// Release the mutex by resolving the promise
+		resolveConnect();
+		return;
+	} catch (error) {
+		// Release the mutex by rejecting the promise
+		rejectConnect(error);
+		throw (error);
+	} finally {
+		// Always clear the mutex after completion
+		connectPromise = null;
 	}
-
-	let prefix = obj.config.prefix;
-	let dbName = obj.config.name;
-	if (prefix && prefix !== "") {
-		dbName = prefix + dbName;
-	}
-	obj.db = obj.client.db(dbName);
-
-	cacheDBLib.setCache(obj);
-	cachePending = false;
-	processQueue(null);
-
-	return;
 }
 
 function displayLog(msg, extra) {

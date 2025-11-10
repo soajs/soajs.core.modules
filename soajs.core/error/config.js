@@ -15,7 +15,9 @@ module.exports = {
 		'102': 'Log & Registry are needed for any service to function.', //500
 		'103': 'The length of the generate ext key is bad.', //500
 		
-		'13x': "CONTROLLER",
+		'12x': "CONTROLLER",
+		'121': "Header too large",
+		'122': "Invalid header data",
 		'130': "Unknown service.", //404
 		'131': "Controller mw requires configuration to be the first param.", //500
 		'132': "A valid key is needed to access any API.", //403
