@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "5.2.16",
+  "version": "5.2.17",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -18,9 +18,9 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "@babel/core": "7.28.4",
-    "@babel/plugin-transform-runtime": "7.28.3",
-    "@babel/preset-env": "7.28.3",
+    "@babel/core": "7.28.5",
+    "@babel/plugin-transform-runtime": "7.28.5",
+    "@babel/preset-env": "7.28.5",
     "@babel/runtime": "7.28.4",
     "express-session": "1.18.2",
     "grunt": "1.6.1",
@@ -33,7 +33,7 @@
     "grunt-istanbul": "0.8.0",
     "grunt-jsdoc": "2.4.1",
     "grunt-mocha-test": "0.13.3",
-    "mocha": "11.7.4",
+    "mocha": "11.7.5",
     "shelljs": "0.10.0",
     "sinon": "21.0.0"
   },
@@ -42,15 +42,15 @@
     "async": "3.2.6",
     "basic-auth": "2.0.1",
     "bcrypt": "6.0.0",
-    "bcryptjs": "3.0.2",
+    "bcryptjs": "3.0.3",
     "bunyan": "1.8.15",
     "bunyan-format": "0.2.1",
     "bunyan-gke-stackdriver": "0.1.2",
     "handlebars": "4.7.8",
     "install": "0.13.0",
     "jsonschema": "1.5.0",
-    "mongodb": "6.20.0",
-    "nodemailer": "7.0.9",
+    "mongodb": "7.0.0",
+    "nodemailer": "7.0.10",
     "object-hash": "3.0.0",
     "soajs.core.libs": "1.2.1"
   }
