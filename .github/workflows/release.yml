@@ -23,8 +23,15 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install mongosh
+        run: |
+          wget -qO- https://www.mongodb.org/static/pgp/server-8.0.asc | sudo tee /etc/apt/trusted.gpg.d/server-8.0.asc
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-mongosh
+
       - name: Install sendmail
-        run: sudo apt-get update && sudo apt-get install -y sendmail
+        run: sudo apt-get install -y sendmail
 
       - name: Install dependencies
         run: npm install
