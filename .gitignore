@@ -71,3 +71,4 @@ typings/
 package-lock.json
 
 !/soajs.core
+.aider*
