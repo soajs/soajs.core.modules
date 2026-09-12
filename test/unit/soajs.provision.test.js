@@ -495,6 +495,37 @@ describe("testing generate tokens", function () {
 			done();
 		});
 	});
+	
+	it("success - should generate an access token with no refresh token", function (done) {
+		let req = buildReq();
+		let user = buildUser();
+		
+		soajsProvision.generateSaveAccessToken(user, req, null, function (err, response) {
+			assert.ifError(err);
+			assert.ok(response);
+			assert.ok(response.access_token);
+			assert.ok(!response.refresh_token);
+			//NOTE: no ttl was sent, the registry accessTokenLifetime applies
+			assert.equal(response.expires_in, 7200);
+			
+			done();
+		});
+	});
+	
+	it("success - should honour the ttl when one is sent", function (done) {
+		let req = buildReq();
+		let user = buildUser();
+		
+		soajsProvision.generateSaveAccessToken(user, req, 600, function (err, response) {
+			assert.ifError(err);
+			assert.ok(response);
+			assert.ok(response.access_token);
+			assert.ok(!response.refresh_token);
+			assert.equal(response.expires_in, 600);
+			
+			done();
+		});
+	});
 });
 
 describe("Soajs Provision", function () {
@@ -522,3 +553,45 @@ describe("Soajs Provision", function () {
 		});
 	});
 });
+
+function buildReq() {
+	return {
+		headers: {},
+		soajs: {
+			tenant: {
+				id: "10d2cb5fc04ce51e06000001"
+			},
+			registry: {
+				serviceConfig: {
+					oauth: {
+						grants: [
+							"password",
+							"refresh_token"
+						],
+						accessTokenLifetime: 7200.0,
+						refreshTokenLifetime: 1209600.0,
+						debug: false
+					}
+				}
+			}
+		}
+	};
+}
+
+function buildUser() {
+	return {
+		"_id": '58cff717423cbb6425df4e3f',
+		"username": "owner",
+		"firstName": "owner",
+		"lastName": "owner",
+		"email": "me@localhost.com",
+		"status": "active",
+		"groups": ["owner"],
+		"tenant": {
+			"id": "10d2cb5fc04ce51e06000001",
+			"code": "DBTN"
+		},
+		"loginMode": "oauth",
+		"id": "58cff717423cbb6425df4e3f"
+	};
+}

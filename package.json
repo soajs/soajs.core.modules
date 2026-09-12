@@ -1,7 +1,7 @@
 {
   "name": "soajs.core.modules",
   "description": "SOAJS core modules package",
-  "version": "5.2.20",
+  "version": "5.2.21",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -38,9 +38,9 @@
     "sinon": "21.0.1"
   },
   "dependencies": {
-    "@google-cloud/logging-bunyan": "5.1.2",
+    "@google-cloud/logging-bunyan": "6.0.1",
     "async": "3.2.6",
-    "basic-auth": "2.0.1",
+    "basic-auth": "3.0.0",
     "bcrypt": "6.0.0",
     "bcryptjs": "3.0.3",
     "bunyan": "1.8.15",
@@ -49,8 +49,8 @@
     "handlebars": "4.7.9",
     "install": "0.13.0",
     "jsonschema": "1.5.0",
-    "mongodb": "7.5.0",
-    "nodemailer": "9.0.3",
+    "mongodb": "7.6.0",
+    "nodemailer": "10.0.9",
     "object-hash": "3.0.0",
     "soajs.core.libs": "1.2.2"
   }
