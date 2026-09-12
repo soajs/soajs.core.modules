@@ -9,7 +9,29 @@
  */
 
 const core = require("../soajs.core");
-const auth = require('basic-auth');
+const basicAuth = require('basic-auth');
+
+/**
+ * Reads basic auth credentials off a request.
+ *
+ * NOTE: basic-auth 3.x is ESM only and dropped the default auth(req) export, it exposes
+ *       parse(string) and format(credentials) only, and parse throws on a non string.
+ *       this keeps the 2.x auth(req) behaviour and works against both versions, since 2.x
+ *       exposes parse as well.
+ *
+ * @param req {Object}
+ * @returns {Object|undefined} {name, pass} or undefined when there is no usable header
+ */
+function auth(req) {
+	if (!req || !req.headers || typeof req.headers !== "object") {
+		return undefined;
+	}
+	let header = req.headers.authorization;
+	if (typeof header !== "string") {
+		return undefined;
+	}
+	return basicAuth.parse(header);
+}
 let log = null;
 
 const async = require("async");
@@ -344,6 +366,47 @@ let provision = {
 							"refresh_token": rToken
 						});
 					});
+				});
+			});
+		});
+	},
+	
+	/**
+	 * Generates and saves an access token with no refresh token.
+	 *
+	 * NOTE: same as generateSaveAccessRefreshToken without the refresh half. used by the
+	 *       restricted token flow, where the token is short lived and the client re-authorizes
+	 *       instead of refreshing.
+	 *
+	 * @param user {Object} the user record stored on the token
+	 * @param req {Object}
+	 * @param ttl {Number} lifetime in seconds, falls back to registry accessTokenLifetime
+	 * @param cb {Function}
+	 */
+	"generateSaveAccessToken": function (user, req, ttl, cb) {
+		let userFromAuthorise = auth(req);
+		let clientId = (userFromAuthorise) ? userFromAuthorise.name : req.soajs.tenant.id.toString();
+		
+		provision.oauthModel.generateToken("accessToken", req, function (error, aToken) {
+			if (error) {
+				return cb(error);
+			}
+			
+			let oauthConfiguration = req.soajs.registry.serviceConfig.oauth;
+			let lifetime = ttl || oauthConfiguration.accessTokenLifetime;
+			
+			let aExpires = new Date();
+			aExpires.setSeconds(aExpires.getSeconds() + lifetime);
+			
+			provision.oauthModel.saveAccessToken(aToken, clientId, aExpires, user, function (error) {
+				if (error) {
+					return cb(error);
+				}
+				
+				return cb(null, {
+					"token_type": "bearer",
+					"access_token": aToken,
+					"expires_in": lifetime
 				});
 			});
 		});
