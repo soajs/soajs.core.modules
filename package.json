@@ -46,7 +46,7 @@
     "bunyan": "1.8.15",
     "bunyan-format": "0.2.1",
     "bunyan-gke-stackdriver": "0.1.2",
-    "handlebars": "4.7.9",
+    "handlebars": "4.7.10",
     "install": "0.13.0",
     "jsonschema": "1.5.0",
     "mongodb": "7.6.0",
