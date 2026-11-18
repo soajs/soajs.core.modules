@@ -412,17 +412,20 @@ describe("oauthModel tests", function () {
 		});
 	});
 	
-	describe("revokeRefreshToken tests", function () {
+	describe("consumeRefreshToken and restoreRefreshToken tests", function () {
 		
-		it("removes the refresh token once: the first call removes it, the next ones do not", function (done) {
-			soajsProvision.oauthModel.saveRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", function (err) {
+		const save = (token, cb) => soajsProvision.oauthModel.saveRefreshToken(token, "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", cb);
+		
+		it("consumes the refresh token once: the first call gets it, the next ones get null", function (done) {
+			save("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err) {
 				assert.ok(!err);
-				soajsProvision.oauthModel.revokeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err, removed) {
+				soajsProvision.oauthModel.consumeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err, record) {
 					assert.ifError(err);
-					assert.strictEqual(removed, true);
-					soajsProvision.oauthModel.revokeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err, removed) {
+					assert.strictEqual(record.token, "5eaef80c01709fb7cb058aaf9ca9921f6a4da333");
+					assert.strictEqual(record.type, "refreshToken");
+					soajsProvision.oauthModel.consumeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err, record) {
 						assert.ifError(err);
-						assert.strictEqual(removed, false);
+						assert.strictEqual(record, null);
 						soajsProvision.oauthModel.getRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err, token) {
 							assert.ok(!token);
 							done();
@@ -432,20 +435,71 @@ describe("oauthModel tests", function () {
 			});
 		});
 		
-		it("lets one of two concurrent calls remove it", function (done) {
-			soajsProvision.oauthModel.saveRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", function (err) {
+		it("lets one of two concurrent calls consume it", function (done) {
+			save("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", function (err) {
 				assert.ok(!err);
 				let results = [];
-				let check = function (err, removed) {
+				let check = function (err, record) {
 					assert.ifError(err);
-					results.push(removed);
+					results.push(!!record);
 					if (results.length === 2) {
 						assert.deepStrictEqual(results.sort(), [false, true]);
 						done();
 					}
 				};
-				soajsProvision.oauthModel.revokeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", check);
-				soajsProvision.oauthModel.revokeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", check);
+				soajsProvision.oauthModel.consumeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", check);
+				soajsProvision.oauthModel.consumeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", check);
+			});
+		});
+		
+		it("consumes only what getRefreshToken would read: not another environment's token", function (done) {
+			save("5eaef80c01709fb7cb058aaf9ca9921f6a4da555", function (err) {
+				assert.ok(!err);
+				mongo.updateOne("oauth_token", {"token": "5eaef80c01709fb7cb058aaf9ca9921f6a4da555"}, {"$set": {"env": "otherenv"}}, {}, function (err) {
+					assert.ifError(err);
+					soajsProvision.oauthModel.consumeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da555", function (err, record) {
+						assert.ifError(err);
+						assert.strictEqual(record, null);
+						mongo.deleteOne("oauth_token", {"token": "5eaef80c01709fb7cb058aaf9ca9921f6a4da555"}, function () {
+							done();
+						});
+					});
+				});
+			});
+		});
+		
+		it("puts a consumed refresh token back", function (done) {
+			save("5eaef80c01709fb7cb058aaf9ca9921f6a4da666", function (err) {
+				assert.ok(!err);
+				soajsProvision.oauthModel.consumeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da666", function (err, record) {
+					assert.ifError(err);
+					soajsProvision.oauthModel.restoreRefreshToken(record, function (err) {
+						assert.ifError(err);
+						soajsProvision.oauthModel.getRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da666", function (err, token) {
+							assert.ok(token);
+							assert.strictEqual(String(token._id), String(record._id));
+							done();
+						});
+					});
+				});
+			});
+		});
+		
+		it("calls back once when the callback throws", function (done) {
+			save("5eaef80c01709fb7cb058aaf9ca9921f6a4da777", function (err) {
+				assert.ok(!err);
+				let calls = 0;
+				soajsProvision.oauthModel.consumeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da777", function () {
+					calls++;
+					if (calls === 1) {
+						// as a generateToken that throws later in the grant
+						throw new Error("thrown after the consume");
+					}
+				});
+				setTimeout(function () {
+					assert.strictEqual(calls, 1);
+					done();
+				}, 300);
 			});
 		});
 	});

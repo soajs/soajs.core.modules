@@ -383,19 +383,19 @@ describe("soajs.oauth2", function () {
 		});
 	});
 
-	// SOAJS: the used refresh token is revoked before new tokens are issued
-	describe("Revoking the refresh token (SOAJS)", function () {
+	// SOAJS: the used refresh token is consumed before new tokens are issued
+	describe("Consuming the refresh token (SOAJS)", function () {
 		const refresh = {"clientId": "thom", "expires": new Date(Date.now() + 60000), "user": {"id": 1}};
 		const grant = (m) => run(oauth2server({"model": m, "grants": ["password", "refresh_token"]}).grant(),
 			request({"method": "POST", "form": Object.assign({"grant_type": "refresh_token", "refresh_token": "abc"}, client)}));
 
-		it("issues new tokens when the model removed the refresh token", async () => {
+		it("issues new tokens when the model consumed the refresh token", async () => {
 			const order = [];
 			const m = model({
 				"getRefreshToken": (t, cb) => cb(false, refresh),
-				"revokeRefreshToken": (t, cb) => {
-					order.push("revoke " + t);
-					cb(null, true);
+				"consumeRefreshToken": (t, cb) => {
+					order.push("consume " + t);
+					cb(null, {"token": t});
 				},
 				"saveAccessToken": (t, c, e, u, cb) => {
 					order.push("save");
@@ -405,13 +405,13 @@ describe("soajs.oauth2", function () {
 			const r = await grant(m);
 			assert.strictEqual(r.err, undefined);
 			assert.ok(r.res.body.access_token);
-			assert.deepStrictEqual(order, ["revoke abc", "save"]);
+			assert.deepStrictEqual(order, ["consume abc", "save"]);
 		});
-		it("answers Invalid refresh token when another request removed it first", async () => {
+		it("answers Invalid refresh token when another request consumed it first", async () => {
 			let saved = false;
 			const m = model({
 				"getRefreshToken": (t, cb) => cb(false, refresh),
-				"revokeRefreshToken": (t, cb) => cb(null, false),
+				"consumeRefreshToken": (t, cb) => cb(null, null),
 				"saveAccessToken": (t, c, e, u, cb) => {
 					saved = true;
 					cb();
@@ -420,23 +420,56 @@ describe("soajs.oauth2", function () {
 			expectError(await grant(m), 400, "Invalid refresh token");
 			assert.strictEqual(saved, false, "no token is issued");
 		});
-		it("answers a revoke error as server_error", async () => {
-			const m = model({"getRefreshToken": (t, cb) => cb(false, refresh), "revokeRefreshToken": (t, cb) => cb(new Error("db down"))});
+		it("answers a consume error as server_error", async () => {
+			const m = model({"getRefreshToken": (t, cb) => cb(false, refresh), "consumeRefreshToken": (t, cb) => cb(new Error("db down"))});
 			expectError(await grant(m), 503, "db down");
 		});
 		it("lets exactly one of two concurrent uses win", async () => {
-			let stored = true;
+			let stored = {"token": "abc"};
 			const m = model({
 				"getRefreshToken": (t, cb) => setImmediate(() => cb(false, refresh)),
-				"revokeRefreshToken": (t, cb) => setImmediate(() => {
-					const removed = stored;
-					stored = false;
-					cb(null, removed);
+				"consumeRefreshToken": (t, cb) => setImmediate(() => {
+					const consumed = stored;
+					stored = null;
+					cb(null, consumed);
 				})
 			});
 			const results = await Promise.all([grant(m), grant(m)]);
 			assert.strictEqual(results.filter((r) => !r.err).length, 1);
 			expectError(results.find((r) => r.err), 400, "Invalid refresh token");
+		});
+		for (const failing of ["saveAccessToken", "saveRefreshToken"]) {
+			it("puts the consumed refresh token back when " + failing + " fails", async () => {
+				const restored = [];
+				const m = model({
+					"getRefreshToken": (t, cb) => cb(false, refresh),
+					"consumeRefreshToken": (t, cb) => cb(null, {"token": t, "type": "refreshToken"}),
+					"restoreRefreshToken": (record, cb) => {
+						restored.push(record);
+						cb();
+					}
+				});
+				m[failing] = (t, c, e, u, cb) => cb(new Error("db blip"));
+				expectError(await grant(m), 503, "db blip");
+				assert.deepStrictEqual(restored, [{"token": "abc", "type": "refreshToken"}]);
+			});
+		}
+		it("does not restore anything for the password grant", async () => {
+			let restored = 0;
+			const m = model({"restoreRefreshToken": (r, cb) => cb(restored++)});
+			m.saveAccessToken = (t, c, e, u, cb) => cb(new Error("db blip"));
+			const r = await run(oauth2server({"model": m, "grants": ["password"]}).grant(),
+				request({"method": "POST", "form": Object.assign({"grant_type": "password", "username": "thomseddon", "password": "nightworld"}, client)}));
+			expectError(r, 503, "db blip");
+			assert.strictEqual(restored, 0);
+		});
+		it("does not call revokeRefreshToken (2.4.1's name)", async () => {
+			const m = model({
+				"getRefreshToken": (t, cb) => cb(false, refresh),
+				"revokeRefreshToken": () => assert.fail("not called"),
+				"consumeRefreshToken": (t, cb) => cb(null, {"token": t})
+			});
+			assert.strictEqual((await grant(m)).err, undefined);
 		});
 	});
 

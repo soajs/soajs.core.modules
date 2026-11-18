@@ -18,23 +18,20 @@
 
 'use strict';
 
-const crypto = require('crypto');
 const error = require('./error');
+const provision = require('../../soajs.core/provision/index.js');
 
 /**
- * Internal random token generator
+ * The token generator of soajs.core provision (as 2.4.1's own: sha1 of 256 random bytes), when the
+ * model has none or gives none
  *
  * @param  {Function} callback
  */
 function generateRandomToken(callback) {
-	crypto.randomBytes(256, function (ex, buffer) {
+	provision.generateToken(function (ex, token) {
 		if (ex) {
 			return callback(error('server_error'));
 		}
-		let token = crypto
-			.createHash('sha1')
-			.update(buffer)
-			.digest('hex');
 		callback(false, token);
 	});
 }

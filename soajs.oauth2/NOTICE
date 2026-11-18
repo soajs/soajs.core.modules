@@ -12,8 +12,9 @@ Changes from 2.4.1, made by SOAJS:
   client credentials and extended grants, errorHandler and lockdown are not;
 - grant() takes the user lookup per request (req.oauth2GetUser), so a shared model is never
   changed between requests;
-- the refresh_token grant revokes the used refresh token before issuing new ones, and answers
-  "Invalid refresh token" when the model did not remove it (another request used it first);
+- the refresh_token grant consumes the used refresh token (model.consumeRefreshToken) before
+  issuing new ones, answers "Invalid refresh token" when nothing was consumed (another request used
+  it first), and puts it back (model.restoreRefreshToken) when the new tokens cannot be saved;
 - the Basic authorization header is parsed here (basic-auth 0.0.1 rules), without the package.
 - a token's expires must be a valid Date: null, a string, a missing value or an invalid Date has
   expired (2.4.1 let null, a string and an invalid Date never expire).

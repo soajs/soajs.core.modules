@@ -20,8 +20,11 @@ module.exports = {
     "getRefreshToken": function (bearerToken, cb) {
         return cb(false, false);
     },
-    "revokeRefreshToken": function (refreshToken, cb) {
-        return cb(false, false);
+    "consumeRefreshToken": function (refreshToken, cb) {
+        return cb(false, null);
+    },
+    "restoreRefreshToken": function (record, cb) {
+        return cb(false);
     },
     "saveAccessToken": function (accessToken, clientId, expires, user, cb) {
         return cb(false);

@@ -36,7 +36,9 @@ function Client(id, secret) {
 
 /**
  * Parse the Authorization header field of req, as basic-auth 0.0.1 does: the scheme "basic" in
- * any case, then base64 of "name:pass", where name has no ":" and pass is not empty.
+ * any case, then base64 of "name:pass", where name has no ":" and pass is not empty. This is kept
+ * here on purpose: these rules are the grant's contract; basic-auth 3.x accepts an empty password
+ * and more than one space after the scheme.
  *
  * @param  {Object} req
  * @return {Object} with .name and .pass, or undefined
@@ -206,9 +208,10 @@ function usePasswordGrant(done) {
 }
 
 /**
- * Grant for refresh_token grant type. The used refresh token is revoked before new tokens are
- * issued: when the model's revokeRefreshToken did not remove it, another request used it first,
- * and this one answers "Invalid refresh token".
+ * Grant for refresh_token grant type. The used refresh token is consumed before new tokens are
+ * issued: when the model's consumeRefreshToken did not find and delete it, another request used it
+ * first, and this one answers "Invalid refresh token". When the new tokens cannot be saved, the
+ * consumed token is put back (restoreRefreshToken), so the client can refresh again.
  *
  * @param  {Function} done
  */
@@ -239,14 +242,16 @@ function useRefreshTokenGrant(done) {
 
 		self.user = refreshToken.user || {id: refreshToken.userId};
 
-		if (self.model.revokeRefreshToken) {
-			return self.model.revokeRefreshToken(refresh_token, function (err, removed) {
+		// consume the refresh token: one concurrent use wins
+		if (self.model.consumeRefreshToken) {
+			return self.model.consumeRefreshToken(refresh_token, function (err, consumed) {
 				if (err) {
 					return done(error('server_error', false, err));
 				}
-				if (!removed) {
+				if (!consumed) {
 					return done(error('invalid_grant', 'Invalid refresh token'));
 				}
+				self.consumedRefreshToken = consumed;
 				done();
 			});
 		}
@@ -288,6 +293,25 @@ function exposeUser(done) {
 }
 
 /**
+ * The new tokens could not be saved: put back the consumed refresh token, then answer the error.
+ *
+ * @param  {Object}   err  the error to answer
+ * @param  {Function} done
+ * @this   Grant
+ */
+function restoreThen(err, done) {
+	/* jshint validthis: true */
+	if (!this.consumedRefreshToken || !this.model.restoreRefreshToken) {
+		return done(err);
+	}
+	let consumed = this.consumedRefreshToken;
+	this.consumedRefreshToken = null;
+	this.model.restoreRefreshToken(consumed, function () {
+		done(err);
+	});
+}
+
+/**
  * Generate an access token
  *
  * @param  {Function} done
@@ -324,10 +348,11 @@ function saveAccessToken(done) {
 		expires.setSeconds(expires.getSeconds() + this.config.accessTokenLifetime);
 	}
 
+	let self = this;
 	this.model.saveAccessToken(accessToken, this.client.clientId, expires,
 		this.user, function (err) {
 			if (err) {
-				return done(error('server_error', false, err));
+				return restoreThen.call(self, error('server_error', false, err), done);
 			}
 			done();
 		});
@@ -378,10 +403,11 @@ function saveRefreshToken(done) {
 		expires.setSeconds(expires.getSeconds() + this.config.refreshTokenLifetime);
 	}
 
+	let self = this;
 	this.model.saveRefreshToken(refreshToken, this.client.clientId, expires,
 		this.user, function (err) {
 			if (err) {
-				return done(error('server_error', false, err));
+				return restoreThen.call(self, error('server_error', false, err), done);
 			}
 			done();
 		});

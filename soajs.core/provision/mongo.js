@@ -20,6 +20,23 @@ let tokenCollectionName = "oauth_token";
 let daemonGrpConfCollectionName = "daemon_grpconf";
 let oauthUracCollectionName = "oauth_urac";
 
+// the soajs.mongo wrappers call cb inside their try and again from their catch when a later step
+// throws: the callbacks of the token consume and restore run once
+function once(cb) {
+	let called = false;
+	return function () {
+		if (called) {
+			return;
+		}
+		called = true;
+		return cb.apply(null, arguments);
+	};
+}
+
+function escapeRegExp(s) {
+	return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 let regEnvironment = (process.env.SOAJS_ENV || "dev");
 regEnvironment = regEnvironment.toLowerCase();
 
@@ -110,13 +127,35 @@ module.exports = {
 			}
 		});
 	},
-	"revokeRefreshToken": function (refreshToken, cb) {
-		// one atomic delete: only the request that removes the token may use it
-		oauthMongo.deleteOne(tokenCollectionName, {"token": refreshToken, "type": "refreshToken"}, function (err, response) {
+	/**
+	 * Consumes a refresh token: finds and deletes it in one step, with the filter getRefreshToken
+	 * reads it with (the token, its type, this environment or a sensitive one). cb(err, record):
+	 * record is the deleted document, for the one call that deleted it, else null.
+	 */
+	"consumeRefreshToken": function (refreshToken, cb) {
+		cb = once(cb);
+		let filter = {
+			"token": refreshToken,
+			"type": "refreshToken",
+			"$or": [
+				{"env": regEnvironment},
+				{"env": {"$regex": "^(" + sensitiveEnvCodes.map(escapeRegExp).join("|") + ")$", "$options": "i"}}
+			]
+		};
+		oauthMongo.findOneAndDelete(tokenCollectionName, filter, {}, function (err, record) {
 			if (err) {
 				return cb(err);
 			}
-			return cb(null, !!(response && response.deletedCount === 1));
+			return cb(null, record || null);
+		});
+	},
+	/**
+	 * Puts back a refresh token consumeRefreshToken deleted (the new tokens could not be saved).
+	 */
+	"restoreRefreshToken": function (record, cb) {
+		cb = once(cb);
+		oauthMongo.insertOne(tokenCollectionName, record, function (err) {
+			return cb(err);
 		});
 	},
 	"saveAccessToken": function (accessToken, clientId, expires, user, cb) {

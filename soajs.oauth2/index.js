@@ -43,12 +43,15 @@ function OAuth2Server(config) {
 	this.model = config.model;
 
 	this.grants = config.grants || [];
-	this.debug = config.debug || function () {
-	};
-	if (typeof this.debug !== 'function') {
-		this.debug = console.log;
-	}
+	// config.debug is accepted and ignored: 2.4.1 used it only in errorHandler, which is not ported
 	this.continueAfterResponse = config.continueAfterResponse;
+
+	// only password and refresh_token are granted: another grant type in the list passes the
+	// grant_type check and is then answered "Invalid grant_type parameter or parameter missing"
+	let unsupported = this.grants.filter((g) => g !== 'password' && g !== 'refresh_token');
+	if (unsupported.length) {
+		console.warn('soajs.oauth2: grants not supported, refused at /token: ' + unsupported.join(', '));
+	}
 
 	this.accessTokenLifetime = config.accessTokenLifetime !== undefined ?
 		config.accessTokenLifetime : 3600;

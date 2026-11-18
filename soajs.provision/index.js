@@ -436,11 +436,18 @@ let provision = {
 			core.provision.getRefreshToken(bearerToken, cb);
 		},
 		/**
-		 * Removes a refresh token, cb(err, removed): removed is true for the one call that deleted it.
-		 * The refresh grant revokes the used token before issuing new ones.
+		 * Consumes a refresh token, cb(err, record): record is the deleted token for the one call that
+		 * deleted it, else null. soajs.oauth2's refresh grant consumes the used token before issuing
+		 * new ones. (oauth2-server 2.4.1 does not know this name: it calls revokeRefreshToken only.)
 		 */
-		"revokeRefreshToken": function (refreshToken, cb) {
-			core.provision.revokeRefreshToken(refreshToken, cb);
+		"consumeRefreshToken": function (refreshToken, cb) {
+			core.provision.consumeRefreshToken(refreshToken, cb);
+		},
+		/**
+		 * Puts back a consumed refresh token when the new tokens could not be saved.
+		 */
+		"restoreRefreshToken": function (record, cb) {
+			core.provision.restoreRefreshToken(record, cb);
 		},
 		"saveAccessToken": function (accessToken, clientId, expires, user, cb) {
 			core.provision.saveAccessToken(accessToken, clientId, expires, user, cb);
