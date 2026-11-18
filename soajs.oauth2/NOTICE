@@ -1,0 +1,20 @@
+soajs.oauth2
+
+Ported from node-oauth2-server 2.4.1 (https://github.com/oauthjs/node-oauth2-server):
+lib/oauth2server.js, lib/authorise.js, lib/grant.js, lib/error.js, lib/token.js, lib/runner.js,
+and from basic-auth 0.0.1 (the Basic authorization header parsing).
+
+Copyright 2013-present NightWorld.
+Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
+
+Changes from 2.4.1, made by SOAJS:
+- only the password and refresh_token grants and authorise() are kept; the authorization code,
+  client credentials and extended grants, errorHandler and lockdown are not;
+- grant() takes the user lookup per request (req.oauth2GetUser), so a shared model is never
+  changed between requests;
+- the refresh_token grant consumes the used refresh token (model.consumeRefreshToken) before
+  issuing new ones, answers "Invalid refresh token" when nothing was consumed (another request used
+  it first), and puts it back (model.restoreRefreshToken) when the new tokens cannot be saved;
+- the Basic authorization header is parsed here (basic-auth 0.0.1 rules), without the package.
+- a token's expires must be a valid Date: null, a string, a missing value or an invalid Date has
+  expired (2.4.1 let null, a string and an invalid Date never expire).

@@ -34,6 +34,7 @@ describe("importing sample data", function () {
             //require("./soajs.es.test.js");
             require("./soajs.provision.test.js");
             require("./soajs.mongoStore.test.js");
+            require("./soajs.oauth2.test.js");
             done();
         }, 1000);
     });

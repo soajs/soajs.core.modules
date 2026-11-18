@@ -14,6 +14,7 @@ module.exports = {
     "mongo": require("./soajs.mongo"),
     "mongoStore": require("./soajs.mongoStore"),
     "provision": require("./soajs.provision"),
+    "oauth2": require("./soajs.oauth2"),
     "hasher": require("./soajs.core").security.hasher,
     "authorization": {
         "generate": require("./soajs.core").security.authorization.generate
