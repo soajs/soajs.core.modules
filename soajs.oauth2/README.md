@@ -28,6 +28,10 @@ Errors go to `next(err)` as `OAuth2Error` with `code` (the HTTP status), `messag
 - Only `authorise()`, `grant()` with the password and refresh_token grants, and `OAuth2Error` are kept. The authorization code, client credentials and extended grants, `errorHandler`, `lockdown` and `bypass` are not.
 - The Basic authorization header is parsed here, with the rules of basic-auth 0.0.1.
 
+## By design
+
+- **Client credentials** come from the Basic header when it is valid, else from the body. The oauth service identifies the client by the tenant's key: it sets the header from the tenant before the grant, so a `client_secret` in the body is not used, and a wrong one does not fail the grant.
+
 ## Kept for compatibility
 
 These answers are 2.4.1's and clients may rely on them. Do not change them.
@@ -36,7 +40,6 @@ These answers are 2.4.1's and clients may rely on them. Do not change them.
 - **Bearer** is matched with `/Bearer\s(\S+)/`: unanchored (`xBearer <token>` passes) and case-sensitive (`bearer <token>` is `Malformed auth header`).
 - **Expiry.** An access or refresh token whose `expires` is `null` never expires. A missing `expires` has expired. Any other value is compared with the current date as JavaScript compares it: a token whose `expires` is stored as a string never expires.
 - **A token in the body** is only read by `authorise()` when the request body is parsed. The SOAJS gateway does not parse it, so it answers `The access token was not found` for a token sent in the body only.
-- **Client credentials** come from the Basic header when it is valid, else from the body. The oauth service sets the header from the tenant before the grant, so a wrong `client_secret` in the body is not used and the grant succeeds.
 - **The grant type** is checked case-insensitively against `grants`, then case-sensitively by the grant: `PASSWORD` answers `Invalid grant_type parameter or parameter missing`. On the oauth service, input validation (172/173) answers before the grant.
 - **Client id** must match `/^[a-z0-9-_]{3,40}$/i`, and the client secret must not be empty.
 - **A refresh token without a user** answers 503 with `message` `false`.
