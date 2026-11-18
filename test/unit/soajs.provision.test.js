@@ -412,6 +412,44 @@ describe("oauthModel tests", function () {
 		});
 	});
 	
+	describe("revokeRefreshToken tests", function () {
+		
+		it("removes the refresh token once: the first call removes it, the next ones do not", function (done) {
+			soajsProvision.oauthModel.saveRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", function (err) {
+				assert.ok(!err);
+				soajsProvision.oauthModel.revokeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err, removed) {
+					assert.ifError(err);
+					assert.strictEqual(removed, true);
+					soajsProvision.oauthModel.revokeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err, removed) {
+						assert.ifError(err);
+						assert.strictEqual(removed, false);
+						soajsProvision.oauthModel.getRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da333", function (err, token) {
+							assert.ok(!token);
+							done();
+						});
+					});
+				});
+			});
+		});
+		
+		it("lets one of two concurrent calls remove it", function (done) {
+			soajsProvision.oauthModel.saveRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", "10d2cb5fc04ce51e06000001", null, "22d2cb5fc04ce51e06000001", function (err) {
+				assert.ok(!err);
+				let results = [];
+				let check = function (err, removed) {
+					assert.ifError(err);
+					results.push(removed);
+					if (results.length === 2) {
+						assert.deepStrictEqual(results.sort(), [false, true]);
+						done();
+					}
+				};
+				soajsProvision.oauthModel.revokeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", check);
+				soajsProvision.oauthModel.revokeRefreshToken("5eaef80c01709fb7cb058aaf9ca9921f6a4da444", check);
+			});
+		});
+	});
+	
 	describe("getUser tests", function () {
 		
 		it("success tests", function (done) {

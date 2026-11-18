@@ -110,6 +110,15 @@ module.exports = {
 			}
 		});
 	},
+	"revokeRefreshToken": function (refreshToken, cb) {
+		// one atomic delete: only the request that removes the token may use it
+		oauthMongo.deleteOne(tokenCollectionName, {"token": refreshToken, "type": "refreshToken"}, function (err, response) {
+			if (err) {
+				return cb(err);
+			}
+			return cb(null, !!(response && response.deletedCount === 1));
+		});
+	},
 	"saveAccessToken": function (accessToken, clientId, expires, user, cb) {
 		let tokenRecord = {
 			type: "accessToken",

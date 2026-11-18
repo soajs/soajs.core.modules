@@ -95,7 +95,7 @@ module.exports = function (grunt) {
 				}
 			},
 			files: {
-				src: ['index.js', 'config.js', 'Gruntfile.js', 'soajs.core/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js']
+				src: ['index.js', 'config.js', 'Gruntfile.js', 'soajs.core/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js', 'soajs.oauth2/**/*.js']
 			},
 			gruntfile: {
 				src: 'Gruntfile.js'
@@ -197,6 +197,12 @@ module.exports = function (grunt) {
 						src: ['*.js'],
 						dest: 'test/dist/soajs.provision/'
 					},
+					{
+						expand: true,
+						cwd: 'soajs.oauth2/',
+						src: ['**/*.js'],
+						dest: 'test/dist/soajs.oauth2/'
+					},
 					{ 'test/dist/index.js': 'index.js' },
 				]
 			}
@@ -204,7 +210,7 @@ module.exports = function (grunt) {
 
 		instrument: {
 			// files: ['index.js', 'soajs.contentBuilder/**/*.js', 'soajs.core/**/*.js', 'soajs.mail/**/*.js', 'soajs.mail/**/*.js', 'soajs.mongo/**/*.js', 'soajs.mongoStore/**/*.js', 'soajs.provision/**/*.js'],
-			files: ['test/dist/index.js', 'test/dist/soajs.provision/*.js', 'test/dist/soajs.mongoStore/*.js', 'test/dist/soajs.mongo/*.js', 'test/dist/soajs.mail/*.js', 'test/dist/soajs.core/**/*.js', 'test/dist/profiles/*.js'],
+			files: ['test/dist/index.js', 'test/dist/soajs.provision/*.js', 'test/dist/soajs.oauth2/**/*.js', 'test/dist/soajs.mongoStore/*.js', 'test/dist/soajs.mongo/*.js', 'test/dist/soajs.mail/*.js', 'test/dist/soajs.core/**/*.js', 'test/dist/profiles/*.js'],
 			options: {
 				lazy: false,
 				basePath: 'test/coverage/instrument/'

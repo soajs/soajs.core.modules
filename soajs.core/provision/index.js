@@ -45,6 +45,9 @@ let provision = {
 	"getRefreshToken": function (bearerToken, cb) {
 		return provision.model.getRefreshToken(bearerToken, cb);
 	},
+	"revokeRefreshToken": function (refreshToken, cb) {
+		return provision.model.revokeRefreshToken(refreshToken, cb);
+	},
 	"saveAccessToken": function (accessToken, clientId, expires, user, cb) {
 		return provision.model.saveAccessToken(accessToken, clientId, expires, user, cb);
 	},

@@ -435,6 +435,13 @@ let provision = {
 		"getRefreshToken": function (bearerToken, cb) {
 			core.provision.getRefreshToken(bearerToken, cb);
 		},
+		/**
+		 * Removes a refresh token, cb(err, removed): removed is true for the one call that deleted it.
+		 * The refresh grant revokes the used token before issuing new ones.
+		 */
+		"revokeRefreshToken": function (refreshToken, cb) {
+			core.provision.revokeRefreshToken(refreshToken, cb);
+		},
 		"saveAccessToken": function (accessToken, clientId, expires, user, cb) {
 			core.provision.saveAccessToken(accessToken, clientId, expires, user, cb);
 		},
