@@ -72,4 +72,20 @@ function OAuth2Error(error, description, err) {
 
 util.inherits(OAuth2Error, Error);
 
+/**
+ * A token's expires can be used only when it is a valid Date: null, a string, a missing value or
+ * an invalid Date has expired (2.4.1 let null, a string and an invalid Date never expire).
+ *
+ * @param {*}    expires the token's expires
+ * @param {Date} now
+ * @return {Boolean} true when the token can no longer be used
+ */
+function expired(expires, now) {
+	if (!(expires instanceof Date) || isNaN(expires.getTime())) {
+		return true;
+	}
+	return expires < (now || new Date());
+}
+
 module.exports = OAuth2Error;
+module.exports.expired = expired;

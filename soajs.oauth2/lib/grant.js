@@ -228,8 +228,7 @@ function useRefreshTokenGrant(done) {
 
 		if (!refreshToken || refreshToken.clientId !== self.client.clientId) {
 			return done(error('invalid_grant', 'Invalid refresh token'));
-		} else if (refreshToken.expires !== null &&
-			refreshToken.expires < self.now) {
+		} else if (error.expired(refreshToken.expires, self.now)) {
 			return done(error('invalid_grant', 'Refresh token has expired'));
 		}
 

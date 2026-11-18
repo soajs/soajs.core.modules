@@ -126,19 +126,21 @@ describe("soajs.oauth2", function () {
 			const m = {"getAccessToken": (t, cb) => cb(false, {"expires": new Date(Date.now() - 1000)})};
 			expectError(await authorise(m, request({"query": {"access_token": "thom"}})), 401, "The access token provided has expired.");
 		});
-		it("should passthrough with valid, non-expiring token (token = null)", async () => {
+		// SOAJS (intended change from 2.4.1): a token without a valid Date expires has expired;
+		// 2.4.1 let a null expires never expire
+		it("should refuse a token whose expires is null (2.4.1 let it through)", async () => {
 			const m = {"getAccessToken": (t, cb) => cb(false, {"expires": null})};
-			const r = await authorise(m, request({"query": {"access_token": "thom"}}));
-			assert.strictEqual(r.err, undefined);
+			expectError(await authorise(m, request({"query": {"access_token": "thom"}})), 401, "The access token provided has expired.");
 		});
+		const later = () => new Date(Date.now() + 60000);
 		it("should expose the user id when setting userId", async () => {
-			const m = {"getAccessToken": (t, cb) => cb(false, {"expires": null, "userId": 1})};
+			const m = {"getAccessToken": (t, cb) => cb(false, {"expires": later(), "userId": 1})};
 			const r = await authorise(m, request({"query": {"access_token": "thom"}}));
 			assert.deepStrictEqual(r.req.user, {"id": 1});
-			assert.deepStrictEqual(r.req.oauth.bearerToken, {"expires": null, "userId": 1});
+			assert.strictEqual(r.req.oauth.bearerToken.userId, 1);
 		});
 		it("should expose the user id when setting user object", async () => {
-			const m = {"getAccessToken": (t, cb) => cb(false, {"expires": null, "user": {"id": 1, "name": "thom"}})};
+			const m = {"getAccessToken": (t, cb) => cb(false, {"expires": later(), "user": {"id": 1, "name": "thom"}})};
 			const r = await authorise(m, request({"query": {"access_token": "thom"}}));
 			assert.deepStrictEqual(r.req.user, {"id": 1, "name": "thom"});
 		});
@@ -148,11 +150,13 @@ describe("soajs.oauth2", function () {
 			assert.strictEqual((await authorise(valid, request({"headers": {"Authorization": "xBearer thom"}}))).err, undefined);
 			expectError(await authorise(valid, request({"headers": {"Authorization": "bearer thom"}})), 400, "Malformed auth header");
 		});
-		it("treats a missing expires as expired and compares any other value with now", async () => {
+		// SOAJS (intended change from 2.4.1): expires must be a valid Date
+		it("refuses a token whose expires is missing, a string, a number or an invalid Date", async () => {
 			const token = (expires) => ({"getAccessToken": (t, cb) => cb(false, expires === "missing" ? {} : {expires})});
-			expectError(await authorise(token("missing"), request({"query": {"access_token": "x"}})), 401, "The access token provided has expired.");
-			// a string is never "less than" a Date (NaN), so it never expires
-			assert.strictEqual((await authorise(token("2020-01-01T00:00:00.000Z"), request({"query": {"access_token": "x"}}))).err, undefined);
+			for (const expires of ["missing", "2099-01-01T00:00:00.000Z", Date.now() + 60000, new Date("nope")]) {
+				expectError(await authorise(token(expires), request({"query": {"access_token": "x"}})), 401, "The access token provided has expired.");
+			}
+			assert.strictEqual((await authorise(token(new Date(Date.now() + 60000)), request({"query": {"access_token": "x"}}))).err, undefined);
 		});
 		it("answers a model error as server_error with its message", async () => {
 			const m = {"getAccessToken": (t, cb) => cb(new Error("db down"))};
@@ -358,14 +362,21 @@ describe("soajs.oauth2", function () {
 				Object.assign({"grant_type": "refresh_token", "refresh_token": "abc"}, client));
 			assert.deepStrictEqual(r.req.user, {"id": 123});
 		});
-		it("should allow valid request with non-expiring token (token= null)", async () => {
-			const r = await grant(withRefresh({"clientId": "thom", "expires": null, "userId": 123}),
-				Object.assign({"grant_type": "refresh_token", "refresh_token": "abc"}, client));
-			assert.strictEqual(r.err, undefined);
+		// SOAJS (intended change from 2.4.1): expires must be a valid Date; 2.4.1 let a null,
+		// a string or a missing expires never expire
+		it("should refuse a refresh token whose expires is null, missing, a string or an invalid Date", async () => {
+			for (const expires of [null, undefined, "2099-01-01T00:00:00.000Z", new Date("nope")]) {
+				const token = {"clientId": "thom", "userId": 123};
+				if (expires !== undefined) {
+					token.expires = expires;
+				}
+				expectError(await grant(withRefresh(token), Object.assign({"grant_type": "refresh_token", "refresh_token": "abc"}, client)), 400,
+					"Refresh token has expired");
+			}
 		});
 		// as 2.4.1: the cause is a string, not an Error, so the message is the description, false
 		it("answers a refresh token without a user as server_error", async () => {
-			const r = await grant(withRefresh({"clientId": "thom", "expires": null}), Object.assign({"grant_type": "refresh_token", "refresh_token": "abc"}, client));
+			const r = await grant(withRefresh({"clientId": "thom", "expires": new Date(Date.now() + 60000)}), Object.assign({"grant_type": "refresh_token", "refresh_token": "abc"}, client));
 			assert.ok(r.err instanceof OAuth2Error);
 			assert.strictEqual(r.err.code, 503);
 			assert.strictEqual(r.err.message, false);
@@ -374,7 +385,7 @@ describe("soajs.oauth2", function () {
 
 	// SOAJS: the used refresh token is revoked before new tokens are issued
 	describe("Revoking the refresh token (SOAJS)", function () {
-		const refresh = {"clientId": "thom", "expires": null, "user": {"id": 1}};
+		const refresh = {"clientId": "thom", "expires": new Date(Date.now() + 60000), "user": {"id": 1}};
 		const grant = (m) => run(oauth2server({"model": m, "grants": ["password", "refresh_token"]}).grant(),
 			request({"method": "POST", "form": Object.assign({"grant_type": "refresh_token", "refresh_token": "abc"}, client)}));
 
@@ -474,6 +485,16 @@ describe("soajs.oauth2", function () {
 			assert.deepStrictEqual(await seen("Basic " + Buffer.from("thom").toString("base64"), client), ["thom", "nightworld"]);
 			assert.deepStrictEqual(await seen("Basic " + Buffer.from("thom:").toString("base64")), "Invalid or missing client_id parameter");
 			assert.deepStrictEqual(await seen("Basic"), "Invalid or missing client_id parameter");
+		});
+	});
+
+	describe("expired (SOAJS)", function () {
+		it("is true unless expires is a valid Date after now", () => {
+			const now = new Date();
+			assert.strictEqual(oauth2server.expired(new Date(now.getTime() + 1000), now), false);
+			for (const expires of [new Date(now.getTime() - 1000), null, undefined, "2099-01-01", 4102444800000, new Date("nope"), {}]) {
+				assert.strictEqual(oauth2server.expired(expires, now), true, String(expires));
+			}
 		});
 	});
 

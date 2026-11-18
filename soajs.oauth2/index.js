@@ -96,3 +96,5 @@ OAuth2Server.prototype.grant = function () {
 
 module.exports = OAuth2Server;
 module.exports.OAuth2Error = error;
+// whether a token's expires has passed or cannot be read (for the gateway's other token checks)
+module.exports.expired = error.expired;

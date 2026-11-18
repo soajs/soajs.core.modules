@@ -96,10 +96,8 @@ function checkToken(done) {
 				'The access token provided is invalid.'));
 		}
 
-		// as 2.4.1: null never expires; a missing expires has expired; any other value is compared
-		// with now as JavaScript compares it
-		if (token.expires !== null &&
-			(!token.expires || token.expires < new Date())) {
+		// expires must be a valid Date: null, a string or a missing value has expired
+		if (error.expired(token.expires)) {
 			return done(error('invalid_token',
 				'The access token provided has expired.'));
 		}

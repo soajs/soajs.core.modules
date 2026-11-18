@@ -15,3 +15,5 @@ Changes from 2.4.1, made by SOAJS:
 - the refresh_token grant revokes the used refresh token before issuing new ones, and answers
   "Invalid refresh token" when the model did not remove it (another request used it first);
 - the Basic authorization header is parsed here (basic-auth 0.0.1 rules), without the package.
+- a token's expires must be a valid Date: null, a string, a missing value or an invalid Date has
+  expired (2.4.1 let null, a string and an invalid Date never expire).
